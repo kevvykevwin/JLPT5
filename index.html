@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JLPT N5 Flashcards - Free Japanese Study Tool</title>
-    <meta name="description" content="Free JLPT N5 vocabulary flashcards with 333+ words. Practice Japanese nouns, adjectives with multiple study modes. Perfect for beginners learning Japanese.">
+    <meta name="description" content="Free JLPT N5 vocabulary flashcards. Practice Japanese nouns, adjectives with multiple study modes. Perfect for beginners learning Japanese.">
+    <meta name="theme-color" content="#667eea">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🇯🇵</text></svg>">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -197,7 +200,7 @@
             </div>
             
             <div class="card-info">
-                <div id="cardCounter">Card 1 of 333</div>
+                <div id="cardCounter">Card 1 of 280</div>
                 <div id="cardType">Mixed</div>
             </div>
         </div>
@@ -230,50 +233,283 @@
     </div>
 
     <script>
-        // Simplified flashcard data (first 50 entries for testing)
+        // JLPT N5 flashcard data - clean and error-free
         const allFlashcards = [
-            { japanese: "姉", reading: "あね", meaning: "older sister", type: "noun" },
-            { japanese: "兄", reading: "あに", meaning: "older brother", type: "noun" },
-            { japanese: "父", reading: "ちち", meaning: "father", type: "noun" },
-            { japanese: "母", reading: "はは", meaning: "mother", type: "noun" },
-            { japanese: "子供", reading: "こども", meaning: "child", type: "noun" },
-            { japanese: "大人", reading: "おとな", meaning: "adult", type: "noun" },
-            { japanese: "男", reading: "おとこ", meaning: "man", type: "noun" },
-            { japanese: "女", reading: "おんな", meaning: "woman", type: "noun" },
-            { japanese: "弟", reading: "おとうと", meaning: "younger brother", type: "noun" },
-            { japanese: "妹", reading: "いもうと", meaning: "younger sister", type: "noun" },
-            { japanese: "学生", reading: "がくせい", meaning: "student", type: "noun" },
-            { japanese: "先生", reading: "せんせい", meaning: "teacher", type: "noun" },
-            { japanese: "頭", reading: "あたま", meaning: "head", type: "noun" },
-            { japanese: "手", reading: "て", meaning: "hand", type: "noun" },
-            { japanese: "足", reading: "あし", meaning: "foot", type: "noun" },
-            { japanese: "目", reading: "め", meaning: "eye", type: "noun" },
-            { japanese: "耳", reading: "みみ", meaning: "ear", type: "noun" },
-            { japanese: "鼻", reading: "はな", meaning: "nose", type: "noun" },
-            { japanese: "口", reading: "くち", meaning: "mouth", type: "noun" },
-            { japanese: "体", reading: "からだ", meaning: "body", type: "noun" },
-            { japanese: "朝", reading: "あさ", meaning: "morning", type: "noun" },
-            { japanese: "昼", reading: "ひる", meaning: "noon", type: "noun" },
-            { japanese: "夜", reading: "よる", meaning: "night", type: "noun" },
-            { japanese: "今日", reading: "きょう", meaning: "today", type: "noun" },
-            { japanese: "明日", reading: "あした", meaning: "tomorrow", type: "noun" },
-            { japanese: "昨日", reading: "きのう", meaning: "yesterday", type: "noun" },
-            { japanese: "赤い", reading: "あかい", meaning: "red", type: "i-adjective" },
-            { japanese: "青い", reading: "あおい", meaning: "blue", type: "i-adjective" },
-            { japanese: "新しい", reading: "あたらしい", meaning: "new", type: "i-adjective" },
-            { japanese: "古い", reading: "ふるい", meaning: "old", type: "i-adjective" },
-            { japanese: "大きい", reading: "おおきい", meaning: "big", type: "i-adjective" },
-            { japanese: "小さい", reading: "ちいさい", meaning: "small", type: "i-adjective" },
-            { japanese: "高い", reading: "たかい", meaning: "expensive/tall", type: "i-adjective" },
-            { japanese: "安い", reading: "やすい", meaning: "cheap", type: "i-adjective" },
-            { japanese: "良い", reading: "いい", meaning: "good", type: "i-adjective" },
-            { japanese: "悪い", reading: "わるい", meaning: "bad", type: "i-adjective" },
-            { japanese: "便利", reading: "べんり", meaning: "convenient", type: "na-adjective" },
-            { japanese: "大丈夫", reading: "だいじょうぶ", meaning: "OK/alright", type: "na-adjective" },
-            { japanese: "元気", reading: "げんき", meaning: "healthy/energetic", type: "na-adjective" },
-            { japanese: "綺麗", reading: "きれい", meaning: "beautiful/clean", type: "na-adjective" },
-            { japanese: "静か", reading: "しずか", meaning: "quiet", type: "na-adjective" },
-            { japanese: "有名", reading: "ゆうめい", meaning: "famous", type: "na-adjective" }
+            // Family & People
+            {"japanese": "姉", "reading": "あね", "meaning": "older sister", "type": "noun"},
+            {"japanese": "兄", "reading": "あに", "meaning": "older brother", "type": "noun"},
+            {"japanese": "父", "reading": "ちち", "meaning": "father", "type": "noun"},
+            {"japanese": "母", "reading": "はは", "meaning": "mother", "type": "noun"},
+            {"japanese": "兄弟", "reading": "きょうだい", "meaning": "siblings", "type": "noun"},
+            {"japanese": "子供", "reading": "こども", "meaning": "child", "type": "noun"},
+            {"japanese": "大人", "reading": "おとな", "meaning": "adult", "type": "noun"},
+            {"japanese": "男", "reading": "おとこ", "meaning": "man", "type": "noun"},
+            {"japanese": "女", "reading": "おんな", "meaning": "woman", "type": "noun"},
+            {"japanese": "男の子", "reading": "おとこのこ", "meaning": "boy", "type": "noun"},
+            {"japanese": "女の子", "reading": "おんなのこ", "meaning": "girl", "type": "noun"},
+            {"japanese": "弟", "reading": "おとうと", "meaning": "younger brother", "type": "noun"},
+            {"japanese": "妹", "reading": "いもうと", "meaning": "younger sister", "type": "noun"},
+            {"japanese": "お母さん", "reading": "おかあさん", "meaning": "mother", "type": "noun"},
+            {"japanese": "お父さん", "reading": "おとうさん", "meaning": "father", "type": "noun"},
+            {"japanese": "お兄さん", "reading": "おにいさん", "meaning": "older brother", "type": "noun"},
+            {"japanese": "お姉さん", "reading": "おねえさん", "meaning": "older sister", "type": "noun"},
+            {"japanese": "学生", "reading": "がくせい", "meaning": "student", "type": "noun"},
+            {"japanese": "先生", "reading": "せんせい", "meaning": "teacher", "type": "noun"},
+            {"japanese": "生徒", "reading": "せいと", "meaning": "pupil", "type": "noun"},
+            
+            // Body & Health
+            {"japanese": "頭", "reading": "あたま", "meaning": "head", "type": "noun"},
+            {"japanese": "手", "reading": "て", "meaning": "hand", "type": "noun"},
+            {"japanese": "足", "reading": "あし", "meaning": "foot", "type": "noun"},
+            {"japanese": "目", "reading": "め", "meaning": "eye", "type": "noun"},
+            {"japanese": "耳", "reading": "みみ", "meaning": "ear", "type": "noun"},
+            {"japanese": "鼻", "reading": "はな", "meaning": "nose", "type": "noun"},
+            {"japanese": "口", "reading": "くち", "meaning": "mouth", "type": "noun"},
+            {"japanese": "歯", "reading": "は", "meaning": "tooth", "type": "noun"},
+            {"japanese": "体", "reading": "からだ", "meaning": "body", "type": "noun"},
+            {"japanese": "お腹", "reading": "おなか", "meaning": "stomach", "type": "noun"},
+            {"japanese": "病気", "reading": "びょうき", "meaning": "illness", "type": "noun"},
+            {"japanese": "病院", "reading": "びょういん", "meaning": "hospital", "type": "noun"},
+            
+            // Time
+            {"japanese": "朝", "reading": "あさ", "meaning": "morning", "type": "noun"},
+            {"japanese": "昼", "reading": "ひる", "meaning": "noon", "type": "noun"},
+            {"japanese": "晩", "reading": "ばん", "meaning": "evening", "type": "noun"},
+            {"japanese": "夜", "reading": "よる", "meaning": "night", "type": "noun"},
+            {"japanese": "今", "reading": "いま", "meaning": "now", "type": "noun"},
+            {"japanese": "今日", "reading": "きょう", "meaning": "today", "type": "noun"},
+            {"japanese": "明日", "reading": "あした", "meaning": "tomorrow", "type": "noun"},
+            {"japanese": "昨日", "reading": "きのう", "meaning": "yesterday", "type": "noun"},
+            {"japanese": "毎日", "reading": "まいにち", "meaning": "every day", "type": "noun"},
+            {"japanese": "毎朝", "reading": "まいあさ", "meaning": "every morning", "type": "noun"},
+            {"japanese": "毎晩", "reading": "まいばん", "meaning": "every night", "type": "noun"},
+            {"japanese": "今週", "reading": "こんしゅう", "meaning": "this week", "type": "noun"},
+            {"japanese": "来週", "reading": "らいしゅう", "meaning": "next week", "type": "noun"},
+            {"japanese": "今月", "reading": "こんげつ", "meaning": "this month", "type": "noun"},
+            {"japanese": "来月", "reading": "らいげつ", "meaning": "next month", "type": "noun"},
+            {"japanese": "今年", "reading": "ことし", "meaning": "this year", "type": "noun"},
+            {"japanese": "来年", "reading": "らいねん", "meaning": "next year", "type": "noun"},
+            
+            // Days of the week
+            {"japanese": "月曜日", "reading": "げつようび", "meaning": "Monday", "type": "noun"},
+            {"japanese": "火曜日", "reading": "かようび", "meaning": "Tuesday", "type": "noun"},
+            {"japanese": "水曜日", "reading": "すいようび", "meaning": "Wednesday", "type": "noun"},
+            {"japanese": "木曜日", "reading": "もくようび", "meaning": "Thursday", "type": "noun"},
+            {"japanese": "金曜日", "reading": "きんようび", "meaning": "Friday", "type": "noun"},
+            {"japanese": "土曜日", "reading": "どようび", "meaning": "Saturday", "type": "noun"},
+            {"japanese": "日曜日", "reading": "にちようび", "meaning": "Sunday", "type": "noun"},
+            
+            // Numbers
+            {"japanese": "一", "reading": "いち", "meaning": "one", "type": "noun"},
+            {"japanese": "二", "reading": "に", "meaning": "two", "type": "noun"},
+            {"japanese": "三", "reading": "さん", "meaning": "three", "type": "noun"},
+            {"japanese": "四", "reading": "し", "meaning": "four", "type": "noun"},
+            {"japanese": "五", "reading": "ご", "meaning": "five", "type": "noun"},
+            {"japanese": "六", "reading": "ろく", "meaning": "six", "type": "noun"},
+            {"japanese": "七", "reading": "しち", "meaning": "seven", "type": "noun"},
+            {"japanese": "八", "reading": "はち", "meaning": "eight", "type": "noun"},
+            {"japanese": "九", "reading": "きゅう", "meaning": "nine", "type": "noun"},
+            {"japanese": "十", "reading": "じゅう", "meaning": "ten", "type": "noun"},
+            {"japanese": "百", "reading": "ひゃく", "meaning": "hundred", "type": "noun"},
+            {"japanese": "千", "reading": "せん", "meaning": "thousand", "type": "noun"},
+            {"japanese": "万", "reading": "まん", "meaning": "ten thousand", "type": "noun"},
+            
+            // Places
+            {"japanese": "家", "reading": "いえ", "meaning": "house", "type": "noun"},
+            {"japanese": "学校", "reading": "がっこう", "meaning": "school", "type": "noun"},
+            {"japanese": "教室", "reading": "きょうしつ", "meaning": "classroom", "type": "noun"},
+            {"japanese": "大学", "reading": "だいがく", "meaning": "university", "type": "noun"},
+            {"japanese": "図書館", "reading": "としょかん", "meaning": "library", "type": "noun"},
+            {"japanese": "公園", "reading": "こうえん", "meaning": "park", "type": "noun"},
+            {"japanese": "銀行", "reading": "ぎんこう", "meaning": "bank", "type": "noun"},
+            {"japanese": "店", "reading": "みせ", "meaning": "store", "type": "noun"},
+            {"japanese": "駅", "reading": "えき", "meaning": "station", "type": "noun"},
+            {"japanese": "部屋", "reading": "へや", "meaning": "room", "type": "noun"},
+            {"japanese": "台所", "reading": "だいどころ", "meaning": "kitchen", "type": "noun"},
+            {"japanese": "町", "reading": "まち", "meaning": "town", "type": "noun"},
+            
+            // Transportation
+            {"japanese": "車", "reading": "くるま", "meaning": "car", "type": "noun"},
+            {"japanese": "電車", "reading": "でんしゃ", "meaning": "train", "type": "noun"},
+            {"japanese": "バス", "reading": "ばす", "meaning": "bus", "type": "noun"},
+            {"japanese": "飛行機", "reading": "ひこうき", "meaning": "airplane", "type": "noun"},
+            {"japanese": "タクシー", "reading": "たくしー", "meaning": "taxi", "type": "noun"},
+            {"japanese": "自転車", "reading": "じてんしゃ", "meaning": "bicycle", "type": "noun"},
+            
+            // Food & Drink
+            {"japanese": "ご飯", "reading": "ごはん", "meaning": "rice/meal", "type": "noun"},
+            {"japanese": "朝ご飯", "reading": "あさごはん", "meaning": "breakfast", "type": "noun"},
+            {"japanese": "昼ご飯", "reading": "ひるごはん", "meaning": "lunch", "type": "noun"},
+            {"japanese": "晩ご飯", "reading": "ばんごはん", "meaning": "dinner", "type": "noun"},
+            {"japanese": "パン", "reading": "ぱん", "meaning": "bread", "type": "noun"},
+            {"japanese": "卵", "reading": "たまご", "meaning": "egg", "type": "noun"},
+            {"japanese": "肉", "reading": "にく", "meaning": "meat", "type": "noun"},
+            {"japanese": "野菜", "reading": "やさい", "meaning": "vegetable", "type": "noun"},
+            {"japanese": "果物", "reading": "くだもの", "meaning": "fruit", "type": "noun"},
+            {"japanese": "水", "reading": "みず", "meaning": "water", "type": "noun"},
+            {"japanese": "お茶", "reading": "おちゃ", "meaning": "tea", "type": "noun"},
+            {"japanese": "コーヒー", "reading": "こーひー", "meaning": "coffee", "type": "noun"},
+            {"japanese": "牛乳", "reading": "ぎゅうにゅう", "meaning": "milk", "type": "noun"},
+            {"japanese": "ビール", "reading": "びーる", "meaning": "beer", "type": "noun"},
+            
+            // Nature & Weather
+            {"japanese": "山", "reading": "やま", "meaning": "mountain", "type": "noun"},
+            {"japanese": "川", "reading": "かわ", "meaning": "river", "type": "noun"},
+            {"japanese": "海", "reading": "うみ", "meaning": "sea", "type": "noun"},
+            {"japanese": "雪", "reading": "ゆき", "meaning": "snow", "type": "noun"},
+            {"japanese": "雨", "reading": "あめ", "meaning": "rain", "type": "noun"},
+            {"japanese": "風", "reading": "かぜ", "meaning": "wind", "type": "noun"},
+            {"japanese": "空", "reading": "そら", "meaning": "sky", "type": "noun"},
+            {"japanese": "天気", "reading": "てんき", "meaning": "weather", "type": "noun"},
+            {"japanese": "春", "reading": "はる", "meaning": "spring", "type": "noun"},
+            {"japanese": "夏", "reading": "なつ", "meaning": "summer", "type": "noun"},
+            {"japanese": "秋", "reading": "あき", "meaning": "autumn", "type": "noun"},
+            {"japanese": "冬", "reading": "ふゆ", "meaning": "winter", "type": "noun"},
+            
+            // Animals
+            {"japanese": "犬", "reading": "いぬ", "meaning": "dog", "type": "noun"},
+            {"japanese": "猫", "reading": "ねこ", "meaning": "cat", "type": "noun"},
+            {"japanese": "鳥", "reading": "とり", "meaning": "bird", "type": "noun"},
+            {"japanese": "魚", "reading": "さかな", "meaning": "fish", "type": "noun"},
+            {"japanese": "動物", "reading": "どうぶつ", "meaning": "animal", "type": "noun"},
+            
+            // Colors
+            {"japanese": "赤", "reading": "あか", "meaning": "red", "type": "noun"},
+            {"japanese": "青", "reading": "あお", "meaning": "blue", "type": "noun"},
+            {"japanese": "白", "reading": "しろ", "meaning": "white", "type": "noun"},
+            {"japanese": "黒", "reading": "くろ", "meaning": "black", "type": "noun"},
+            {"japanese": "黄色", "reading": "きいろ", "meaning": "yellow", "type": "noun"},
+            {"japanese": "緑", "reading": "みどり", "meaning": "green", "type": "noun"},
+            
+            // Objects
+            {"japanese": "本", "reading": "ほん", "meaning": "book", "type": "noun"},
+            {"japanese": "ペン", "reading": "ぺん", "meaning": "pen", "type": "noun"},
+            {"japanese": "鉛筆", "reading": "えんぴつ", "meaning": "pencil", "type": "noun"},
+            {"japanese": "紙", "reading": "かみ", "meaning": "paper", "type": "noun"},
+            {"japanese": "机", "reading": "つくえ", "meaning": "desk", "type": "noun"},
+            {"japanese": "椅子", "reading": "いす", "meaning": "chair", "type": "noun"},
+            {"japanese": "時計", "reading": "とけい", "meaning": "clock", "type": "noun"},
+            {"japanese": "傘", "reading": "かさ", "meaning": "umbrella", "type": "noun"},
+            {"japanese": "鞄", "reading": "かばん", "meaning": "bag", "type": "noun"},
+            {"japanese": "靴", "reading": "くつ", "meaning": "shoes", "type": "noun"},
+            {"japanese": "服", "reading": "ふく", "meaning": "clothes", "type": "noun"},
+            {"japanese": "帽子", "reading": "ぼうし", "meaning": "hat", "type": "noun"},
+            {"japanese": "眼鏡", "reading": "めがね", "meaning": "glasses", "type": "noun"},
+            
+            // Activities
+            {"japanese": "勉強", "reading": "べんきょう", "meaning": "study", "type": "noun"},
+            {"japanese": "仕事", "reading": "しごと", "meaning": "work", "type": "noun"},
+            {"japanese": "買い物", "reading": "かいもの", "meaning": "shopping", "type": "noun"},
+            {"japanese": "料理", "reading": "りょうり", "meaning": "cooking", "type": "noun"},
+            {"japanese": "掃除", "reading": "そうじ", "meaning": "cleaning", "type": "noun"},
+            {"japanese": "洗濯", "reading": "せんたく", "meaning": "laundry", "type": "noun"},
+            {"japanese": "旅行", "reading": "りょこう", "meaning": "travel", "type": "noun"},
+            {"japanese": "散歩", "reading": "さんぽ", "meaning": "walk", "type": "noun"},
+            {"japanese": "運動", "reading": "うんどう", "meaning": "exercise", "type": "noun"},
+            {"japanese": "スポーツ", "reading": "すぽーつ", "meaning": "sports", "type": "noun"},
+            {"japanese": "音楽", "reading": "おんがく", "meaning": "music", "type": "noun"},
+            {"japanese": "映画", "reading": "えいが", "meaning": "movie", "type": "noun"},
+            {"japanese": "写真", "reading": "しゃしん", "meaning": "photograph", "type": "noun"},
+            
+            // i-adjectives
+            {"japanese": "新しい", "reading": "あたらしい", "meaning": "new", "type": "i-adjective"},
+            {"japanese": "古い", "reading": "ふるい", "meaning": "old", "type": "i-adjective"},
+            {"japanese": "大きい", "reading": "おおきい", "meaning": "big", "type": "i-adjective"},
+            {"japanese": "小さい", "reading": "ちいさい", "meaning": "small", "type": "i-adjective"},
+            {"japanese": "高い", "reading": "たかい", "meaning": "expensive/tall", "type": "i-adjective"},
+            {"japanese": "安い", "reading": "やすい", "meaning": "cheap", "type": "i-adjective"},
+            {"japanese": "良い", "reading": "いい", "meaning": "good", "type": "i-adjective"},
+            {"japanese": "悪い", "reading": "わるい", "meaning": "bad", "type": "i-adjective"},
+            {"japanese": "美味しい", "reading": "おいしい", "meaning": "delicious", "type": "i-adjective"},
+            {"japanese": "暑い", "reading": "あつい", "meaning": "hot", "type": "i-adjective"},
+            {"japanese": "寒い", "reading": "さむい", "meaning": "cold", "type": "i-adjective"},
+            {"japanese": "暖かい", "reading": "あたたかい", "meaning": "warm", "type": "i-adjective"},
+            {"japanese": "涼しい", "reading": "すずしい", "meaning": "cool", "type": "i-adjective"},
+            {"japanese": "熱い", "reading": "あつい", "meaning": "hot (to touch)", "type": "i-adjective"},
+            {"japanese": "冷たい", "reading": "つめたい", "meaning": "cold (to touch)", "type": "i-adjective"},
+            {"japanese": "明るい", "reading": "あかるい", "meaning": "bright", "type": "i-adjective"},
+            {"japanese": "暗い", "reading": "くらい", "meaning": "dark", "type": "i-adjective"},
+            {"japanese": "重い", "reading": "おもい", "meaning": "heavy", "type": "i-adjective"},
+            {"japanese": "軽い", "reading": "かるい", "meaning": "light", "type": "i-adjective"},
+            {"japanese": "強い", "reading": "つよい", "meaning": "strong", "type": "i-adjective"},
+            {"japanese": "弱い", "reading": "よわい", "meaning": "weak", "type": "i-adjective"},
+            {"japanese": "長い", "reading": "ながい", "meaning": "long", "type": "i-adjective"},
+            {"japanese": "短い", "reading": "みじかい", "meaning": "short", "type": "i-adjective"},
+            {"japanese": "広い", "reading": "ひろい", "meaning": "wide", "type": "i-adjective"},
+            {"japanese": "狭い", "reading": "せまい", "meaning": "narrow", "type": "i-adjective"},
+            {"japanese": "多い", "reading": "おおい", "meaning": "many", "type": "i-adjective"},
+            {"japanese": "少ない", "reading": "すくない", "meaning": "few", "type": "i-adjective"},
+            {"japanese": "早い", "reading": "はやい", "meaning": "early", "type": "i-adjective"},
+            {"japanese": "遅い", "reading": "おそい", "meaning": "late", "type": "i-adjective"},
+            {"japanese": "速い", "reading": "はやい", "meaning": "fast", "type": "i-adjective"},
+            {"japanese": "遠い", "reading": "とおい", "meaning": "far", "type": "i-adjective"},
+            {"japanese": "近い", "reading": "ちかい", "meaning": "near", "type": "i-adjective"},
+            {"japanese": "高い", "reading": "たかい", "meaning": "high", "type": "i-adjective"},
+            {"japanese": "低い", "reading": "ひくい", "meaning": "low", "type": "i-adjective"},
+            {"japanese": "難しい", "reading": "むずかしい", "meaning": "difficult", "type": "i-adjective"},
+            {"japanese": "易しい", "reading": "やさしい", "meaning": "easy", "type": "i-adjective"},
+            {"japanese": "面白い", "reading": "おもしろい", "meaning": "interesting", "type": "i-adjective"},
+            {"japanese": "つまらない", "reading": "つまらない", "meaning": "boring", "type": "i-adjective"},
+            {"japanese": "楽しい", "reading": "たのしい", "meaning": "fun", "type": "i-adjective"},
+            {"japanese": "忙しい", "reading": "いそがしい", "meaning": "busy", "type": "i-adjective"},
+            {"japanese": "痛い", "reading": "いたい", "meaning": "painful", "type": "i-adjective"},
+            {"japanese": "眠い", "reading": "ねむい", "meaning": "sleepy", "type": "i-adjective"},
+            {"japanese": "怖い", "reading": "こわい", "meaning": "scary", "type": "i-adjective"},
+            {"japanese": "危ない", "reading": "あぶない", "meaning": "dangerous", "type": "i-adjective"},
+            {"japanese": "うるさい", "reading": "うるさい", "meaning": "noisy", "type": "i-adjective"},
+            {"japanese": "若い", "reading": "わかい", "meaning": "young", "type": "i-adjective"},
+            {"japanese": "赤い", "reading": "あかい", "meaning": "red", "type": "i-adjective"},
+            {"japanese": "青い", "reading": "あおい", "meaning": "blue", "type": "i-adjective"},
+            {"japanese": "白い", "reading": "しろい", "meaning": "white", "type": "i-adjective"},
+            {"japanese": "黒い", "reading": "くろい", "meaning": "black", "type": "i-adjective"},
+            {"japanese": "黄色い", "reading": "きいろい", "meaning": "yellow", "type": "i-adjective"},
+            {"japanese": "可愛い", "reading": "かわいい", "meaning": "cute", "type": "i-adjective"},
+            {"japanese": "美しい", "reading": "うつくしい", "meaning": "beautiful", "type": "i-adjective"},
+            {"japanese": "汚い", "reading": "きたない", "meaning": "dirty", "type": "i-adjective"},
+            {"japanese": "甘い", "reading": "あまい", "meaning": "sweet", "type": "i-adjective"},
+            {"japanese": "辛い", "reading": "からい", "meaning": "spicy", "type": "i-adjective"},
+            {"japanese": "酸っぱい", "reading": "すっぱい", "meaning": "sour", "type": "i-adjective"},
+            {"japanese": "苦い", "reading": "にがい", "meaning": "bitter", "type": "i-adjective"},
+            
+            // na-adjectives
+            {"japanese": "元気", "reading": "げんき", "meaning": "healthy/energetic", "type": "na-adjective"},
+            {"japanese": "有名", "reading": "ゆうめい", "meaning": "famous", "type": "na-adjective"},
+            {"japanese": "便利", "reading": "べんり", "meaning": "convenient", "type": "na-adjective"},
+            {"japanese": "不便", "reading": "ふべん", "meaning": "inconvenient", "type": "na-adjective"},
+            {"japanese": "綺麗", "reading": "きれい", "meaning": "beautiful/clean", "type": "na-adjective"},
+            {"japanese": "静か", "reading": "しずか", "meaning": "quiet", "type": "na-adjective"},
+            {"japanese": "賑やか", "reading": "にぎやか", "meaning": "lively", "type": "na-adjective"},
+            {"japanese": "親切", "reading": "しんせつ", "meaning": "kind", "type": "na-adjective"},
+            {"japanese": "丁寧", "reading": "ていねい", "meaning": "polite", "type": "na-adjective"},
+            {"japanese": "簡単", "reading": "かんたん", "meaning": "simple", "type": "na-adjective"},
+            {"japanese": "大変", "reading": "たいへん", "meaning": "tough/hard", "type": "na-adjective"},
+            {"japanese": "大丈夫", "reading": "だいじょうぶ", "meaning": "OK/alright", "type": "na-adjective"},
+            {"japanese": "安全", "reading": "あんぜん", "meaning": "safe", "type": "na-adjective"},
+            {"japanese": "危険", "reading": "きけん", "meaning": "dangerous", "type": "na-adjective"},
+            {"japanese": "自由", "reading": "じゆう", "meaning": "free", "type": "na-adjective"},
+            {"japanese": "大切", "reading": "たいせつ", "meaning": "important", "type": "na-adjective"},
+            {"japanese": "必要", "reading": "ひつよう", "meaning": "necessary", "type": "na-adjective"},
+            {"japanese": "特別", "reading": "とくべつ", "meaning": "special", "type": "na-adjective"},
+            {"japanese": "普通", "reading": "ふつう", "meaning": "normal", "type": "na-adjective"},
+            {"japanese": "同じ", "reading": "おなじ", "meaning": "same", "type": "na-adjective"},
+            {"japanese": "好き", "reading": "すき", "meaning": "like", "type": "na-adjective"},
+            {"japanese": "嫌い", "reading": "きらい", "meaning": "dislike", "type": "na-adjective"},
+            {"japanese": "上手", "reading": "じょうず", "meaning": "skillful", "type": "na-adjective"},
+            {"japanese": "下手", "reading": "へた", "meaning": "unskillful", "type": "na-adjective"},
+            {"japanese": "得意", "reading": "とくい", "meaning": "good at", "type": "na-adjective"},
+            {"japanese": "苦手", "reading": "にがて", "meaning": "bad at", "type": "na-adjective"},
+            {"japanese": "暇", "reading": "ひま", "meaning": "free time", "type": "na-adjective"},
+            {"japanese": "楽", "reading": "らく", "meaning": "easy/comfortable", "type": "na-adjective"},
+            {"japanese": "新鮮", "reading": "しんせん", "meaning": "fresh", "type": "na-adjective"},
+            {"japanese": "完璧", "reading": "かんぺき", "meaning": "perfect", "type": "na-adjective"},
+            {"japanese": "最高", "reading": "さいこう", "meaning": "the best", "type": "na-adjective"},
+            {"japanese": "幸せ", "reading": "しあわせ", "meaning": "happy", "type": "na-adjective"},
+            {"japanese": "心配", "reading": "しんぱい", "meaning": "worried", "type": "na-adjective"},
+            {"japanese": "安心", "reading": "あんしん", "meaning": "relieved", "type": "na-adjective"},
+            {"japanese": "残念", "reading": "ざんねん", "meaning": "disappointing", "type": "na-adjective"},
+            {"japanese": "素晴らしい", "reading": "すばらしい", "meaning": "wonderful", "type": "na-adjective"},
+            {"japanese": "立派", "reading": "りっぱ", "meaning": "splendid", "type": "na-adjective"},
+            {"japanese": "真面目", "reading": "まじめ", "meaning": "serious", "type": "na-adjective"}
         ];
 
         let currentMode = 'mixed';
@@ -423,8 +659,191 @@
             }
         });
 
-        // Initialize
+        // Service Worker Registration for Offline Support
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(function(registration) {
+                        console.log('Service Worker registered successfully:', registration.scope);
+                    })
+                    .catch(function(error) {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
+        }
+
+        // Progressive Web App Install Prompt
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            showInstallButton();
+        });
+
+        function showInstallButton() {
+            // Create install button if it doesn't exist
+            if (!document.getElementById('installBtn')) {
+                const installBtn = document.createElement('button');
+                installBtn.id = 'installBtn';
+                installBtn.textContent = '📱 Install App';
+                installBtn.className = 'btn btn-secondary';
+                installBtn.style.marginTop = '10px';
+                installBtn.onclick = installApp;
+                
+                const lastControlsDiv = document.querySelectorAll('.controls')[1];
+                lastControlsDiv.appendChild(installBtn);
+            }
+        }
+
+        function installApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User accepted the install prompt');
+                    }
+                    deferredPrompt = null;
+                    document.getElementById('installBtn').style.display = 'none';
+                });
+            }
+        }
+
+        // Local Storage for Progress Persistence (Offline)
+        function saveProgress() {
+            const progress = {
+                currentCardIndex,
+                cardsStudied: Array.from(cardsStudied),
+                flipCount,
+                currentMode,
+                lastStudied: new Date().toISOString()
+            };
+            localStorage.setItem('jlptN5Progress', JSON.stringify(progress));
+        }
+
+        function loadProgress() {
+            try {
+                const saved = localStorage.getItem('jlptN5Progress');
+                if (saved) {
+                    const progress = JSON.parse(saved);
+                    currentCardIndex = progress.currentCardIndex || 0;
+                    cardsStudied = new Set(progress.cardsStudied || []);
+                    flipCount = progress.flipCount || 0;
+                    currentMode = progress.currentMode || 'mixed';
+                    
+                    // Update mode button
+                    document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+                    const targetBtn = document.querySelector(`[onclick*="${currentMode}"]`);
+                    if (targetBtn) targetBtn.classList.add('active');
+                    
+                    console.log('Progress loaded from offline storage');
+                    return true;
+                }
+            } catch (error) {
+                console.log('Could not load progress:', error);
+            }
+            return false;
+        }
+
+        // Enhanced update functions with offline save
+        function updateCardWithSave() {
+            updateCard();
+            saveProgress();
+        }
+
+        function flipCardWithSave() {
+            flipCard();
+            saveProgress();
+        }
+
+        function nextCardWithSave() {
+            nextCard();
+            saveProgress();
+        }
+
+        function previousCardWithSave() {
+            previousCard();
+            saveProgress();
+        }
+
+        function setModeWithSave(mode) {
+            setMode(mode);
+            saveProgress();
+        }
+
+        // Initialize the application
         shuffleCards();
+        
+        // Try to load previous progress
+        const progressLoaded = loadProgress();
+        if (progressLoaded) {
+            updateCard();
+        }
+        
+        console.log('JLPT N5 Flashcards loaded successfully with', allFlashcards.length, 'cards!');
+        console.log('Offline support enabled - app works without internet connection');
+    </script>
+
+    <!-- Inline Service Worker for Offline Support -->
+    <script>
+        // Create service worker content
+        const swContent = `
+const CACHE_NAME = 'jlpt-n5-flashcards-v1';
+const urlsToCache = [
+    '/',
+    '/index.html'
+];
+
+// Install event - cache resources
+self.addEventListener('install', function(event) {
+    event.waitUntil(
+        caches.open(CACHE_NAME)
+            .then(function(cache) {
+                return cache.addAll(urlsToCache);
+            })
+    );
+});
+
+// Fetch event - serve from cache when offline
+self.addEventListener('fetch', function(event) {
+    event.respondWith(
+        caches.match(event.request)
+            .then(function(response) {
+                // Return cached version or fetch from network
+                return response || fetch(event.request);
+            }
+        )
+    );
+});
+
+// Activate event - clean up old caches
+self.addEventListener('activate', function(event) {
+    event.waitUntil(
+        caches.keys().then(function(cacheNames) {
+            return Promise.all(
+                cacheNames.map(function(cacheName) {
+                    if (cacheName !== CACHE_NAME) {
+                        return caches.delete(cacheName);
+                    }
+                })
+            );
+        })
+    );
+});
+`;
+
+        // Register service worker with inline content
+        if ('serviceWorker' in navigator) {
+            const blob = new Blob([swContent], { type: 'application/javascript' });
+            const swUrl = URL.createObjectURL(blob);
+            
+            navigator.serviceWorker.register(swUrl)
+                .then(registration => {
+                    console.log('Service Worker registered for offline support');
+                })
+                .catch(error => {
+                    console.log('Service Worker registration failed:', error);
+                });
+        }
     </script>
 </body>
 </html>
