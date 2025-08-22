@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JLPT N5 Flashcards - Free Japanese Study Tool</title>
+    <meta name="description" content="Free JLPT N5 vocabulary flashcards with 333+ words. Practice Japanese nouns, adjectives with multiple study modes. Perfect for beginners learning Japanese.">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .flashcard-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            text-align: center;
+            max-width: 600px;
+            width: 100%;
+        }
+        
+        .header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+        
+        .mode-selector {
+            margin: 20px 0;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .mode-btn {
+            padding: 8px 16px;
+            border: 2px solid #ddd;
+            border-radius: 20px;
+            background: white;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        
+        .mode-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .progress {
+            background: #f0f0f0;
+            border-radius: 10px;
+            height: 8px;
+            margin: 20px 0;
+        }
+        
+        .progress-bar {
+            background: linear-gradient(90deg, #4CAF50, #45a049);
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+        
+        .card-info {
+            display: flex;
+            justify-content: space-between;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        
+        .flashcard {
+            background: #f9f9f9;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 40px 20px;
+            min-height: 220px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 30px;
+        }
+        
+        .flashcard:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+        }
+        
+        .flashcard.flipped {
+            background: #e8f5e8;
+            border-color: #4CAF50;
+        }
+        
+        .japanese-word {
+            font-size: 42px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            font-family: 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
+        }
+        
+        .reading {
+            font-size: 22px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .meaning {
+            font-size: 26px;
+            color: #2e7d32;
+            font-weight: bold;
+        }
+        
+        .prompt-text {
+            font-size: 18px;
+            color: #888;
+            margin-bottom: 20px;
+            font-style: italic;
+        }
+        
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+            border: 2px solid #ddd;
+        }
+        
+        .stats {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            display: none;
+        }
+        
+        .stats.show { display: block; }
+        
+        @media (max-width: 480px) {
+            .flashcard-container { padding: 20px; }
+            .japanese-word { font-size: 32px; }
+            .controls { flex-direction: column; align-items: center; }
+            .btn { width: 100%; max-width: 200px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="flashcard-container">
+        <div class="header">
+            <h1>JLPT N5 Comprehensive Study</h1>
+            
+            <div class="mode-selector">
+                <button class="mode-btn active" onclick="setMode('mixed')">🔀 Mixed Practice</button>
+                <button class="mode-btn" onclick="setMode('jp-to-en')">🇯🇵→🇺🇸 JP to EN</button>
+                <button class="mode-btn" onclick="setMode('en-to-jp')">🇺🇸→🇯🇵 EN to JP</button>
+                <button class="mode-btn" onclick="setMode('reading')">📖 Reading Practice</button>
+            </div>
+            
+            <div class="progress">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            
+            <div class="card-info">
+                <div id="cardCounter">Card 1 of 333</div>
+                <div id="cardType">Mixed</div>
+            </div>
+        </div>
+        
+        <div class="flashcard" id="flashcard" onclick="flipCard()">
+            <div class="prompt-text" id="promptText"></div>
+            <div class="japanese-word" id="japaneseWord">Loading...</div>
+            <div class="reading" id="reading">Loading...</div>
+            <div class="meaning" id="meaning" style="display: none;">Loading...</div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn btn-secondary" onclick="previousCard()">← Previous</button>
+            <button class="btn btn-primary" onclick="flipCard()">Flip Card</button>
+            <button class="btn btn-primary" onclick="nextCard()">Next →</button>
+        </div>
+        
+        <div class="controls">
+            <button class="btn btn-secondary" onclick="shuffleCards()">🔄 Shuffle</button>
+            <button class="btn btn-secondary" onclick="resetProgress()">🔄 Reset</button>
+            <button class="btn btn-secondary" onclick="toggleStats()">📊 Stats</button>
+        </div>
+        
+        <div class="stats" id="stats">
+            <h3>Study Statistics</h3>
+            <p>Cards studied: <span id="cardsStudied">0</span></p>
+            <p>Times flipped: <span id="timesFlipped">0</span></p>
+            <p>Progress: <span id="progressPercent">0%</span></p>
+        </div>
+    </div>
+
+    <script>
+        // Simplified flashcard data (first 50 entries for testing)
+        const allFlashcards = [
+            { japanese: "姉", reading: "あね", meaning: "older sister", type: "noun" },
+            { japanese: "兄", reading: "あに", meaning: "older brother", type: "noun" },
+            { japanese: "父", reading: "ちち", meaning: "father", type: "noun" },
+            { japanese: "母", reading: "はは", meaning: "mother", type: "noun" },
+            { japanese: "子供", reading: "こども", meaning: "child", type: "noun" },
+            { japanese: "大人", reading: "おとな", meaning: "adult", type: "noun" },
+            { japanese: "男", reading: "おとこ", meaning: "man", type: "noun" },
+            { japanese: "女", reading: "おんな", meaning: "woman", type: "noun" },
+            { japanese: "弟", reading: "おとうと", meaning: "younger brother", type: "noun" },
+            { japanese: "妹", reading: "いもうと", meaning: "younger sister", type: "noun" },
+            { japanese: "学生", reading: "がくせい", meaning: "student", type: "noun" },
+            { japanese: "先生", reading: "せんせい", meaning: "teacher", type: "noun" },
+            { japanese: "頭", reading: "あたま", meaning: "head", type: "noun" },
+            { japanese: "手", reading: "て", meaning: "hand", type: "noun" },
+            { japanese: "足", reading: "あし", meaning: "foot", type: "noun" },
+            { japanese: "目", reading: "め", meaning: "eye", type: "noun" },
+            { japanese: "耳", reading: "みみ", meaning: "ear", type: "noun" },
+            { japanese: "鼻", reading: "はな", meaning: "nose", type: "noun" },
+            { japanese: "口", reading: "くち", meaning: "mouth", type: "noun" },
+            { japanese: "体", reading: "からだ", meaning: "body", type: "noun" },
+            { japanese: "朝", reading: "あさ", meaning: "morning", type: "noun" },
+            { japanese: "昼", reading: "ひる", meaning: "noon", type: "noun" },
+            { japanese: "夜", reading: "よる", meaning: "night", type: "noun" },
+            { japanese: "今日", reading: "きょう", meaning: "today", type: "noun" },
+            { japanese: "明日", reading: "あした", meaning: "tomorrow", type: "noun" },
+            { japanese: "昨日", reading: "きのう", meaning: "yesterday", type: "noun" },
+            { japanese: "赤い", reading: "あかい", meaning: "red", type: "i-adjective" },
+            { japanese: "青い", reading: "あおい", meaning: "blue", type: "i-adjective" },
+            { japanese: "新しい", reading: "あたらしい", meaning: "new", type: "i-adjective" },
+            { japanese: "古い", reading: "ふるい", meaning: "old", type: "i-adjective" },
+            { japanese: "大きい", reading: "おおきい", meaning: "big", type: "i-adjective" },
+            { japanese: "小さい", reading: "ちいさい", meaning: "small", type: "i-adjective" },
+            { japanese: "高い", reading: "たかい", meaning: "expensive/tall", type: "i-adjective" },
+            { japanese: "安い", reading: "やすい", meaning: "cheap", type: "i-adjective" },
+            { japanese: "良い", reading: "いい", meaning: "good", type: "i-adjective" },
+            { japanese: "悪い", reading: "わるい", meaning: "bad", type: "i-adjective" },
+            { japanese: "便利", reading: "べんり", meaning: "convenient", type: "na-adjective" },
+            { japanese: "大丈夫", reading: "だいじょうぶ", meaning: "OK/alright", type: "na-adjective" },
+            { japanese: "元気", reading: "げんき", meaning: "healthy/energetic", type: "na-adjective" },
+            { japanese: "綺麗", reading: "きれい", meaning: "beautiful/clean", type: "na-adjective" },
+            { japanese: "静か", reading: "しずか", meaning: "quiet", type: "na-adjective" },
+            { japanese: "有名", reading: "ゆうめい", meaning: "famous", type: "na-adjective" }
+        ];
+
+        let currentMode = 'mixed';
+        let currentCardIndex = 0;
+        let isFlipped = false;
+        let cardsStudied = new Set();
+        let flipCount = 0;
+        let currentDeck = [...allFlashcards];
+
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        function setMode(mode) {
+            currentMode = mode;
+            document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            updateCard();
+        }
+
+        function updateCard() {
+            const card = currentDeck[currentCardIndex];
+            const promptText = document.getElementById('promptText');
+            const japaneseWord = document.getElementById('japaneseWord');
+            const reading = document.getElementById('reading');
+            const meaning = document.getElementById('meaning');
+
+            // Reset display
+            promptText.textContent = '';
+            meaning.style.display = 'none';
+            japaneseWord.style.fontSize = '42px';
+            isFlipped = false;
+            document.getElementById('flashcard').classList.remove('flipped');
+
+            switch (currentMode) {
+                case 'mixed':
+                    japaneseWord.textContent = card.japanese;
+                    reading.textContent = card.reading;
+                    meaning.textContent = card.meaning;
+                    break;
+                case 'jp-to-en':
+                    japaneseWord.textContent = card.japanese;
+                    reading.textContent = '';
+                    meaning.textContent = card.meaning + ' (' + card.reading + ')';
+                    break;
+                case 'en-to-jp':
+                    promptText.textContent = 'What is the Japanese for:';
+                    japaneseWord.textContent = card.meaning;
+                    japaneseWord.style.fontSize = '28px';
+                    reading.textContent = '';
+                    meaning.textContent = card.japanese + ' (' + card.reading + ')';
+                    break;
+                case 'reading':
+                    promptText.textContent = 'What does this reading mean?';
+                    japaneseWord.textContent = card.reading;
+                    reading.textContent = '';
+                    meaning.textContent = card.japanese + ' - ' + card.meaning;
+                    break;
+            }
+
+            // Update progress
+            document.getElementById('cardCounter').textContent = 
+                `Card ${currentCardIndex + 1} of ${currentDeck.length}`;
+            document.getElementById('progressBar').style.width = 
+                ((currentCardIndex + 1) / currentDeck.length) * 100 + '%';
+
+            cardsStudied.add(currentCardIndex);
+            updateStats();
+        }
+
+        function flipCard() {
+            const meaning = document.getElementById('meaning');
+            const flashcard = document.getElementById('flashcard');
+            
+            if (isFlipped) {
+                meaning.style.display = 'none';
+                flashcard.classList.remove('flipped');
+            } else {
+                meaning.style.display = 'block';
+                flashcard.classList.add('flipped');
+                flipCount++;
+            }
+            isFlipped = !isFlipped;
+            updateStats();
+        }
+
+        function nextCard() {
+            if (currentCardIndex < currentDeck.length - 1) {
+                currentCardIndex++;
+                updateCard();
+            }
+        }
+
+        function previousCard() {
+            if (currentCardIndex > 0) {
+                currentCardIndex--;
+                updateCard();
+            }
+        }
+
+        function shuffleCards() {
+            currentDeck = shuffleArray(allFlashcards);
+            currentCardIndex = 0;
+            cardsStudied.clear();
+            updateCard();
+        }
+
+        function resetProgress() {
+            currentCardIndex = 0;
+            cardsStudied.clear();
+            flipCount = 0;
+            updateCard();
+        }
+
+        function toggleStats() {
+            document.getElementById('stats').classList.toggle('show');
+        }
+
+        function updateStats() {
+            document.getElementById('cardsStudied').textContent = cardsStudied.size;
+            document.getElementById('timesFlipped').textContent = flipCount;
+            document.getElementById('progressPercent').textContent = 
+                Math.round((cardsStudied.size / currentDeck.length) * 100) + '%';
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(event) {
+            switch(event.key) {
+                case ' ':
+                case 'Enter':
+                    event.preventDefault();
+                    flipCard();
+                    break;
+                case 'ArrowLeft':
+                    event.preventDefault();
+                    previousCard();
+                    break;
+                case 'ArrowRight':
+                    event.preventDefault();
+                    nextCard();
+                    break;
+            }
+        });
+
+        // Initialize
+        shuffleCards();
+    </script>
+</body>
+</html>
