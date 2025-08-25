@@ -13,28 +13,45 @@
         
         body {
             font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, rgba(34, 87, 122, 0.9) 0%, rgba(56, 142, 60, 0.9) 50%, rgba(27, 94, 32, 0.9) 100%), 
+                        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800"><defs><pattern id="tree" x="0" y="0" width="200" height="400" patternUnits="userSpaceOnUse"><circle cx="100" cy="50" r="40" fill="%23388e3c" opacity="0.7"/><circle cx="70" cy="80" r="30" fill="%2343a047" opacity="0.6"/><circle cx="130" cy="75" r="35" fill="%234caf50" opacity="0.8"/><rect x="90" y="100" width="20" height="80" fill="%23795548"/><circle cx="150" cy="120" r="25" fill="%236a994e" opacity="0.7"/><circle cx="50" cy="130" r="20" fill="%23558b2f" opacity="0.6"/></pattern></defs><rect width="100%" height="100%" fill="url(%23tree)"/></svg>') center/cover;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
+            position: relative;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600"><g opacity="0.1"><path d="M100,500 Q150,200 200,500 T300,500" stroke="%23388e3c" stroke-width="8" fill="none"/><path d="M400,500 Q450,150 500,500 T600,500" stroke="%23388e3c" stroke-width="12" fill="none"/><circle cx="150" cy="180" r="60" fill="%234caf50"/><circle cx="450" cy="120" r="80" fill="%23558b2f"/><circle cx="180" cy="220" r="40" fill="%236a994e"/><circle cx="420" cy="160" r="50" fill="%2343a047"/><rect x="140" y="240" width="20" height="260" fill="%235d4037"/><rect x="440" y="200" width="25" height="300" fill="%23795548"/></g></svg>') center/cover;
+            pointer-events: none;
+            z-index: -1;
         }
         
         .flashcard-container {
-            background: white;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
             border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 15px 35px rgba(34, 87, 122, 0.3);
             padding: 40px;
             text-align: center;
             max-width: 600px;
             width: 100%;
+            border: 1px solid rgba(56, 142, 60, 0.2);
         }
         
         .header h1 {
-            color: #333;
+            color: #1b5e20;
             font-size: 28px;
             margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(34, 87, 122, 0.1);
         }
         
         .mode-selector {
@@ -70,7 +87,7 @@
         }
         
         .progress-bar {
-            background: linear-gradient(90deg, #4CAF50, #45a049);
+            background: linear-gradient(90deg, #43a047, #388e3c);
             height: 100%;
             border-radius: 10px;
             transition: width 0.3s ease;
@@ -80,14 +97,15 @@
         .card-info {
             display: flex;
             justify-content: space-between;
-            color: #666;
+            color: #2e7d32;
             font-size: 14px;
             margin-bottom: 20px;
+            font-weight: 500;
         }
         
         .flashcard {
-            background: #f9f9f9;
-            border: 2px solid #e0e0e0;
+            background: rgba(255, 255, 255, 0.9);
+            border: 2px solid rgba(56, 142, 60, 0.2);
             border-radius: 15px;
             padding: 40px 20px;
             min-height: 220px;
@@ -97,30 +115,35 @@
             cursor: pointer;
             transition: all 0.3s ease;
             margin-bottom: 30px;
+            backdrop-filter: blur(5px);
         }
         
         .flashcard:hover {
-            border-color: #667eea;
+            border-color: #388e3c;
             transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(56, 142, 60, 0.2);
         }
         
         .flashcard.flipped {
-            background: #e8f5e8;
-            border-color: #4CAF50;
+            background: rgba(232, 245, 233, 0.9);
+            border-color: #43a047;
+            box-shadow: 0 8px 20px rgba(67, 160, 71, 0.2);
         }
         
         .japanese-word {
             font-size: 42px;
             font-weight: bold;
-            color: #333;
+            color: #1b5e20;
             margin-bottom: 15px;
             font-family: 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
+            text-shadow: 0 2px 4px rgba(34, 87, 122, 0.1);
         }
         
         .reading {
             font-size: 22px;
-            color: #666;
+            color: #388e3c;
             margin-bottom: 20px;
+            font-weight: 500;
         }
         
         .meaning {
@@ -131,7 +154,7 @@
         
         .prompt-text {
             font-size: 18px;
-            color: #888;
+            color: #457a5a;
             margin-bottom: 20px;
             font-style: italic;
         }
@@ -222,6 +245,7 @@
             <button class="btn btn-secondary" onclick="shuffleCards()">🔄 Shuffle</button>
             <button class="btn btn-secondary" onclick="resetProgress()">🔄 Reset</button>
             <button class="btn btn-secondary" onclick="toggleStats()">📊 Stats</button>
+            <button class="btn btn-secondary" onclick="showFeedbackForm()">💬 Feedback</button>
         </div>
         
         <div class="stats" id="stats">
@@ -229,6 +253,51 @@
             <p>Cards studied: <span id="cardsStudied">0</span></p>
             <p>Times flipped: <span id="timesFlipped">0</span></p>
             <p>Progress: <span id="progressPercent">0%</span></p>
+        </div>
+
+        <!-- Feedback Modal -->
+        <div id="feedbackModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; backdrop-filter: blur(3px);">
+            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 15px; max-width: 500px; width: 90%; box-shadow: 0 20px 40px rgba(34, 87, 122, 0.3);">
+                <h3 style="color: #1b5e20; margin-bottom: 20px; text-align: center;">📝 Share Your Feedback</h3>
+                
+                <!-- Hidden Netlify Form -->
+                <form name="jlpt-feedback" method="POST" data-netlify="true" data-netlify-honeypot="bot-field" onsubmit="submitFeedback(event)">
+                    <!-- Hidden bot field -->
+                    <input type="hidden" name="bot-field" />
+                    <input type="hidden" name="form-name" value="jlpt-feedback" />
+                    
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; color: #2e7d32; margin-bottom: 5px; font-weight: 500;">How would you rate this app?</label>
+                        <div id="starRating" style="font-size: 24px; color: #ddd; cursor: pointer; margin-bottom: 10px;">
+                            ⭐⭐⭐⭐⭐
+                        </div>
+                        <input type="hidden" name="rating" id="ratingValue" value="5">
+                    </div>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; color: #2e7d32; margin-bottom: 5px; font-weight: 500;">Email (optional)</label>
+                        <input type="email" name="email" placeholder="your@email.com" 
+                               style="width: 100%; padding: 10px; border: 2px solid rgba(56, 142, 60, 0.3); border-radius: 8px; font-size: 14px;">
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; color: #2e7d32; margin-bottom: 5px; font-weight: 500;">Your feedback</label>
+                        <textarea name="feedback" placeholder="What do you think about the app? Any suggestions or issues?" 
+                                  style="width: 100%; height: 100px; padding: 10px; border: 2px solid rgba(56, 142, 60, 0.3); border-radius: 8px; resize: vertical; font-family: inherit; font-size: 14px;"
+                                  required></textarea>
+                    </div>
+                    
+                    <div style="text-align: center;">
+                        <button type="submit" class="btn btn-primary" style="margin-right: 10px;">Send Feedback</button>
+                        <button type="button" class="btn btn-secondary" onclick="hideFeedbackForm()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Success Message -->
+        <div id="successMessage" style="display: none; position: fixed; top: 20px; right: 20px; background: #43a047; color: white; padding: 15px 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(67, 160, 71, 0.3); z-index: 1001;">
+            ✅ Thank you for your feedback!
         </div>
     </div>
 
@@ -632,6 +701,68 @@
         function toggleStats() {
             document.getElementById('stats').classList.toggle('show');
         }
+
+        // Feedback System Functions
+        function showFeedbackForm() {
+            document.getElementById('feedbackModal').style.display = 'block';
+            setupStarRating();
+        }
+
+        function hideFeedbackForm() {
+            document.getElementById('feedbackModal').style.display = 'none';
+        }
+
+        function setupStarRating() {
+            const starRating = document.getElementById('starRating');
+            const stars = ['⭐', '⭐', '⭐', '⭐', '⭐'];
+            let currentRating = 5;
+            
+            function updateStars() {
+                starRating.innerHTML = stars.map((star, index) => {
+                    return `<span style="color: ${index < currentRating ? '#ffb300' : '#ddd'}; cursor: pointer;" onclick="setRating(${index + 1})">${star}</span>`;
+                }).join('');
+            }
+            
+            window.setRating = function(rating) {
+                currentRating = rating;
+                document.getElementById('ratingValue').value = rating;
+                updateStars();
+            };
+            
+            updateStars();
+        }
+
+        function submitFeedback(event) {
+            event.preventDefault();
+            
+            // Show success message
+            document.getElementById('successMessage').style.display = 'block';
+            setTimeout(() => {
+                document.getElementById('successMessage').style.display = 'none';
+            }, 3000);
+            
+            // Hide modal
+            hideFeedbackForm();
+            
+            // Submit the form
+            const form = event.target;
+            fetch('/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams(new FormData(form)).toString()
+            }).catch(error => console.log('Feedback submission error:', error));
+            
+            // Reset form
+            form.reset();
+        }
+
+        // Close modal when clicking outside
+        document.addEventListener('click', function(event) {
+            const modal = document.getElementById('feedbackModal');
+            if (event.target === modal) {
+                hideFeedbackForm();
+            }
+        });
 
         function updateStats() {
             document.getElementById('cardsStudied').textContent = cardsStudied.size;
