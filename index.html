@@ -269,13 +269,13 @@
                     <div style="margin-bottom: 15px;">
                         <label style="display: block; color: #2e7d32; margin-bottom: 5px; font-weight: 500;">Email (optional)</label>
                         <input type="email" name="email" placeholder="your@email.com" 
-                               style="width: 100%; padding: 10px; border: 2px solid rgba(56, 142, 60, 0.3); border-radius: 8px; font-size: 14px; box-sizing: border-box;">
+                               style="width: 100%; padding: 10px; border: 2px solid rgba(56, 142, 60, 0.3); border-radius: 8px; font-size: 14px; box-sizing: border-box; outline: none;">
                     </div>
                     
                     <div style="margin-bottom: 20px;">
                         <label style="display: block; color: #2e7d32; margin-bottom: 5px; font-weight: 500;">Your feedback</label>
                         <textarea name="feedback" placeholder="What do you think about the app? Any suggestions or issues?" 
-                                  style="width: 100%; height: 100px; padding: 10px; border: 2px solid rgba(56, 142, 60, 0.3); border-radius: 8px; resize: vertical; font-family: inherit; font-size: 14px; box-sizing: border-box; line-height: 1.4;"
+                                  style="width: 100%; height: 100px; padding: 10px; border: 2px solid rgba(56, 142, 60, 0.3); border-radius: 8px; resize: vertical; font-family: inherit; font-size: 14px; box-sizing: border-box; line-height: 1.4; outline: none;"
                                   required></textarea>
                     </div>
                     
@@ -694,34 +694,40 @@
             document.getElementById('stats').classList.toggle('show');
         }
 
+        let keyboardListenerActive = true;
+
+        // Keyboard shortcuts - only when not in modal
+        function handleKeyboard(event) {
+            if (!keyboardListenerActive) return;
+            
+            switch(event.key) {
+                case ' ':
+                case 'Enter':
+                    event.preventDefault();
+                    flipCard();
+                    break;
+                case 'ArrowLeft':
+                    event.preventDefault();
+                    previousCard();
+                    break;
+                case 'ArrowRight':
+                    event.preventDefault();
+                    nextCard();
+                    break;
+            }
+        }
+
+        document.addEventListener('keydown', handleKeyboard);
+
         // Feedback System Functions
         function showFeedbackForm() {
             document.getElementById('feedbackModal').style.display = 'block';
-            setupStarRating();
+            keyboardListenerActive = false; // Disable keyboard shortcuts
         }
 
         function hideFeedbackForm() {
             document.getElementById('feedbackModal').style.display = 'none';
-        }
-
-        function setupStarRating() {
-            const starRating = document.getElementById('starRating');
-            const stars = ['⭐', '⭐', '⭐', '⭐', '⭐'];
-            let currentRating = 5;
-            
-            function updateStars() {
-                starRating.innerHTML = stars.map((star, index) => {
-                    return `<span style="color: ${index < currentRating ? '#ffb300' : '#ddd'}; cursor: pointer;" onclick="setRating(${index + 1})">${star}</span>`;
-                }).join('');
-            }
-            
-            window.setRating = function(rating) {
-                currentRating = rating;
-                document.getElementById('ratingValue').value = rating;
-                updateStars();
-            };
-            
-            updateStars();
+            keyboardListenerActive = true; // Re-enable keyboard shortcuts
         }
 
         function submitFeedback(event) {
@@ -733,7 +739,7 @@
                 document.getElementById('successMessage').style.display = 'none';
             }, 3000);
             
-            // Hide modal
+            // Hide modal and re-enable keyboard
             hideFeedbackForm();
             
             // Submit the form
@@ -756,15 +762,23 @@
             }
         });
 
-        function updateStats() {
-            document.getElementById('cardsStudied').textContent = cardsStudied.size;
-            document.getElementById('timesFlipped').textContent = flipCount;
-            document.getElementById('progressPercent').textContent = 
-                Math.round((cardsStudied.size / currentDeck.length) * 100) + '%';
-        }
-
-        // Keyboard shortcuts
+        // Prevent space key from triggering flashcard flip when typing in form fields
         document.addEventListener('keydown', function(event) {
+            // Check if we're typing in any form element
+            const activeElement = document.activeElement;
+            const isFormElement = activeElement && (
+                activeElement.tagName === 'TEXTAREA' || 
+                activeElement.tagName === 'INPUT' || 
+                activeElement.contentEditable === 'true' ||
+                activeElement.isContentEditable
+            );
+            
+            // If we're in a form field, don't interfere with typing
+            if (isFormElement) {
+                return; // Allow all keys to work normally in form fields
+            }
+
+            // Only apply flashcard shortcuts when NOT in form fields
             switch(event.key) {
                 case ' ':
                 case 'Enter':
@@ -781,6 +795,33 @@
                     break;
             }
         });
+
+        // Additional event listeners to ensure form fields work properly
+        document.addEventListener('DOMContentLoaded', function() {
+            // Find all form inputs and textareas and add event listeners
+            const formElements = document.querySelectorAll('input, textarea');
+            formElements.forEach(element => {
+                element.addEventListener('keydown', function(e) {
+                    e.stopPropagation(); // Prevent event from bubbling up
+                });
+                element.addEventListener('keypress', function(e) {
+                    e.stopPropagation(); // Prevent event from bubbling up
+                });
+                element.addEventListener('keyup', function(e) {
+                    e.stopPropagation(); // Prevent event from bubbling up
+                });
+            });
+        });
+
+        function updateStats() {
+            document.getElementById('cardsStudied').textContent = cardsStudied.size;
+            document.getElementById('timesFlipped').textContent = flipCount;
+            document.getElementById('progressPercent').textContent = 
+                Math.round((cardsStudied.size / currentDeck.length) * 100) + '%';
+        }
+
+        // Keyboard shortcuts
+        // Note: These are now handled in the feedback section above to prevent conflicts
 
         // Service Worker Registration for Offline Support
         if ('serviceWorker' in navigator) {
