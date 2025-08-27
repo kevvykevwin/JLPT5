@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JLPT N5 Flashcards - Free Japanese Study Tool</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🇯🇵</text></svg>">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -430,7 +431,7 @@
         
         .stats {
             margin: 20px 0;
-            padding: 15px;
+            padding: 20px;
             background: #f8f9fa;
             border-radius: 10px;
             display: none;
@@ -444,7 +445,85 @@
 
         .stats h3 {
             color: #2e7d32; 
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 18px;
+        }
+
+        .category-stats {
+            margin-bottom: 20px;
+        }
+
+        .category-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .category-title {
+            font-weight: 600;
+            color: #2e7d32;
+            font-size: 14px;
+        }
+
+        .category-numbers {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .stacked-progress-bar {
+            height: 12px;
+            background: #e0e0e0;
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 5px;
+        }
+
+        .progress-segment {
+            height: 100%;
+            float: left;
+            transition: width 0.3s ease;
+        }
+
+        .studied-progress {
+            background: #81c784;
+        }
+
+        .quiz-correct {
+            background: #4caf50;
+        }
+
+        .quiz-incorrect {
+            background: #ffab91;
+        }
+
+        .progress-legend {
+            display: flex;
+            gap: 15px;
+            font-size: 11px;
+            margin-top: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .legend-color {
+            width: 8px;
+            height: 8px;
+            border-radius: 2px;
+        }
+
+        .overall-stats {
+            border-top: 2px solid #e0e0e0;
+            padding-top: 15px;
+            margin-top: 15px;
         }
 
         .footer-actions {
@@ -701,11 +780,14 @@
         </div>
         
         <div class="stats" id="stats">
-            <h3 style="color: #2e7d32; margin-bottom: 15px;">Study Statistics</h3>
-            <p><strong>Cards studied:</strong> <span id="cardsStudied">0</span></p>
-            <p><strong>Times flipped:</strong> <span id="timesFlipped">0</span></p>
-            <p><strong>Progress:</strong> <span id="progressPercent">0%</span></p>
-            <p><strong>Current filter:</strong> <span id="currentFilter">All words</span></p>
+            <h3>Detailed Study Statistics</h3>
+            
+            <div id="detailedStats"></div>
+            
+            <div class="overall-stats">
+                <p><strong>Overall Progress:</strong> <span id="cardsStudied">0</span> cards studied • <span id="timesFlipped">0</span> flips • <span id="progressPercent">0%</span> complete</p>
+                <p><strong>Current filter:</strong> <span id="currentFilter">All words</span></p>
+            </div>
         </div>
 
         <div class="footer-actions">
@@ -781,8 +863,8 @@
             {japanese:"夜",reading:"よる",meaning:"night",type:"noun"},
             {japanese:"今日",reading:"きょう",meaning:"today",type:"noun"},
             {japanese:"明日",reading:"あした",meaning:"tomorrow",type:"noun"},
-            {javascript:"昨日",reading:"きのう",meaning:"yesterday",type:"noun"},
-            {javascript:"毎日",reading:"まいにち",meaning:"every day",type:"noun"},
+            {japanese:"昨日",reading:"きのう",meaning:"yesterday",type:"noun"},
+            {japanese:"毎日",reading:"まいにち",meaning:"every day",type:"noun"},
             {japanese:"今週",reading:"こんしゅう",meaning:"this week",type:"noun"},
             {japanese:"来週",reading:"らいしゅう",meaning:"next week",type:"noun"},
             {japanese:"今月",reading:"こんげつ",meaning:"this month",type:"noun"},
@@ -994,6 +1076,14 @@
         let activeFilters = new Set(['all']);
         let keyboardListenerActive = true;
 
+        // Enhanced statistics tracking
+        let categoryStats = {
+            'noun': { studied: new Set(), quizAttempts: 0, quizCorrect: 0 },
+            'verb': { studied: new Set(), quizAttempts: 0, quizCorrect: 0 },
+            'i-adjective': { studied: new Set(), quizAttempts: 0, quizCorrect: 0 },
+            'na-adjective': { studied: new Set(), quizAttempts: 0, quizCorrect: 0 }
+        };
+
         // Initialize word counts by type
         const wordCounts = {
             all: 0,
@@ -1029,8 +1119,17 @@
             currentDeck = filtered;
             currentCardIndex = 0;
             cardsStudied.clear();
+            
+            // Clear category stats when changing filters
+            Object.keys(categoryStats).forEach(type => {
+                categoryStats[type].studied.clear();
+                categoryStats[type].quizAttempts = 0;
+                categoryStats[type].quizCorrect = 0;
+            });
+            
             updateCard();
             updateStats();
+            updateDetailedStats();
         }
 
         // Hamburger menu functionality
@@ -1117,7 +1216,11 @@
         }
 
         function toggleStats() {
-            document.getElementById('stats').classList.toggle('show');
+            const statsElement = document.getElementById('stats');
+            statsElement.classList.toggle('show');
+            if (statsElement.classList.contains('show')) {
+                updateDetailedStats();
+            }
         }
 
         function updateStats() {
@@ -1139,6 +1242,66 @@
                 filterText = activeFilterNames;
             }
             document.getElementById('currentFilter').textContent = filterText;
+        }
+
+        function updateDetailedStats() {
+            const statsContainer = document.getElementById('detailedStats');
+            if (!statsContainer) return;
+
+            const categoryNames = {
+                'noun': 'Nouns',
+                'verb': 'Verbs', 
+                'i-adjective': 'い-Adjectives',
+                'na-adjective': 'な-Adjectives'
+            };
+
+            let html = '';
+            
+            for (const [type, name] of Object.entries(categoryNames)) {
+                const totalInCategory = wordCounts[type];
+                const studiedCount = categoryStats[type].studied.size;
+                const quizAttempts = categoryStats[type].quizAttempts;
+                const quizCorrect = categoryStats[type].quizCorrect;
+                const quizIncorrect = quizAttempts - quizCorrect;
+                
+                const studiedPercent = totalInCategory > 0 ? (studiedCount / totalInCategory) * 100 : 0;
+                const correctPercent = totalInCategory > 0 ? (quizCorrect / totalInCategory) * 100 : 0;
+                const incorrectPercent = totalInCategory > 0 ? (quizIncorrect / totalInCategory) * 100 : 0;
+                
+                html += `
+                    <div class="category-stats">
+                        <div class="category-header">
+                            <span class="category-title">${name}</span>
+                            <span class="category-numbers">${studiedCount}/${totalInCategory} studied • ${quizCorrect}/${quizAttempts} quiz</span>
+                        </div>
+                        <div class="stacked-progress-bar">
+                            <div class="progress-segment studied-progress" style="width: ${studiedPercent}%"></div>
+                            <div class="progress-segment quiz-correct" style="width: ${correctPercent}%"></div>
+                            <div class="progress-segment quiz-incorrect" style="width: ${incorrectPercent}%"></div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            // Add legend
+            html += `
+                <div class="progress-legend">
+                    <div class="legend-item">
+                        <div class="legend-color studied-progress"></div>
+                        <span>Studied</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color quiz-correct"></div>
+                        <span>Quiz Correct</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color quiz-incorrect"></div>
+                        <span>Quiz Incorrect</span>
+                    </div>
+                </div>
+            `;
+            
+            statsContainer.innerHTML = html;
         }
 
         // Feedback System Functions
@@ -1311,6 +1474,10 @@
                 ((currentCardIndex + 1) / currentDeck.length) * 100 + '%';
 
             cardsStudied.add(currentCardIndex);
+            
+            // Track category-specific studied cards
+            const cardType = card.type;
+            categoryStats[cardType].studied.add(card.japanese);
         }
 
         function updateQuiz(card) {
@@ -1339,6 +1506,10 @@
                 ((currentCardIndex + 1) / currentDeck.length) * 100 + '%';
                 
             cardsStudied.add(currentCardIndex);
+            
+            // Track category-specific studied cards
+            const cardType = card.type;
+            categoryStats[cardType].studied.add(card.japanese);
         }
 
         function selectQuizAnswer(button, selectedOption, correctCard) {
@@ -1349,10 +1520,15 @@
             
             quizAnswered = true;
             
+            // Track category-specific quiz stats
+            const cardType = correctCard.type;
+            categoryStats[cardType].quizAttempts++;
+            
             if (selectedOption.japanese === correctCard.japanese) {
                 button.classList.add('correct');
                 feedback.textContent = `Correct! ${correctCard.reading}`;
                 feedback.className = 'quiz-feedback correct';
+                categoryStats[cardType].quizCorrect++;
             } else {
                 button.classList.add('incorrect');
                 allOptions.forEach(opt => {
@@ -1367,6 +1543,8 @@
             allOptions.forEach(opt => {
                 opt.style.pointerEvents = 'none';
             });
+            
+            updateStats();
         }
 
         function flipCard() {
@@ -1414,7 +1592,17 @@
             currentCardIndex = 0;
             cardsStudied.clear();
             flipCount = 0;
+            
+            // Reset category-specific stats
+            Object.keys(categoryStats).forEach(type => {
+                categoryStats[type].studied.clear();
+                categoryStats[type].quizAttempts = 0;
+                categoryStats[type].quizCorrect = 0;
+            });
+            
             updateCard();
+            updateStats();
+            updateDetailedStats();
         }
 
         // Initialize the application
