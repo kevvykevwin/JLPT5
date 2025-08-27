@@ -47,36 +47,223 @@
             border: 1px solid rgba(56, 142, 60, 0.2);
         }
         
+        .header {
+            position: relative;
+            margin-bottom: 30px;
+        }
+        
         .header h1 {
             color: #1b5e20;
             font-size: 28px;
             margin-bottom: 20px;
             text-shadow: 0 2px 4px rgba(34, 87, 122, 0.1);
+            padding-left: 60px; /* Add space for hamburger menu on left */
         }
-        
+
+        /* Hamburger Menu Styles */
+        .menu-container {
+            position: absolute;
+            top: -10px;
+            left: 0; /* Move to left side */
+        }
+
+        .hamburger-menu {
+            background: rgba(56, 142, 60, 0.1);
+            border: 2px solid rgba(56, 142, 60, 0.3);
+            border-radius: 8px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+        }
+
+        .hamburger-menu:hover {
+            background: rgba(56, 142, 60, 0.2);
+            border-color: #388e3c;
+            transform: scale(1.05);
+        }
+
+        .hamburger-icon {
+            width: 18px;
+            height: 16px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .hamburger-icon span {
+            display: block;
+            width: 100%;
+            height: 2px;
+            background: #388e3c;
+            transition: 0.3s ease;
+            border-radius: 1px;
+            transform-origin: center;
+        }
+
+        .hamburger-menu.active .hamburger-icon span:nth-child(1) {
+            transform: translateY(7px) rotate(45deg);
+        }
+
+        .hamburger-menu.active .hamburger-icon span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger-menu.active .hamburger-icon span:nth-child(3) {
+            transform: translateY(-7px) rotate(-45deg);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0; /* Align dropdown with left side of hamburger */
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(34, 87, 122, 0.2);
+            min-width: 220px;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            border: 2px solid rgba(56, 142, 60, 0.1);
+        }
+
+        .dropdown-menu.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .filter-section {
+            padding: 15px 0;
+        }
+
+        .filter-section-title {
+            padding: 0 20px 15px;
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid #f0f0f0;
+            margin-bottom: 10px;
+        }
+
+        .filter-option {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            color: #333;
+        }
+
+        .filter-option:hover {
+            background: #f8f9fa;
+        }
+
+        /* Toggle Switch Styles */
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 24px;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .toggle-switch input[type="checkbox"] {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #ccc;
+            transition: 0.3s;
+            border-radius: 12px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            transition: 0.3s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        input:checked + .toggle-slider {
+            background: #2dd4bf;
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+
+        .filter-option label {
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 14px;
+            flex: 1;
+        }
+
+        .word-count-badge {
+            background: #388e3c;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
         .mode-selector {
             margin: 20px 0;
             display: flex;
-            gap: 10px;
+            gap: 8px;
             justify-content: center;
             flex-wrap: wrap;
         }
         
         .mode-btn {
             padding: 8px 16px;
-            border: 2px solid #ddd;
+            border: 2px solid #e0e0e0;
             border-radius: 20px;
             background: white;
             color: #666;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-size: 14px;
+            font-size: 13px;
+            font-weight: 500;
         }
         
         .mode-btn.active {
-            background: #667eea;
+            background: #388e3c;
             color: white;
-            border-color: #667eea;
+            border-color: #388e3c;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(56, 142, 60, 0.3);
+        }
+
+        .mode-btn:hover:not(.active) {
+            border-color: #388e3c;
+            color: #388e3c;
         }
         
         .progress {
@@ -178,37 +365,406 @@
         }
         
         .btn-primary {
-            background: linear-gradient(45deg, #667eea, #764ba2);
+            background: linear-gradient(45deg, #43a047, #388e3c);
             color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(56, 142, 60, 0.3);
         }
         
         .btn-secondary {
             background: #f0f0f0;
             color: #333;
-            border: 2px solid #ddd;
+            border: 2px solid #e0e0e0;
+        }
+
+        .btn-secondary:hover {
+            border-color: #388e3c;
+            color: #388e3c;
+            transform: translateY(-1px);
         }
         
         .stats {
-            margin-top: 20px;
+            margin: 20px 0;
             padding: 15px;
             background: #f8f9fa;
             border-radius: 10px;
             display: none;
+            border: 2px solid #e0e0e0;
         }
         
-        .stats.show { display: block; }
+        .stats.show { 
+            display: block; 
+            border-color: #388e3c;
+        }
+
+        .stats h3 {
+            color: #2e7d32; 
+            margin-bottom: 15px;
+        }
+
+        /* Footer Actions - Now positioned below main content */
+        .footer-actions {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #f0f0f0;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .footer-btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: white;
+            color: #333;
+            text-decoration: none;
+            border-radius: 25px;
+            border: 2px solid #e0e0e0;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .footer-btn:hover {
+            border-color: #388e3c;
+            color: #388e3c;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(56, 142, 60, 0.2);
+        }
+
+        .donate-btn {
+            border-color: #ff6b6b !important;
+            color: #ff6b6b !important;
+        }
+
+        .donate-btn:hover {
+            background: #ff6b6b !important;
+            color: white !important;
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3) !important;
+        }
+
+        /* Feedback Modal */
+        .modal-overlay {
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0,0,0,0.5); 
+            z-index: 1000; 
+            backdrop-filter: blur(3px);
+        }
+
+        .modal-content {
+            position: absolute; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%); 
+            background: white; 
+            padding: 30px; 
+            border-radius: 15px; 
+            max-width: 500px; 
+            width: 90%; 
+            box-shadow: 0 20px 40px rgba(34, 87, 122, 0.3);
+            border: 2px solid rgba(56, 142, 60, 0.1);
+        }
+
+        .modal-header {
+            color: #2e7d32; 
+            margin-bottom: 20px; 
+            text-align: center;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .form-label {
+            display: block; 
+            color: #2e7d32; 
+            margin-bottom: 5px; 
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-input, .form-textarea {
+            width: 100%; 
+            padding: 12px; 
+            border: 2px solid rgba(56, 142, 60, 0.2); 
+            border-radius: 8px; 
+            font-size: 14px; 
+            box-sizing: border-box; 
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus, .form-textarea:focus {
+            border-color: #388e3c;
+        }
+
+        .success-message {
+            display: none; 
+            position: fixed; 
+            top: 20px; 
+            right: 20px; 
+            background: #4caf50; 
+            color: white; 
+            padding: 15px 20px; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3); 
+            z-index: 1001;
+            font-weight: 500;
+        }
+            border: 2px solid #e0e0e0;
+        }
+        
+        .stats.show { 
+            display: block; 
+            border-color: #667eea;
+        }
+
+        /* Footer Actions - Now positioned below main content */
+        .footer-actions {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #f0f0f0;
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .footer-btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: white;
+            color: #333;
+            text-decoration: none;
+            border-radius: 25px;
+            border: 2px solid #e0e0e0;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .footer-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .donate-btn {
+            border-color: #ff6b6b !important;
+            color: #ff6b6b !important;
+        }
+
+        .donate-btn:hover {
+            background: #ff6b6b !important;
+            color: white !important;
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3) !important;
+        }
+
+        /* Feedback Modal */
+        .modal-overlay {
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0,0,0,0.5); 
+            z-index: 1000; 
+            backdrop-filter: blur(3px);
+        }
+
+        .modal-content {
+            position: absolute; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%); 
+            background: white; 
+            padding: 30px; 
+            border-radius: 15px; 
+            max-width: 500px; 
+            width: 90%; 
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3);
+            border: 2px solid rgba(102, 126, 234, 0.1);
+        }
+
+        .modal-header {
+            color: #667eea; 
+            margin-bottom: 20px; 
+            text-align: center;
+            font-size: 20px;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block; 
+            color: #667eea; 
+            margin-bottom: 5px; 
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-input, .form-textarea {
+            width: 100%; 
+            padding: 12px; 
+            border: 2px solid rgba(102, 126, 234, 0.2); 
+            border-radius: 8px; 
+            font-size: 14px; 
+            box-sizing: border-box; 
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-input:focus, .form-textarea:focus {
+            border-color: #667eea;
+        }
+
+        .form-textarea {
+            height: 100px; 
+            resize: vertical; 
+            font-family: inherit; 
+            line-height: 1.4;
+        }
+
+        .form-buttons {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .success-message {
+            display: none; 
+            position: fixed; 
+            top: 20px; 
+            right: 20px; 
+            background: #4caf50; 
+            color: white; 
+            padding: 15px 20px; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3); 
+            z-index: 1001;
+            font-weight: 500;
+        }
+            border: 2px solid #e0e0e0;
+        }
         
         @media (max-width: 480px) {
-            .flashcard-container { padding: 20px; }
-            .japanese-word { font-size: 32px; }
-            .controls { flex-direction: column; align-items: center; }
-            .btn { width: 100%; max-width: 200px; }
+            .flashcard-container { 
+                padding: 20px; 
+                margin: 10px;
+            }
+            
+            .japanese-word { 
+                font-size: 32px; 
+            }
+            
+            .controls { 
+                flex-direction: column; 
+                align-items: center; 
+            }
+            
+            .btn { 
+                width: 100%; 
+                max-width: 200px; 
+            }
+
+            .hamburger-menu {
+                padding: 8px;
+                width: 36px;
+                height: 36px;
+            }
+
+            .dropdown-menu {
+                min-width: 200px;
+            }
+
+            .footer-actions {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .footer-btn {
+                width: 100%;
+                max-width: 200px;
+            }
+
+            .header h1 {
+                padding-left: 50px;
+                padding-right: 0;
+                font-size: 24px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="flashcard-container">
         <div class="header">
+            <div class="menu-container">
+                <div class="hamburger-menu" id="hamburgerMenu">
+                    <div class="hamburger-icon">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+                <div class="dropdown-menu" id="dropdownMenu">
+                    <div class="filter-section">
+                        <div class="filter-section-title">Word Types</div>
+                        <div class="filter-option" data-filter="all">
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="filterAll" checked>
+                                <span class="toggle-slider"></span>
+                            </div>
+                            <label for="filterAll">All Words</label>
+                            <span class="word-count-badge" id="allCount">0</span>
+                        </div>
+                        <div class="filter-option" data-filter="noun">
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="filterNouns">
+                                <span class="toggle-slider"></span>
+                            </div>
+                            <label for="filterNouns">Nouns</label>
+                            <span class="word-count-badge" id="nounCount">0</span>
+                        </div>
+                        <div class="filter-option" data-filter="verb">
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="filterVerbs">
+                                <span class="toggle-slider"></span>
+                            </div>
+                            <label for="filterVerbs">Verbs</label>
+                            <span class="word-count-badge" id="verbCount">0</span>
+                        </div>
+                        <div class="filter-option" data-filter="i-adjective">
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="filterIAdj">
+                                <span class="toggle-slider"></span>
+                            </div>
+                            <label for="filterIAdj">い-Adjectives</label>
+                            <span class="word-count-badge" id="iAdjCount">0</span>
+                        </div>
+                        <div class="filter-option" data-filter="na-adjective">
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="filterNaAdj">
+                                <span class="toggle-slider"></span>
+                            </div>
+                            <label for="filterNaAdj">な-Adjectives</label>
+                            <span class="word-count-badge" id="naAdjCount">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <h1>JLPT N5 Comprehensive Study</h1>
             
             <div class="mode-selector">
@@ -223,15 +779,15 @@
             </div>
             
             <div class="card-info">
-                <div id="cardCounter">Card 1 of 280</div>
+                <div id="cardCounter">Card 1 of 0</div>
                 <div id="cardType">Mixed</div>
             </div>
         </div>
         
         <div class="flashcard" id="flashcard" onclick="flipCard()">
             <div class="prompt-text" id="promptText"></div>
-            <div class="japanese-word" id="japaneseWord">Loading...</div>
-            <div class="reading" id="reading">Loading...</div>
+            <div class="japanese-word" id="japaneseWord">Loading vocabulary...</div>
+            <div class="reading" id="reading">Please wait...</div>
             <div class="meaning" id="meaning" style="display: none;">Loading...</div>
         </div>
         
@@ -245,56 +801,59 @@
             <button class="btn btn-secondary" onclick="shuffleCards()">🔄 Shuffle</button>
             <button class="btn btn-secondary" onclick="resetProgress()">🔄 Reset</button>
             <button class="btn btn-secondary" onclick="toggleStats()">📊 Stats</button>
-            <button class="btn btn-secondary" onclick="showFeedbackForm()">💬 Feedback</button>
         </div>
         
         <div class="stats" id="stats">
-            <h3>Study Statistics</h3>
-            <p>Cards studied: <span id="cardsStudied">0</span></p>
-            <p>Times flipped: <span id="timesFlipped">0</span></p>
-            <p>Progress: <span id="progressPercent">0%</span></p>
+            <h3 style="color: #667eea; margin-bottom: 15px;">Study Statistics</h3>
+            <p><strong>Cards studied:</strong> <span id="cardsStudied">0</span></p>
+            <p><strong>Times flipped:</strong> <span id="timesFlipped">0</span></p>
+            <p><strong>Progress:</strong> <span id="progressPercent">0%</span></p>
+            <p><strong>Current filter:</strong> <span id="currentFilter">All words</span></p>
         </div>
 
-        <!-- Feedback Modal -->
-        <div id="feedbackModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; backdrop-filter: blur(3px);">
-            <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 30px; border-radius: 15px; max-width: 500px; width: 90%; box-shadow: 0 20px 40px rgba(34, 87, 122, 0.3);">
-                <h3 style="color: #1b5e20; margin-bottom: 20px; text-align: center;">📝 Share Your Feedback</h3>
-                
-                <!-- Hidden Netlify Form -->
-                <form name="jlpt-feedback" method="POST" data-netlify="true" data-netlify-honeypot="bot-field" onsubmit="submitFeedback(event)">
-                    <!-- Hidden bot field -->
-                    <input type="hidden" name="bot-field" />
-                    <input type="hidden" name="form-name" value="jlpt-feedback" />
-                    
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; color: #2e7d32; margin-bottom: 5px; font-weight: 500;">Email (optional)</label>
-                        <input type="email" name="email" placeholder="your@email.com" 
-                               style="width: 100%; padding: 10px; border: 2px solid rgba(56, 142, 60, 0.3); border-radius: 8px; font-size: 14px; box-sizing: border-box; outline: none;">
-                    </div>
-                    
-                    <div style="margin-bottom: 20px;">
-                        <label style="display: block; color: #2e7d32; margin-bottom: 5px; font-weight: 500;">Your feedback</label>
-                        <textarea name="feedback" placeholder="What do you think about the app? Any suggestions or issues?" 
-                                  style="width: 100%; height: 100px; padding: 10px; border: 2px solid rgba(56, 142, 60, 0.3); border-radius: 8px; resize: vertical; font-family: inherit; font-size: 14px; box-sizing: border-box; line-height: 1.4; outline: none;"
-                                  required></textarea>
-                    </div>
-                    
-                    <div style="text-align: center;">
-                        <button type="submit" class="btn btn-primary" style="margin-right: 10px;">Send Feedback</button>
-                        <button type="button" class="btn btn-secondary" onclick="hideFeedbackForm()">Cancel</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- Success Message -->
-        <div id="successMessage" style="display: none; position: fixed; top: 20px; right: 20px; background: #43a047; color: white; padding: 15px 20px; border-radius: 10px; box-shadow: 0 4px 15px rgba(67, 160, 71, 0.3); z-index: 1001;">
-            ✅ Thank you for your feedback!
+        <!-- Footer Actions - Now positioned below main content -->
+        <div class="footer-actions">
+            <button class="footer-btn" onclick="showFeedbackForm()">💬 Feedback</button>
+            <button class="footer-btn donate-btn" onclick="showDonateInfo()">💝 Donate</button>
         </div>
     </div>
 
+    <!-- Feedback Modal -->
+    <div class="modal-overlay" id="feedbackModal">
+        <div class="modal-content">
+            <div class="modal-header">💬 Share Your Feedback</div>
+            
+            <form name="jlpt-feedback" method="POST" data-netlify="true" data-netlify-honeypot="bot-field" onsubmit="submitFeedback(event)">
+                <input type="hidden" name="bot-field" />
+                <input type="hidden" name="form-name" value="jlpt-feedback" />
+                
+                <div class="form-group">
+                    <label class="form-label">Email (optional)</label>
+                    <input type="email" name="email" class="form-input" placeholder="your@email.com">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Your feedback</label>
+                    <textarea name="feedback" class="form-textarea" 
+                              placeholder="What do you think about the app? Any suggestions or issues?" 
+                              required></textarea>
+                </div>
+                
+                <div class="form-buttons">
+                    <button type="submit" class="btn btn-primary" style="margin-right: 10px;">Send Feedback</button>
+                    <button type="button" class="btn btn-secondary" onclick="hideFeedbackForm()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Success Message -->
+    <div class="success-message" id="successMessage">
+        ✅ Thank you for your feedback!
+    </div>
+
     <script>
-        // JLPT N5 flashcard data - clean and error-free
+        // Enhanced JLPT N5 vocabulary data with comprehensive coverage
         const allFlashcards = [
             // Family & People
             {"japanese": "姉", "reading": "あね", "meaning": "older sister", "type": "noun"},
@@ -314,9 +873,17 @@
             {"japanese": "お父さん", "reading": "おとうさん", "meaning": "father", "type": "noun"},
             {"japanese": "お兄さん", "reading": "おにいさん", "meaning": "older brother", "type": "noun"},
             {"japanese": "お姉さん", "reading": "おねえさん", "meaning": "older sister", "type": "noun"},
+            {"japanese": "外国人", "reading": "がいこくじん", "meaning": "foreigner", "type": "noun"},
+            {"japanese": "皆さん", "reading": "みなさん", "meaning": "everyone", "type": "noun"},
+            {"japanese": "みんな", "reading": "みんな", "meaning": "everyone", "type": "noun"},
+            
+            // Occupations & School
             {"japanese": "学生", "reading": "がくせい", "meaning": "student", "type": "noun"},
             {"japanese": "先生", "reading": "せんせい", "meaning": "teacher", "type": "noun"},
             {"japanese": "生徒", "reading": "せいと", "meaning": "pupil", "type": "noun"},
+            {"japanese": "留学生", "reading": "りゅうがくせい", "meaning": "foreign student", "type": "noun"},
+            {"japanese": "警官", "reading": "けいかん", "meaning": "policeman", "type": "noun"},
+            {"japanese": "お巡りさん", "reading": "おまわりさん", "meaning": "police officer", "type": "noun"},
             
             // Body & Health
             {"japanese": "頭", "reading": "あたま", "meaning": "head", "type": "noun"},
@@ -331,8 +898,10 @@
             {"japanese": "お腹", "reading": "おなか", "meaning": "stomach", "type": "noun"},
             {"japanese": "病気", "reading": "びょうき", "meaning": "illness", "type": "noun"},
             {"japanese": "病院", "reading": "びょういん", "meaning": "hospital", "type": "noun"},
-            
-            // Time
+            {"japanese": "元気", "reading": "げんき", "meaning": "healthy", "type": "na-adjective"},
+            {"japanese": "休み", "reading": "やすみ", "meaning": "rest", "type": "noun"},
+
+            // Time & Dates
             {"japanese": "朝", "reading": "あさ", "meaning": "morning", "type": "noun"},
             {"japanese": "昼", "reading": "ひる", "meaning": "noon", "type": "noun"},
             {"japanese": "晩", "reading": "ばん", "meaning": "evening", "type": "noun"},
@@ -340,17 +909,23 @@
             {"japanese": "今", "reading": "いま", "meaning": "now", "type": "noun"},
             {"japanese": "今日", "reading": "きょう", "meaning": "today", "type": "noun"},
             {"japanese": "明日", "reading": "あした", "meaning": "tomorrow", "type": "noun"},
+            {"japanese": "明後日", "reading": "あさって", "meaning": "day after tomorrow", "type": "noun"},
             {"japanese": "昨日", "reading": "きのう", "meaning": "yesterday", "type": "noun"},
+            {"japanese": "一昨日", "reading": "おととい", "meaning": "day before yesterday", "type": "noun"},
+            {"japanese": "一昨年", "reading": "おととし", "meaning": "two years ago", "type": "noun"},
             {"japanese": "毎日", "reading": "まいにち", "meaning": "every day", "type": "noun"},
             {"japanese": "毎朝", "reading": "まいあさ", "meaning": "every morning", "type": "noun"},
             {"japanese": "毎晩", "reading": "まいばん", "meaning": "every night", "type": "noun"},
+            {"japanese": "毎週", "reading": "まいしゅう", "meaning": "every week", "type": "noun"},
+            {"japanese": "毎月", "reading": "まいつき", "meaning": "every month", "type": "noun"},
+            {"japanese": "毎年", "reading": "まいとし", "meaning": "every year", "type": "noun"},
             {"japanese": "今週", "reading": "こんしゅう", "meaning": "this week", "type": "noun"},
             {"japanese": "来週", "reading": "らいしゅう", "meaning": "next week", "type": "noun"},
             {"japanese": "今月", "reading": "こんげつ", "meaning": "this month", "type": "noun"},
             {"japanese": "来月", "reading": "らいげつ", "meaning": "next month", "type": "noun"},
-            {"japanese": "今年", "reading": "ことし", "meaning": "this year", "type": "noun"},
             {"japanese": "来年", "reading": "らいねん", "meaning": "next year", "type": "noun"},
-            
+            {"japanese": "再来年", "reading": "さらいねん", "meaning": "year after next", "type": "noun"},
+
             // Days of the week
             {"japanese": "月曜日", "reading": "げつようび", "meaning": "Monday", "type": "noun"},
             {"japanese": "火曜日", "reading": "かようび", "meaning": "Tuesday", "type": "noun"},
@@ -359,7 +934,7 @@
             {"japanese": "金曜日", "reading": "きんようび", "meaning": "Friday", "type": "noun"},
             {"japanese": "土曜日", "reading": "どようび", "meaning": "Saturday", "type": "noun"},
             {"japanese": "日曜日", "reading": "にちようび", "meaning": "Sunday", "type": "noun"},
-            
+
             // Numbers
             {"japanese": "一", "reading": "いち", "meaning": "one", "type": "noun"},
             {"japanese": "二", "reading": "に", "meaning": "two", "type": "noun"},
@@ -374,7 +949,7 @@
             {"japanese": "百", "reading": "ひゃく", "meaning": "hundred", "type": "noun"},
             {"japanese": "千", "reading": "せん", "meaning": "thousand", "type": "noun"},
             {"japanese": "万", "reading": "まん", "meaning": "ten thousand", "type": "noun"},
-            
+
             // Places
             {"japanese": "家", "reading": "いえ", "meaning": "house", "type": "noun"},
             {"japanese": "学校", "reading": "がっこう", "meaning": "school", "type": "noun"},
@@ -383,12 +958,14 @@
             {"japanese": "図書館", "reading": "としょかん", "meaning": "library", "type": "noun"},
             {"japanese": "公園", "reading": "こうえん", "meaning": "park", "type": "noun"},
             {"japanese": "銀行", "reading": "ぎんこう", "meaning": "bank", "type": "noun"},
+            {"japanese": "郵便局", "reading": "ゆうびんきょく", "meaning": "post office", "type": "noun"},
             {"japanese": "店", "reading": "みせ", "meaning": "store", "type": "noun"},
             {"japanese": "駅", "reading": "えき", "meaning": "station", "type": "noun"},
+            {"japanese": "空港", "reading": "くうこう", "meaning": "airport", "type": "noun"},
             {"japanese": "部屋", "reading": "へや", "meaning": "room", "type": "noun"},
             {"japanese": "台所", "reading": "だいどころ", "meaning": "kitchen", "type": "noun"},
             {"japanese": "町", "reading": "まち", "meaning": "town", "type": "noun"},
-            
+
             // Transportation
             {"japanese": "車", "reading": "くるま", "meaning": "car", "type": "noun"},
             {"japanese": "電車", "reading": "でんしゃ", "meaning": "train", "type": "noun"},
@@ -396,7 +973,7 @@
             {"japanese": "飛行機", "reading": "ひこうき", "meaning": "airplane", "type": "noun"},
             {"japanese": "タクシー", "reading": "たくしー", "meaning": "taxi", "type": "noun"},
             {"japanese": "自転車", "reading": "じてんしゃ", "meaning": "bicycle", "type": "noun"},
-            
+
             // Food & Drink
             {"japanese": "ご飯", "reading": "ごはん", "meaning": "rice/meal", "type": "noun"},
             {"japanese": "朝ご飯", "reading": "あさごはん", "meaning": "breakfast", "type": "noun"},
@@ -405,6 +982,7 @@
             {"japanese": "パン", "reading": "ぱん", "meaning": "bread", "type": "noun"},
             {"japanese": "卵", "reading": "たまご", "meaning": "egg", "type": "noun"},
             {"japanese": "肉", "reading": "にく", "meaning": "meat", "type": "noun"},
+            {"japanese": "魚", "reading": "さかな", "meaning": "fish", "type": "noun"},
             {"japanese": "野菜", "reading": "やさい", "meaning": "vegetable", "type": "noun"},
             {"japanese": "果物", "reading": "くだもの", "meaning": "fruit", "type": "noun"},
             {"japanese": "水", "reading": "みず", "meaning": "water", "type": "noun"},
@@ -412,7 +990,7 @@
             {"japanese": "コーヒー", "reading": "こーひー", "meaning": "coffee", "type": "noun"},
             {"japanese": "牛乳", "reading": "ぎゅうにゅう", "meaning": "milk", "type": "noun"},
             {"japanese": "ビール", "reading": "びーる", "meaning": "beer", "type": "noun"},
-            
+
             // Nature & Weather
             {"japanese": "山", "reading": "やま", "meaning": "mountain", "type": "noun"},
             {"japanese": "川", "reading": "かわ", "meaning": "river", "type": "noun"},
@@ -426,14 +1004,13 @@
             {"japanese": "夏", "reading": "なつ", "meaning": "summer", "type": "noun"},
             {"japanese": "秋", "reading": "あき", "meaning": "autumn", "type": "noun"},
             {"japanese": "冬", "reading": "ふゆ", "meaning": "winter", "type": "noun"},
-            
+
             // Animals
             {"japanese": "犬", "reading": "いぬ", "meaning": "dog", "type": "noun"},
             {"japanese": "猫", "reading": "ねこ", "meaning": "cat", "type": "noun"},
             {"japanese": "鳥", "reading": "とり", "meaning": "bird", "type": "noun"},
-            {"japanese": "魚", "reading": "さかな", "meaning": "fish", "type": "noun"},
             {"japanese": "動物", "reading": "どうぶつ", "meaning": "animal", "type": "noun"},
-            
+
             // Colors
             {"japanese": "赤", "reading": "あか", "meaning": "red", "type": "noun"},
             {"japanese": "青", "reading": "あお", "meaning": "blue", "type": "noun"},
@@ -441,7 +1018,7 @@
             {"japanese": "黒", "reading": "くろ", "meaning": "black", "type": "noun"},
             {"japanese": "黄色", "reading": "きいろ", "meaning": "yellow", "type": "noun"},
             {"japanese": "緑", "reading": "みどり", "meaning": "green", "type": "noun"},
-            
+
             // Objects
             {"japanese": "本", "reading": "ほん", "meaning": "book", "type": "noun"},
             {"japanese": "ペン", "reading": "ぺん", "meaning": "pen", "type": "noun"},
@@ -456,8 +1033,8 @@
             {"japanese": "服", "reading": "ふく", "meaning": "clothes", "type": "noun"},
             {"japanese": "帽子", "reading": "ぼうし", "meaning": "hat", "type": "noun"},
             {"japanese": "眼鏡", "reading": "めがね", "meaning": "glasses", "type": "noun"},
-            
-            // Activities
+
+            // Activities & Concepts
             {"japanese": "勉強", "reading": "べんきょう", "meaning": "study", "type": "noun"},
             {"japanese": "仕事", "reading": "しごと", "meaning": "work", "type": "noun"},
             {"japanese": "買い物", "reading": "かいもの", "meaning": "shopping", "type": "noun"},
@@ -471,17 +1048,68 @@
             {"japanese": "音楽", "reading": "おんがく", "meaning": "music", "type": "noun"},
             {"japanese": "映画", "reading": "えいが", "meaning": "movie", "type": "noun"},
             {"japanese": "写真", "reading": "しゃしん", "meaning": "photograph", "type": "noun"},
-            
-            // i-adjectives
+
+            // Essential Verbs - Fixed missing verbs issue
+            {"japanese": "行く", "reading": "いく", "meaning": "to go", "type": "verb"},
+            {"japanese": "来る", "reading": "くる", "meaning": "to come", "type": "verb"},
+            {"japanese": "帰る", "reading": "かえる", "meaning": "to return", "type": "verb"},
+            {"japanese": "食べる", "reading": "たべる", "meaning": "to eat", "type": "verb"},
+            {"japanese": "飲む", "reading": "のむ", "meaning": "to drink", "type": "verb"},
+            {"japanese": "見る", "reading": "みる", "meaning": "to see", "type": "verb"},
+            {"japanese": "聞く", "reading": "きく", "meaning": "to listen", "type": "verb"},
+            {"japanese": "読む", "reading": "よむ", "meaning": "to read", "type": "verb"},
+            {"japanese": "書く", "reading": "かく", "meaning": "to write", "type": "verb"},
+            {"japanese": "話す", "reading": "はなす", "meaning": "to speak", "type": "verb"},
+            {"japanese": "寝る", "reading": "ねる", "meaning": "to sleep", "type": "verb"},
+            {"japanese": "起きる", "reading": "おきる", "meaning": "to wake up", "type": "verb"},
+            {"japanese": "立つ", "reading": "たつ", "meaning": "to stand", "type": "verb"},
+            {"japanese": "座る", "reading": "すわる", "meaning": "to sit", "type": "verb"},
+            {"japanese": "歩く", "reading": "あるく", "meaning": "to walk", "type": "verb"},
+            {"japanese": "走る", "reading": "はしる", "meaning": "to run", "type": "verb"},
+            {"japanese": "休む", "reading": "やすむ", "meaning": "to rest", "type": "verb"},
+            {"japanese": "働く", "reading": "はたらく", "meaning": "to work", "type": "verb"},
+            {"japanese": "勉強する", "reading": "べんきょうする", "meaning": "to study", "type": "verb"},
+            {"japanese": "買う", "reading": "かう", "meaning": "to buy", "type": "verb"},
+            {"japanese": "売る", "reading": "うる", "meaning": "to sell", "type": "verb"},
+            {"japanese": "作る", "reading": "つくる", "meaning": "to make", "type": "verb"},
+            {"japanese": "料理する", "reading": "りょうりする", "meaning": "to cook", "type": "verb"},
+            {"japanese": "洗う", "reading": "あらう", "meaning": "to wash", "type": "verb"},
+            {"japanese": "掃除する", "reading": "そうじする", "meaning": "to clean", "type": "verb"},
+            {"japanese": "開く", "reading": "あく", "meaning": "to open", "type": "verb"},
+            {"japanese": "閉める", "reading": "しめる", "meaning": "to close", "type": "verb"},
+            {"japanese": "入る", "reading": "はいる", "meaning": "to enter", "type": "verb"},
+            {"japanese": "出る", "reading": "でる", "meaning": "to exit", "type": "verb"},
+            {"japanese": "待つ", "reading": "まつ", "meaning": "to wait", "type": "verb"},
+            {"japanese": "泳ぐ", "reading": "およぐ", "meaning": "to swim", "type": "verb"},
+            {"japanese": "踊る", "reading": "おどる", "meaning": "to dance", "type": "verb"},
+            {"japanese": "歌う", "reading": "うたう", "meaning": "to sing", "type": "verb"},
+            {"japanese": "弾く", "reading": "ひく", "meaning": "to play (instrument)", "type": "verb"},
+            {"japanese": "撮る", "reading": "とる", "meaning": "to take (photo)", "type": "verb"},
+            {"japanese": "会う", "reading": "あう", "meaning": "to meet", "type": "verb"},
+            {"japanese": "教える", "reading": "おしえる", "meaning": "to teach", "type": "verb"},
+            {"japanese": "習う", "reading": "ならう", "meaning": "to learn", "type": "verb"},
+            {"japanese": "借りる", "reading": "かりる", "meaning": "to borrow", "type": "verb"},
+            {"japanese": "貸す", "reading": "かす", "meaning": "to lend", "type": "verb"},
+            {"japanese": "もらう", "reading": "もらう", "meaning": "to receive", "type": "verb"},
+            {"japanese": "あげる", "reading": "あげる", "meaning": "to give", "type": "verb"},
+            {"japanese": "手伝う", "reading": "てつだう", "meaning": "to help", "type": "verb"},
+            {"japanese": "忘れる", "reading": "わすれる", "meaning": "to forget", "type": "verb"},
+            {"japanese": "覚える", "reading": "おぼえる", "meaning": "to remember", "type": "verb"},
+            {"japanese": "知る", "reading": "しる", "meaning": "to know", "type": "verb"},
+            {"japanese": "分かる", "reading": "わかる", "meaning": "to understand", "type": "verb"},
+
+            // i-adjectives - Fixed loading issues
             {"japanese": "新しい", "reading": "あたらしい", "meaning": "new", "type": "i-adjective"},
             {"japanese": "古い", "reading": "ふるい", "meaning": "old", "type": "i-adjective"},
             {"japanese": "大きい", "reading": "おおきい", "meaning": "big", "type": "i-adjective"},
             {"japanese": "小さい", "reading": "ちいさい", "meaning": "small", "type": "i-adjective"},
             {"japanese": "高い", "reading": "たかい", "meaning": "expensive/tall", "type": "i-adjective"},
             {"japanese": "安い", "reading": "やすい", "meaning": "cheap", "type": "i-adjective"},
-            {"japanese": "良い", "reading": "いい", "meaning": "good", "type": "i-adjective"},
+            {"japanese": "いい", "reading": "いい", "meaning": "good", "type": "i-adjective"},
+            {"japanese": "良い", "reading": "よい", "meaning": "good", "type": "i-adjective"},
             {"japanese": "悪い", "reading": "わるい", "meaning": "bad", "type": "i-adjective"},
             {"japanese": "美味しい", "reading": "おいしい", "meaning": "delicious", "type": "i-adjective"},
+            {"japanese": "まずい", "reading": "まずい", "meaning": "bad tasting", "type": "i-adjective"},
             {"japanese": "暑い", "reading": "あつい", "meaning": "hot", "type": "i-adjective"},
             {"japanese": "寒い", "reading": "さむい", "meaning": "cold", "type": "i-adjective"},
             {"japanese": "暖かい", "reading": "あたたかい", "meaning": "warm", "type": "i-adjective"},
@@ -505,10 +1133,10 @@
             {"japanese": "速い", "reading": "はやい", "meaning": "fast", "type": "i-adjective"},
             {"japanese": "遠い", "reading": "とおい", "meaning": "far", "type": "i-adjective"},
             {"japanese": "近い", "reading": "ちかい", "meaning": "near", "type": "i-adjective"},
-            {"japanese": "高い", "reading": "たかい", "meaning": "high", "type": "i-adjective"},
             {"japanese": "低い", "reading": "ひくい", "meaning": "low", "type": "i-adjective"},
             {"japanese": "難しい", "reading": "むずかしい", "meaning": "difficult", "type": "i-adjective"},
             {"japanese": "易しい", "reading": "やさしい", "meaning": "easy", "type": "i-adjective"},
+            {"japanese": "優しい", "reading": "やさしい", "meaning": "kind", "type": "i-adjective"},
             {"japanese": "面白い", "reading": "おもしろい", "meaning": "interesting", "type": "i-adjective"},
             {"japanese": "つまらない", "reading": "つまらない", "meaning": "boring", "type": "i-adjective"},
             {"japanese": "楽しい", "reading": "たのしい", "meaning": "fun", "type": "i-adjective"},
@@ -518,6 +1146,7 @@
             {"japanese": "怖い", "reading": "こわい", "meaning": "scary", "type": "i-adjective"},
             {"japanese": "危ない", "reading": "あぶない", "meaning": "dangerous", "type": "i-adjective"},
             {"japanese": "うるさい", "reading": "うるさい", "meaning": "noisy", "type": "i-adjective"},
+            {"japanese": "静かな", "reading": "しずかな", "meaning": "quiet", "type": "i-adjective"},
             {"japanese": "若い", "reading": "わかい", "meaning": "young", "type": "i-adjective"},
             {"japanese": "赤い", "reading": "あかい", "meaning": "red", "type": "i-adjective"},
             {"japanese": "青い", "reading": "あおい", "meaning": "blue", "type": "i-adjective"},
@@ -531,9 +1160,8 @@
             {"japanese": "辛い", "reading": "からい", "meaning": "spicy", "type": "i-adjective"},
             {"japanese": "酸っぱい", "reading": "すっぱい", "meaning": "sour", "type": "i-adjective"},
             {"japanese": "苦い", "reading": "にがい", "meaning": "bitter", "type": "i-adjective"},
-            
-            // na-adjectives
-            {"japanese": "元気", "reading": "げんき", "meaning": "healthy/energetic", "type": "na-adjective"},
+
+            // na-adjectives - Fixed loading issues
             {"japanese": "有名", "reading": "ゆうめい", "meaning": "famous", "type": "na-adjective"},
             {"japanese": "便利", "reading": "べんり", "meaning": "convenient", "type": "na-adjective"},
             {"japanese": "不便", "reading": "ふべん", "meaning": "inconvenient", "type": "na-adjective"},
@@ -568,7 +1196,6 @@
             {"japanese": "心配", "reading": "しんぱい", "meaning": "worried", "type": "na-adjective"},
             {"japanese": "安心", "reading": "あんしん", "meaning": "relieved", "type": "na-adjective"},
             {"japanese": "残念", "reading": "ざんねん", "meaning": "disappointing", "type": "na-adjective"},
-            {"japanese": "素晴らしい", "reading": "すばらしい", "meaning": "wonderful", "type": "na-adjective"},
             {"japanese": "立派", "reading": "りっぱ", "meaning": "splendid", "type": "na-adjective"},
             {"japanese": "真面目", "reading": "まじめ", "meaning": "serious", "type": "na-adjective"}
         ];
@@ -579,6 +1206,32 @@
         let cardsStudied = new Set();
         let flipCount = 0;
         let currentDeck = [...allFlashcards];
+        let activeFilters = new Set(['all']);
+        let keyboardListenerActive = true;
+
+        // Initialize word counts by type
+        const wordCounts = {
+            all: 0,
+            noun: 0,
+            verb: 0,
+            'i-adjective': 0,
+            'na-adjective': 0
+        };
+
+        function calculateWordCounts() {
+            wordCounts.all = allFlashcards.length;
+            wordCounts.noun = allFlashcards.filter(card => card.type === 'noun').length;
+            wordCounts.verb = allFlashcards.filter(card => card.type === 'verb').length;
+            wordCounts['i-adjective'] = allFlashcards.filter(card => card.type === 'i-adjective').length;
+            wordCounts['na-adjective'] = allFlashcards.filter(card => card.type === 'na-adjective').length;
+            
+            // Update count badges
+            document.getElementById('allCount').textContent = wordCounts.all;
+            document.getElementById('nounCount').textContent = wordCounts.noun;
+            document.getElementById('verbCount').textContent = wordCounts.verb;
+            document.getElementById('iAdjCount').textContent = wordCounts['i-adjective'];
+            document.getElementById('naAdjCount').textContent = wordCounts['na-adjective'];
+        }
 
         function shuffleArray(array) {
             const newArray = [...array];
@@ -594,9 +1247,115 @@
             document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
             updateCard();
+            updateStats();
+        }
+
+        function applyFilters() {
+            let filtered = allFlashcards;
+
+            // Apply type filters
+            if (!activeFilters.has('all')) {
+                filtered = filtered.filter(item => activeFilters.has(item.type));
+            }
+
+            currentDeck = filtered;
+            currentCardIndex = 0;
+            cardsStudied.clear();
+            updateCard();
+            updateStats();
+        }
+
+        // Hamburger menu functionality
+        function initializeHamburgerMenu() {
+            const hamburgerMenu = document.getElementById('hamburgerMenu');
+            const dropdownMenu = document.getElementById('dropdownMenu');
+
+            // Toggle dropdown
+            hamburgerMenu.addEventListener('click', (e) => {
+                e.stopPropagation();
+                hamburgerMenu.classList.toggle('active');
+                dropdownMenu.classList.toggle('active');
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!dropdownMenu.contains(e.target) && !hamburgerMenu.contains(e.target)) {
+                    hamburgerMenu.classList.remove('active');
+                    dropdownMenu.classList.remove('active');
+                }
+            });
+
+            // Filter toggle switches - handle both the toggle container and checkbox
+            const filterOptions = document.querySelectorAll('.filter-option');
+            filterOptions.forEach(option => {
+                const checkbox = option.querySelector('input[type="checkbox"]');
+                const toggleSwitch = option.querySelector('.toggle-switch');
+                
+                // Add click handler to the entire option
+                option.addEventListener('click', (e) => {
+                    // Prevent double-triggering if clicking directly on checkbox
+                    if (e.target !== checkbox) {
+                        e.preventDefault();
+                        checkbox.checked = !checkbox.checked;
+                        handleFilterChange({ target: checkbox });
+                    }
+                });
+                
+                // Add direct change handler to checkbox
+                checkbox.addEventListener('change', handleFilterChange);
+            });
+        }
+
+        function handleFilterChange(e) {
+            const checkbox = e.target;
+            const filterId = checkbox.id;
+            const isChecked = checkbox.checked;
+
+            if (filterId === 'filterAll') {
+                if (isChecked) {
+                    // Uncheck all other filters
+                    document.querySelectorAll('#dropdownMenu input[type="checkbox"]:not(#filterAll)').forEach(cb => {
+                        cb.checked = false;
+                    });
+                    activeFilters = new Set(['all']);
+                } else {
+                    activeFilters.delete('all');
+                }
+            } else {
+                // Uncheck "All Words" when selecting specific filters
+                document.getElementById('filterAll').checked = false;
+                activeFilters.delete('all');
+
+                const filterMap = {
+                    'filterNouns': 'noun',
+                    'filterVerbs': 'verb',
+                    'filterIAdj': 'i-adjective',
+                    'filterNaAdj': 'na-adjective'
+                };
+
+                if (isChecked) {
+                    activeFilters.add(filterMap[filterId]);
+                } else {
+                    activeFilters.delete(filterMap[filterId]);
+                }
+
+                // If no filters selected, check "All Words"
+                if (activeFilters.size === 0) {
+                    document.getElementById('filterAll').checked = true;
+                    activeFilters.add('all');
+                }
+            }
+
+            applyFilters();
         }
 
         function updateCard() {
+            if (currentDeck.length === 0) {
+                document.getElementById('japaneseWord').textContent = 'No cards match filters';
+                document.getElementById('reading').textContent = 'Please select different filters';
+                return;
+            }
+
             const card = currentDeck[currentCardIndex];
             const promptText = document.getElementById('promptText');
             const japaneseWord = document.getElementById('japaneseWord');
@@ -643,7 +1402,6 @@
                 ((currentCardIndex + 1) / currentDeck.length) * 100 + '%';
 
             cardsStudied.add(currentCardIndex);
-            updateStats();
         }
 
         function flipCard() {
@@ -677,10 +1435,11 @@
         }
 
         function shuffleCards() {
-            currentDeck = shuffleArray(allFlashcards);
+            currentDeck = shuffleArray(currentDeck);
             currentCardIndex = 0;
             cardsStudied.clear();
             updateCard();
+            updateStats();
         }
 
         function resetProgress() {
@@ -688,18 +1447,48 @@
             cardsStudied.clear();
             flipCount = 0;
             updateCard();
+            updateStats();
         }
 
         function toggleStats() {
             document.getElementById('stats').classList.toggle('show');
         }
 
-        let keyboardListenerActive = true;
+        function updateStats() {
+            document.getElementById('cardsStudied').textContent = cardsStudied.size;
+            document.getElementById('timesFlipped').textContent = flipCount;
+            document.getElementById('progressPercent').textContent = 
+                currentDeck.length > 0 ? Math.round((cardsStudied.size / currentDeck.length) * 100) + '%' : '0%';
+            
+            // Update current filter display
+            let filterText = 'All words';
+            if (!activeFilters.has('all')) {
+                const filterNames = {
+                    'noun': 'Nouns',
+                    'verb': 'Verbs',
+                    'i-adjective': 'い-Adjectives',
+                    'na-adjective': 'な-Adjectives'
+                };
+                const activeFilterNames = Array.from(activeFilters).map(f => filterNames[f]).join(', ');
+                filterText = activeFilterNames;
+            }
+            document.getElementById('currentFilter').textContent = filterText;
+        }
 
-        // Keyboard shortcuts - only when not in modal
+        // Keyboard shortcuts
         function handleKeyboard(event) {
             if (!keyboardListenerActive) return;
             
+            const activeElement = document.activeElement;
+            const isFormElement = activeElement && (
+                activeElement.tagName === 'TEXTAREA' || 
+                activeElement.tagName === 'INPUT' || 
+                activeElement.contentEditable === 'true' ||
+                activeElement.isContentEditable
+            );
+            
+            if (isFormElement) return;
+
             switch(event.key) {
                 case ' ':
                 case 'Enter':
@@ -722,12 +1511,16 @@
         // Feedback System Functions
         function showFeedbackForm() {
             document.getElementById('feedbackModal').style.display = 'block';
-            keyboardListenerActive = false; // Disable keyboard shortcuts
+            keyboardListenerActive = false;
         }
 
         function hideFeedbackForm() {
             document.getElementById('feedbackModal').style.display = 'none';
-            keyboardListenerActive = true; // Re-enable keyboard shortcuts
+            keyboardListenerActive = true;
+        }
+
+        function showDonateInfo() {
+            alert('Thank you for considering a donation! This helps keep the app free and ad-free for everyone. Donation feature coming soon - for now, please share the app with others who are studying Japanese!');
         }
 
         function submitFeedback(event) {
@@ -762,123 +1555,14 @@
             }
         });
 
-        // Prevent space key from triggering flashcard flip when typing in form fields
-        document.addEventListener('keydown', function(event) {
-            // Check if we're typing in any form element
-            const activeElement = document.activeElement;
-            const isFormElement = activeElement && (
-                activeElement.tagName === 'TEXTAREA' || 
-                activeElement.tagName === 'INPUT' || 
-                activeElement.contentEditable === 'true' ||
-                activeElement.isContentEditable
-            );
-            
-            // If we're in a form field, don't interfere with typing
-            if (isFormElement) {
-                return; // Allow all keys to work normally in form fields
-            }
-
-            // Only apply flashcard shortcuts when NOT in form fields
-            switch(event.key) {
-                case ' ':
-                case 'Enter':
-                    event.preventDefault();
-                    flipCard();
-                    break;
-                case 'ArrowLeft':
-                    event.preventDefault();
-                    previousCard();
-                    break;
-                case 'ArrowRight':
-                    event.preventDefault();
-                    nextCard();
-                    break;
-            }
-        });
-
-        // Additional event listeners to ensure form fields work properly
-        document.addEventListener('DOMContentLoaded', function() {
-            // Find all form inputs and textareas and add event listeners
-            const formElements = document.querySelectorAll('input, textarea');
-            formElements.forEach(element => {
-                element.addEventListener('keydown', function(e) {
-                    e.stopPropagation(); // Prevent event from bubbling up
-                });
-                element.addEventListener('keypress', function(e) {
-                    e.stopPropagation(); // Prevent event from bubbling up
-                });
-                element.addEventListener('keyup', function(e) {
-                    e.stopPropagation(); // Prevent event from bubbling up
-                });
-            });
-        });
-
-        function updateStats() {
-            document.getElementById('cardsStudied').textContent = cardsStudied.size;
-            document.getElementById('timesFlipped').textContent = flipCount;
-            document.getElementById('progressPercent').textContent = 
-                Math.round((cardsStudied.size / currentDeck.length) * 100) + '%';
-        }
-
-        // Keyboard shortcuts
-        // Note: These are now handled in the feedback section above to prevent conflicts
-
-        // Service Worker Registration for Offline Support
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', function() {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(function(registration) {
-                        console.log('Service Worker registered successfully:', registration.scope);
-                    })
-                    .catch(function(error) {
-                        console.log('Service Worker registration failed:', error);
-                    });
-            });
-        }
-
-        // Progressive Web App Install Prompt
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            showInstallButton();
-        });
-
-        function showInstallButton() {
-            // Create install button if it doesn't exist
-            if (!document.getElementById('installBtn')) {
-                const installBtn = document.createElement('button');
-                installBtn.id = 'installBtn';
-                installBtn.textContent = '📱 Install App';
-                installBtn.className = 'btn btn-secondary';
-                installBtn.style.marginTop = '10px';
-                installBtn.onclick = installApp;
-                
-                const lastControlsDiv = document.querySelectorAll('.controls')[1];
-                lastControlsDiv.appendChild(installBtn);
-            }
-        }
-
-        function installApp() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') {
-                        console.log('User accepted the install prompt');
-                    }
-                    deferredPrompt = null;
-                    document.getElementById('installBtn').style.display = 'none';
-                });
-            }
-        }
-
-        // Local Storage for Progress Persistence (Offline)
+        // Local Storage for Progress Persistence
         function saveProgress() {
             const progress = {
                 currentCardIndex,
                 cardsStudied: Array.from(cardsStudied),
                 flipCount,
                 currentMode,
+                activeFilters: Array.from(activeFilters),
                 lastStudied: new Date().toISOString()
             };
             localStorage.setItem('jlptN5Progress', JSON.stringify(progress));
@@ -893,19 +1577,47 @@
                     cardsStudied = new Set(progress.cardsStudied || []);
                     flipCount = progress.flipCount || 0;
                     currentMode = progress.currentMode || 'mixed';
+                    activeFilters = new Set(progress.activeFilters || ['all']);
                     
                     // Update mode button
                     document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
                     const targetBtn = document.querySelector(`[onclick*="${currentMode}"]`);
                     if (targetBtn) targetBtn.classList.add('active');
                     
-                    console.log('Progress loaded from offline storage');
+                    // Update filter checkboxes
+                    updateFilterCheckboxes();
+                    
                     return true;
                 }
             } catch (error) {
                 console.log('Could not load progress:', error);
             }
             return false;
+        }
+
+        function updateFilterCheckboxes() {
+            // Reset all checkboxes
+            document.querySelectorAll('#dropdownMenu input[type="checkbox"]').forEach(cb => {
+                cb.checked = false;
+            });
+            
+            if (activeFilters.has('all')) {
+                document.getElementById('filterAll').checked = true;
+            } else {
+                const filterMap = {
+                    'noun': 'filterNouns',
+                    'verb': 'filterVerbs',
+                    'i-adjective': 'filterIAdj',
+                    'na-adjective': 'filterNaAdj'
+                };
+                
+                activeFilters.forEach(filter => {
+                    const checkboxId = filterMap[filter];
+                    if (checkboxId) {
+                        document.getElementById(checkboxId).checked = true;
+                    }
+                });
+            }
         }
 
         // Enhanced update functions with offline save
@@ -934,69 +1646,49 @@
             saveProgress();
         }
 
-        // Initialize the application
-        shuffleCards();
-        
-        // Try to load previous progress
-        const progressLoaded = loadProgress();
-        if (progressLoaded) {
-            updateCard();
-        }
-        
-        console.log('JLPT N5 Flashcards loaded successfully with', allFlashcards.length, 'cards!');
-        console.log('Offline support enabled - app works without internet connection');
-    </script>
-
-    <!-- Inline Service Worker for Offline Support -->
-    <script>
-        // Create service worker content
-        const swContent = `
-const CACHE_NAME = 'jlpt-n5-flashcards-v1';
-const urlsToCache = [
-    '/',
-    '/index.html'
-];
-
-// Install event - cache resources
-self.addEventListener('install', function(event) {
-    event.waitUntil(
-        caches.open(CACHE_NAME)
-            .then(function(cache) {
-                return cache.addAll(urlsToCache);
-            })
-    );
-});
-
-// Fetch event - serve from cache when offline
-self.addEventListener('fetch', function(event) {
-    event.respondWith(
-        caches.match(event.request)
-            .then(function(response) {
-                // Return cached version or fetch from network
-                return response || fetch(event.request);
-            }
-        )
-    );
-});
-
-// Activate event - clean up old caches
-self.addEventListener('activate', function(event) {
-    event.waitUntil(
-        caches.keys().then(function(cacheNames) {
-            return Promise.all(
-                cacheNames.map(function(cacheName) {
-                    if (cacheName !== CACHE_NAME) {
-                        return caches.delete(cacheName);
-                    }
-                })
-            );
-        })
-    );
-});
-`;
-
-        // Register service worker with inline content
+        // Service Worker for Offline Support
         if ('serviceWorker' in navigator) {
+            const swContent = `
+                const CACHE_NAME = 'jlpt-n5-flashcards-v2';
+                const urlsToCache = [
+                    '/',
+                    '/index.html'
+                ];
+
+                self.addEventListener('install', function(event) {
+                    event.waitUntil(
+                        caches.open(CACHE_NAME)
+                            .then(function(cache) {
+                                return cache.addAll(urlsToCache);
+                            })
+                    );
+                });
+
+                self.addEventListener('fetch', function(event) {
+                    event.respondWith(
+                        caches.match(event.request)
+                            .then(function(response) {
+                                return response || fetch(event.request);
+                            }
+                        )
+                    );
+                });
+
+                self.addEventListener('activate', function(event) {
+                    event.waitUntil(
+                        caches.keys().then(function(cacheNames) {
+                            return Promise.all(
+                                cacheNames.map(function(cacheName) {
+                                    if (cacheName !== CACHE_NAME) {
+                                        return caches.delete(cacheName);
+                                    }
+                                })
+                            );
+                        })
+                    );
+                });
+            `;
+
             const blob = new Blob([swContent], { type: 'application/javascript' });
             const swUrl = URL.createObjectURL(blob);
             
@@ -1008,6 +1700,30 @@ self.addEventListener('activate', function(event) {
                     console.log('Service Worker registration failed:', error);
                 });
         }
+
+        // Initialize the application
+        function initializeApp() {
+            calculateWordCounts();
+            initializeHamburgerMenu();
+            
+            // Try to load previous progress
+            const progressLoaded = loadProgress();
+            
+            if (!progressLoaded) {
+                // First time - shuffle and apply default filters
+                shuffleCards();
+            } else {
+                // Apply loaded filters
+                applyFilters();
+            }
+            
+            updateStats();
+            console.log('JLPT N5 Flashcards loaded successfully with', allFlashcards.length, 'cards!');
+            console.log('Word counts:', wordCounts);
+        }
+
+        // Start the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', initializeApp);
     </script>
 </body>
 </html>
