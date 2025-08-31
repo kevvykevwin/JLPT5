@@ -54,12 +54,9 @@ exports.handler = async (event, context) => {
     // In production, you'd want to implement proper rate limiting with a database
 
     // Initialize Google Cloud TTS client
-    // TODO: Replace with your actual service account credentials
     const client = new TextToSpeechClient({
-      projectId: process.env.GOOGLE_CLOUD_PROJECT_ID, // Set in Netlify environment variables
-      keyFilename: process.env.GOOGLE_APPLICATION_CREDENTIALS, // Path to service account JSON
-      // Alternative: use key directly
-      // credentials: JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY)
+      projectId: process.env.GOOGLE_CLOUD_PROJECT_ID,
+      credentials: JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_KEY)
     });
 
     // Construct the request
