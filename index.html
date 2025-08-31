@@ -278,6 +278,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
             margin-bottom: 30px;
+            position: relative;
         }
         
         .flashcard:hover {
@@ -290,6 +291,45 @@
             background: rgba(232, 245, 233, 0.9);
             border-color: #43a047;
             box-shadow: 0 8px 20px rgba(67, 160, 71, 0.2);
+        }
+
+        .audio-button {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: rgba(56, 142, 60, 0.1);
+            border: 2px solid rgba(56, 142, 60, 0.3);
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .audio-button:hover {
+            background: rgba(56, 142, 60, 0.2);
+            border-color: #388e3c;
+            transform: scale(1.05);
+        }
+
+        .audio-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .audio-button.loading {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         
         .japanese-word {
@@ -755,6 +795,9 @@
         </div>
         
         <div class="flashcard" id="flashcard" onclick="flipCard()">
+            <button class="audio-button" id="audioButton" onclick="playAudio(event)" title="Listen to pronunciation">
+                🔊
+            </button>
             <div class="prompt-text" id="promptText"></div>
             <div class="japanese-word" id="japaneseWord">Loading vocabulary...</div>
             <div class="reading" id="reading">Please wait...</div>
@@ -1083,6 +1126,189 @@
             'i-adjective': { studied: new Set(), quizAttempts: 0, quizCorrect: 0 },
             'na-adjective': { studied: new Set(), quizAttempts: 0, quizCorrect: 0 }
         };
+
+        // Audio cache management
+        let audioCache = null;
+        let currentAudio = null;
+
+        // Initialize IndexedDB for audio caching
+        async function initAudioCache() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open('jlpt-audio-cache', 1);
+                
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => {
+                    audioCache = request.result;
+                    resolve(audioCache);
+                };
+                
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    if (!db.objectStoreNames.contains('audio')) {
+                        const store = db.createObjectStore('audio', { keyPath: 'cacheKey' });
+                        store.createIndex('timestamp', 'timestamp', { unique: false });
+                    }
+                };
+            });
+        }
+
+        // Get audio from cache
+        async function getAudioFromCache(cacheKey) {
+            if (!audioCache) return null;
+            
+            return new Promise((resolve, reject) => {
+                const transaction = audioCache.transaction(['audio'], 'readonly');
+                const store = transaction.objectStore('audio');
+                const request = store.get(cacheKey);
+                
+                request.onsuccess = () => {
+                    const result = request.result;
+                    if (result) {
+                        // Check if cache is still valid (30 days)
+                        const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
+                        if (result.timestamp > thirtyDaysAgo) {
+                            resolve(result.audioData);
+                        } else {
+                            // Delete expired cache entry
+                            deleteFromCache(cacheKey);
+                            resolve(null);
+                        }
+                    } else {
+                        resolve(null);
+                    }
+                };
+                
+                request.onerror = () => resolve(null);
+            });
+        }
+
+        // Save audio to cache
+        async function saveAudioToCache(cacheKey, audioData) {
+            if (!audioCache) return;
+            
+            const transaction = audioCache.transaction(['audio'], 'readwrite');
+            const store = transaction.objectStore('audio');
+            
+            store.put({
+                cacheKey: cacheKey,
+                audioData: audioData,
+                timestamp: Date.now()
+            });
+        }
+
+        // Delete from cache
+        async function deleteFromCache(cacheKey) {
+            if (!audioCache) return;
+            
+            const transaction = audioCache.transaction(['audio'], 'readwrite');
+            const store = transaction.objectStore('audio');
+            store.delete(cacheKey);
+        }
+
+        // Play audio function
+        async function playAudio(event) {
+            event.stopPropagation(); // Prevent card flip
+            
+            const audioButton = document.getElementById('audioButton');
+            const card = currentDeck[currentCardIndex];
+            
+            if (!card) return;
+            
+            // Determine what text to synthesize based on current mode
+            let textToSpeak = card.japanese;
+            if (currentMode === 'en-to-jp' && !isFlipped) {
+                // Don't play audio for English prompts
+                return;
+            }
+            
+            const cacheKey = `${textToSpeak}-ja-JP-Wavenet-B-1.0`;
+            
+            try {
+                // Update button state
+                audioButton.disabled = true;
+                audioButton.classList.add('loading');
+                audioButton.innerHTML = '⏳';
+                
+                // Stop any currently playing audio
+                if (currentAudio) {
+                    currentAudio.pause();
+                    currentAudio = null;
+                }
+                
+                // Check cache first
+                let audioData = await getAudioFromCache(cacheKey);
+                
+                if (!audioData) {
+                    // Fetch from API
+                    const response = await fetch('/.netlify/functions/tts', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            text: textToSpeak,
+                            voice: 'ja-JP-Wavenet-B',
+                            speed: 1.0
+                        })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    }
+                    
+                    const result = await response.json();
+                    audioData = result.audio;
+                    
+                    // Cache the result
+                    await saveAudioToCache(cacheKey, audioData);
+                }
+                
+                // Convert base64 to audio and play
+                const audioBlob = new Blob([
+                    Uint8Array.from(atob(audioData), c => c.charCodeAt(0))
+                ], { type: 'audio/mpeg' });
+                
+                const audioUrl = URL.createObjectURL(audioBlob);
+                currentAudio = new Audio(audioUrl);
+                
+                currentAudio.onended = () => {
+                    URL.revokeObjectURL(audioUrl);
+                    currentAudio = null;
+                };
+                
+                await currentAudio.play();
+                
+            } catch (error) {
+                console.error('Audio playback error:', error);
+                
+                // Show user-friendly error message
+                const errorMsg = document.createElement('div');
+                errorMsg.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: #f44336;
+                    color: white;
+                    padding: 15px 20px;
+                    border-radius: 10px;
+                    box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
+                    z-index: 1001;
+                    font-weight: 500;
+                `;
+                errorMsg.textContent = '🔊 Audio temporarily unavailable';
+                document.body.appendChild(errorMsg);
+                
+                setTimeout(() => {
+                    document.body.removeChild(errorMsg);
+                }, 3000);
+                
+            } finally {
+                // Reset button state
+                audioButton.disabled = false;
+                audioButton.classList.remove('loading');
+                audioButton.innerHTML = '🔊';
+            }
+        }
 
         // Initialize word counts by type
         const wordCounts = {
@@ -1606,11 +1832,20 @@
         }
 
         // Initialize the application
-        function initializeApp() {
+        async function initializeApp() {
             calculateWordCounts();
             initializeHamburgerMenu();
             shuffleCards();
             updateStats();
+            
+            // Initialize audio cache
+            try {
+                await initAudioCache();
+                console.log('Audio cache initialized successfully');
+            } catch (error) {
+                console.warn('Audio cache initialization failed:', error);
+            }
+            
             console.log('JLPT N5 Flashcards loaded with', allFlashcards.length, 'vocabulary words!');
             console.log('Word distribution:', wordCounts);
         }
