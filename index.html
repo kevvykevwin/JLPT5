@@ -1966,7 +1966,12 @@
             quizAnswered = false;
             quizStartTime = Date.now();
 
+            // Clean up any existing speed timer elements
             clearSpeedTimer();
+            const existingTimer = document.querySelector('.speed-timer');
+            if (existingTimer) {
+                existingTimer.remove();
+            }
 
             // Reset quiz question classes
             quizQuestion.className = 'japanese-word quiz-question';
@@ -2274,6 +2279,13 @@
             quizModeButtons.forEach(button => {
                 button.addEventListener('click', () => {
                     const mode = button.getAttribute('data-mode');
+                    
+                    // Clean up any existing timers/elements before switching
+                    clearSpeedTimer();
+                    const existingTimer = document.querySelector('.speed-timer');
+                    if (existingTimer) {
+                        existingTimer.remove();
+                    }
                     
                     quizModeButtons.forEach(btn => btn.classList.remove('active'));
                     button.classList.add('active');
