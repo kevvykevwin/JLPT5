@@ -1488,6 +1488,13 @@
             const flashcard = document.getElementById('flashcard');
             flashcard.style.display = 'none';
             
+            // Reset flip button for quiz mode
+            const flipBtn = document.getElementById('flipBtn');
+            if (flipBtn) {
+                flipBtn.textContent = 'Next Quiz';
+                flipBtn.style.background = 'linear-gradient(45deg, #43a047, #388e3c)';
+            }
+            
             // Create or show appropriate quiz container
             createQuizContainer(currentQuizMode);
             updateQuizCard();
@@ -1573,6 +1580,9 @@
             quizAnswered = false;
             responseStartTime = Date.now();
 
+            // Clear all quiz feedback first
+            clearAllQuizFeedback();
+
             if (currentQuizMode === 'listening-first') {
                 updateListeningFirstQuiz(card);
             } else if (currentQuizMode === 'mixed-distractors') {
@@ -1593,6 +1603,31 @@
             if (categoryStats[card.type]) {
                 categoryStats[card.type].studied.add(card.japanese);
             }
+        }
+
+        function clearAllQuizFeedback() {
+            // Clear all possible quiz feedback elements
+            const feedbackIds = [
+                'listeningQuizFeedback',
+                'multipleChoiceFeedback', 
+                'mixedDistractorFeedback',
+                'speedChallengeFeedback'
+            ];
+            
+            feedbackIds.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.textContent = '';
+                    element.className = 'quiz-feedback'; // Reset to base class
+                }
+            });
+
+            // Also clear any lingering option states
+            const allOptions = document.querySelectorAll('.quiz-option');
+            allOptions.forEach(opt => {
+                opt.classList.remove('correct', 'incorrect');
+                opt.style.pointerEvents = 'auto';
+            });
         }
 
         function updateListeningFirstQuiz(card) {
@@ -1735,7 +1770,7 @@
             if (isCorrect) {
                 button.classList.add('correct');
                 if (feedback) {
-                    feedback.textContent = `Correct! ${correctCard.reading}`;
+                    feedback.textContent = `✓ Correct! ${correctCard.reading}`;
                     feedback.className = 'quiz-feedback correct';
                 }
             } else {
@@ -1746,14 +1781,22 @@
                     }
                 });
                 if (feedback) {
-                    feedback.textContent = `Wrong. Correct: ${correctCard.meaning} (${correctCard.reading})`;
+                    feedback.textContent = `✗ Wrong. Correct: ${correctCard.meaning} (${correctCard.reading})`;
                     feedback.className = 'quiz-feedback incorrect';
                 }
             }
             
+            // Disable all options after answer
             allOptions.forEach(opt => {
                 opt.style.pointerEvents = 'none';
             });
+
+            // Change flip button text to indicate next action
+            const flipBtn = document.getElementById('flipBtn');
+            if (flipBtn) {
+                flipBtn.textContent = 'Next Quiz →';
+                flipBtn.style.background = 'linear-gradient(45deg, #43a047, #388e3c)';
+            }
             
             updateStats();
             
