@@ -783,13 +783,47 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             </div>
             <h1>JLPT N5 Comprehensive Study</h1>
             
-            <div class="mode-selector">
-                <button class="mode-btn active" onclick="setMode('mixed')">🔀 Mixed Practice</button>
-                <button class="mode-btn" onclick="setMode('jp-to-en')">🇯🇵→🇺🇸 JP to EN</button>
-                <button class="mode-btn" onclick="setMode('en-to-jp')">🇺🇸→🇯🇵 EN to JP</button>
-                <button class="mode-btn" onclick="setMode('romaji')">📝 Romaji Practice</button>
-                <button class="mode-btn" onclick="setMode('quiz')">🧠 Quiz Mode</button>
-            </div>
+<!-- NEW: Main Tab Navigation -->
+<div class="main-tabs">
+    <button class="tab-button active" onclick="switchMainTab('study')">📚 Study</button>
+    <button class="tab-button" onclick="switchMainTab('quiz')">🧠 Quiz</button>
+</div>
+
+<!-- Study Tab Content -->
+<div class="study-content" id="studyContent">
+    <div class="study-mode-selector">
+        <button class="study-mode-btn active" onclick="setStudyMode('mixed')">🔀 Mixed Practice</button>
+        <button class="study-mode-btn" onclick="setStudyMode('jp-to-en')">🇯🇵→🇺🇸 JP to EN</button>
+        <button class="study-mode-btn" onclick="setStudyMode('en-to-jp')">🇺🇸→🇯🇵 EN to JP</button>
+        <button class="study-mode-btn" onclick="setStudyMode('romaji')">📝 Romaji Practice</button>
+    </div>
+</div>
+
+<!-- Quiz Tab Content -->
+<div class="quiz-content" id="quizContent">
+    <div class="quiz-type-selector">
+        <button class="quiz-type-btn active" onclick="setQuizMode('multiple-choice')">
+            <span class="quiz-type-icon">✓</span>
+            <div class="quiz-type-title">Multiple Choice</div>
+            <div class="quiz-type-description">Choose the correct meaning</div>
+        </button>
+        <button class="quiz-type-btn" onclick="setQuizMode('listening-first')">
+            <span class="quiz-type-icon">🔊</span>
+            <div class="quiz-type-title">Listening First</div>
+            <div class="quiz-type-description">Hear audio, then choose</div>
+        </button>
+        <button class="quiz-type-btn" onclick="setQuizMode('mixed-distractors')">
+            <span class="quiz-type-icon">🎯</span>
+            <div class="quiz-type-title">Mixed Challenge</div>
+            <div class="quiz-type-description">Harder wrong answers</div>
+        </button>
+        <button class="quiz-type-btn" onclick="setQuizMode('speed-challenge')">
+            <span class="quiz-type-icon">⚡</span>
+            <div class="quiz-type-title">Speed Challenge</div>
+            <div class="quiz-type-description">Quick response test</div>
+        </button>
+    </div>
+</div>
             
             <div class="progress">
                 <div class="progress-bar" id="progressBar"></div>
