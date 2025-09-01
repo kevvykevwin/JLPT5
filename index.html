@@ -214,7 +214,26 @@
             font-weight: 600;
         }
 
-        /* Enhanced Tab System */
+        /* Due Reviews Alert */
+        .due-alert {
+            background: linear-gradient(135deg, #ff6b6b, #ff5722);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
+            animation: pulse 2s infinite;
+            display: none;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        /* Tab System */
         .tab-container {
             display: flex;
             border-bottom: 2px solid #e0e0e0;
@@ -232,7 +251,6 @@
             cursor: pointer;
             transition: all 0.3s ease;
             border-bottom: 3px solid transparent;
-            position: relative;
         }
 
         .tab-button.active {
@@ -327,7 +345,6 @@
             box-shadow: 0 8px 20px rgba(67, 160, 71, 0.2);
         }
 
-        /* Learning State Border Colors */
         .flashcard.state-new {
             border-color: #2196f3;
             background: rgba(33, 150, 243, 0.05);
@@ -375,7 +392,6 @@
         .audio-button:disabled {
             opacity: 0.5;
             cursor: not-allowed;
-            transform: none;
         }
 
         .audio-button.loading {
@@ -451,6 +467,7 @@
             border-radius: 15px;
             padding: 30px 20px;
             margin-bottom: 30px;
+            position: relative;
         }
 
         .quiz-container.active {
@@ -463,6 +480,78 @@
             color: #1b5e20;
             margin-bottom: 30px;
             text-align: center;
+            position: relative;
+        }
+
+        .quiz-question.listening-mode {
+            font-size: 20px;
+            line-height: 1.4;
+            margin-bottom: 20px;
+        }
+
+        /* FIXED: Improved audio button integration for quiz modes */
+        .quiz-audio-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 20px 0 30px 0;
+        }
+
+        .quiz-audio-button {
+            background: linear-gradient(135deg, #43a047, #388e3c);
+            border: none;
+            border-radius: 50%;
+            width: 70px;
+            height: 70px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(56, 142, 60, 0.3);
+            margin-bottom: 10px;
+        }
+
+        .quiz-audio-button:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 6px 20px rgba(56, 142, 60, 0.4);
+        }
+
+        .quiz-audio-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .quiz-audio-button.loading {
+            animation: spin 1s linear infinite;
+        }
+
+        .quiz-audio-label {
+            font-size: 14px;
+            color: #388e3c;
+            font-weight: 500;
+        }
+
+        .speed-timer {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ff6b6b;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 14px;
+            font-weight: bold;
+            z-index: 100;
+            animation: pulse 1s infinite;
+        }
+
+        .speed-timer.warning {
+            background: #ff3030;
+            animation: pulse 0.5s infinite;
         }
 
         .quiz-options {
@@ -552,7 +641,7 @@
             transform: translateY(-1px);
         }
 
-        /* Enhanced Statistics with Spaced Repetition */
+        /* Statistics */
         .stats {
             margin: 20px 0;
             padding: 20px;
@@ -796,6 +885,39 @@
             width: 90%; 
             box-shadow: 0 20px 40px rgba(34, 87, 122, 0.3);
             border: 2px solid rgba(56, 142, 60, 0.1);
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-content.large {
+            max-width: 700px;
+            max-height: 85vh;
+        }
+
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 10px;
+            margin: 10px 0;
+        }
+
+        .modal-body::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .modal-body::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .modal-body::-webkit-scrollbar-thumb {
+            background: #388e3c;
+            border-radius: 10px;
+        }
+
+        .modal-body::-webkit-scrollbar-thumb:hover {
+            background: #2e7d32;
         }
 
         .modal-header {
@@ -858,24 +980,6 @@
             z-index: 1001;
             font-weight: 500;
         }
-
-        /* Alert System for Due Reviews */
-        .due-alert {
-            background: linear-gradient(135deg, #ff6b6b, #ff5722);
-            color: white;
-            padding: 12px 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            text-align: center;
-            font-weight: 600;
-            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.3);
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.8; }
-        }
         
         @media (max-width: 480px) {
             .flashcard-container { 
@@ -899,6 +1003,14 @@
 
             .learning-overview {
                 grid-template-columns: repeat(2, 1fr);
+            }
+
+            .quiz-question {
+                font-size: 24px;
+            }
+            
+            .quiz-question.listening-mode {
+                font-size: 16px;
             }
         }
     </style>
@@ -963,7 +1075,7 @@
             <h1>JLPT N5 Adaptive Learning</h1>
             
             <!-- Due Reviews Alert -->
-            <div id="dueAlert" class="due-alert" style="display: none;">
+            <div id="dueAlert" class="due-alert">
                 🔔 You have <span id="dueCount">0</span> words due for review!
             </div>
 
@@ -1008,6 +1120,12 @@
 
             <div class="quiz-container active" id="quizContainer">
                 <div class="japanese-word quiz-question" id="quizQuestion">What does this mean?</div>
+                <div id="quizAudioSection" class="quiz-audio-section" style="display: none;">
+                    <button class="quiz-audio-button" id="quizAudioButton" onclick="playAudio(event)" title="Listen to pronunciation">
+                        🔊
+                    </button>
+                    <div class="quiz-audio-label">Click to listen</div>
+                </div>
                 <div class="quiz-options" id="quizOptions"></div>
                 <div class="quiz-feedback" id="quizFeedback"></div>
             </div>
@@ -1024,7 +1142,7 @@
             <button class="btn btn-secondary" onclick="toggleStats()">📊 Stats</button>
         </div>
         
-        <!-- Enhanced Statistics with Spaced Repetition -->
+        <!-- Enhanced Statistics -->
         <div class="stats" id="stats">
             <h3>📈 Learning Analytics Dashboard</h3>
             
@@ -1051,7 +1169,10 @@
                     <span class="learning-stat-label">Mastered</span>
                 </div>
             </div>
-
+            
+            <!-- Category Progress -->
+            <div id="detailedStats"></div>
+            
             <!-- Upcoming Reviews Schedule -->
             <div class="upcoming-reviews">
                 <h4>📅 Upcoming Reviews</h4>
@@ -1062,9 +1183,6 @@
                 </div>
             </div>
             
-            <!-- Category Progress -->
-            <div id="detailedStats"></div>
-            
             <div class="overall-stats">
                 <p><strong>Study Session:</strong> <span id="cardsStudied">0</span> cards studied • <span id="timesFlipped">0</span> flips</p>
                 <p><strong>Learning Streak:</strong> <span id="learningStreak">0</span> days • <span id="progressPercent">0%</span> overall mastery</p>
@@ -1073,8 +1191,83 @@
         </div>
 
         <div class="footer-actions">
+            <button class="footer-btn" onclick="showLearningExplainer()">❓ How Learning Works</button>
             <button class="footer-btn" onclick="showFeedbackForm()">💬 Feedback</button>
             <button class="footer-btn donate-btn" onclick="showDonateInfo()">💝 Donate</button>
+        </div>
+    </div>
+
+    <!-- Learning System Explainer Modal -->
+    <div class="modal-overlay" id="learningExplainerModal">
+        <div class="modal-content large">
+            <div class="modal-header">🧠 How Adaptive Learning Works</div>
+            
+            <div class="modal-body">
+                <div style="text-align: left; line-height: 1.6;">
+                    <h4 style="color: #2e7d32; margin: 20px 0 10px 0;">📚 Spaced Repetition System</h4>
+                    <p>Words appear based on how well you know them. New words appear more frequently, while mastered words appear less often for long-term retention.</p>
+                    
+                    <h4 style="color: #2e7d32; margin: 20px 0 10px 0;">🎨 Color-Coded Learning States</h4>
+                    <div style="margin: 15px 0;">
+                        <div style="display: flex; align-items: center; margin: 8px 0;">
+                            <div style="width: 20px; height: 20px; background: #2196f3; border-radius: 50%; margin-right: 10px;"></div>
+                            <strong>New (N):</strong> Words you haven't learned yet
+                        </div>
+                        <div style="display: flex; align-items: center; margin: 8px 0;">
+                            <div style="width: 20px; height: 20px; background: #ff9800; border-radius: 50%; margin-right: 10px;"></div>
+                            <strong>Learning (L):</strong> Words you're currently practicing (appear more often)
+                        </div>
+                        <div style="display: flex; align-items: center; margin: 8px 0;">
+                            <div style="width: 20px; height: 20px; background: #9c27b0; border-radius: 50%; margin-right: 10px;"></div>
+                            <strong>Review (R):</strong> Words you know but need periodic review
+                        </div>
+                        <div style="display: flex; align-items: center; margin: 8px 0;">
+                            <div style="width: 20px; height: 20px; background: #4caf50; border-radius: 50%; margin-right: 10px;"></div>
+                            <strong>Mastered (M):</strong> Words you know well (appear rarely for maintenance)
+                        </div>
+                    </div>
+                    
+                    <h4 style="color: #2e7d32; margin: 20px 0 10px 0;">🎯 Study Modes</h4>
+                    <p><strong>📚 Study Mode:</strong> Traditional flashcards with adaptive word selection</p>
+                    <p><strong>🧠 Quiz Modes:</strong></p>
+                    <ul style="margin-left: 20px;">
+                        <li><strong>Multiple Choice:</strong> Standard 4-option quiz</li>
+                        <li><strong>Listening First:</strong> Hear pronunciation, then choose meaning</li>
+                        <li><strong>Mixed Challenge:</strong> Random Japanese→English or English→Japanese</li>
+                        <li><strong>Speed Challenge:</strong> 8-second time limit for quick recall</li>
+                    </ul>
+                    
+                    <h4 style="color: #2e7d32; margin: 20px 0 10px 0;">⏰ Review Timing</h4>
+                    <p>The system schedules reviews based on memory research: 30 minutes → 1 day → 3 days → 7 days → 14 days</p>
+                    
+                    <h4 style="color: #2e7d32; margin: 20px 0 10px 0;">💡 Study Tips</h4>
+                    <ul style="margin-left: 20px;">
+                        <li>Study new words in Study Mode first, then test with quizzes</li>
+                        <li>Use the audio button to learn proper pronunciation</li>
+                        <li>Focus on words with due reviews (red alert) for best results</li>
+                        <li>The system automatically prioritizes words you find difficult</li>
+                    </ul>
+                    
+                    <h4 style="color: #2e7d32; margin: 20px 0 10px 0;">🎮 Keyboard Shortcuts</h4>
+                    <ul style="margin-left: 20px;">
+                        <li><strong>Spacebar/Enter:</strong> Flip card or advance quiz</li>
+                        <li><strong>Arrow Keys:</strong> Navigate between cards</li>
+                        <li><strong>1-4 Keys:</strong> Select quiz options</li>
+                    </ul>
+                    
+                    <h4 style="color: #2e7d32; margin: 20px 0 10px 0;">📊 Understanding Your Stats</h4>
+                    <ul style="margin-left: 20px;">
+                        <li><strong>Due Now:</strong> Words ready for review (focus here first!)</li>
+                        <li><strong>Learning Streak:</strong> Days since you first started studying</li>
+                        <li><strong>Mastery %:</strong> Percentage of words you've mastered</li>
+                        <li><strong>Category Progress:</strong> Visual breakdown by word type</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="form-buttons">
+                <button class="btn btn-primary" onclick="hideLearningExplainer()">Got it!</button>
+            </div>
         </div>
     </div>
 
@@ -1094,7 +1287,7 @@
                 <div class="form-group">
                     <label class="form-label">Your feedback</label>
                     <textarea name="feedback" class="form-textarea" 
-                              placeholder="How is the new spaced repetition system working for you? Any suggestions?" 
+                              placeholder="How is the spaced repetition system working for you? Any suggestions for improvement?" 
                               required></textarea>
                 </div>
                 
@@ -1154,99 +1347,6 @@
             {japanese:"今年",reading:"ことし",meaning:"this year",type:"noun"},
             {japanese:"来年",reading:"らいねん",meaning:"next year",type:"noun"},
             {japanese:"時間",reading:"じかん",meaning:"time",type:"noun"},
-            {japanese:"月曜日",reading:"げつようび",meaning:"Monday",type:"noun"},
-            {japanese:"火曜日",reading:"かようび",meaning:"Tuesday",type:"noun"},
-            {japanese:"水曜日",reading:"すいようび",meaning:"Wednesday",type:"noun"},
-            {japanese:"木曜日",reading:"もくようび",meaning:"Thursday",type:"noun"},
-            {japanese:"金曜日",reading:"きんようび",meaning:"Friday",type:"noun"},
-            {japanese:"土曜日",reading:"どようび",meaning:"Saturday",type:"noun"},
-            {japanese:"日曜日",reading:"にちようび",meaning:"Sunday",type:"noun"},
-            {japanese:"一",reading:"いち",meaning:"one",type:"noun"},
-            {japanese:"二",reading:"に",meaning:"two",type:"noun"},
-            {japanese:"三",reading:"さん",meaning:"three",type:"noun"},
-            {japanese:"四",reading:"し",meaning:"four",type:"noun"},
-            {japanese:"五",reading:"ご",meaning:"five",type:"noun"},
-            {japanese:"六",reading:"ろく",meaning:"six",type:"noun"},
-            {japanese:"七",reading:"しち",meaning:"seven",type:"noun"},
-            {japanese:"八",reading:"はち",meaning:"eight",type:"noun"},
-            {japanese:"九",reading:"きゅう",meaning:"nine",type:"noun"},
-            {japanese:"十",reading:"じゅう",meaning:"ten",type:"noun"},
-            {japanese:"家",reading:"いえ",meaning:"house",type:"noun"},
-            {japanese:"学校",reading:"がっこう",meaning:"school",type:"noun"},
-            {japanese:"図書館",reading:"としょかん",meaning:"library",type:"noun"},
-            {japanese:"銀行",reading:"ぎんこう",meaning:"bank",type:"noun"},
-            {japanese:"店",reading:"みせ",meaning:"store",type:"noun"},
-            {japanese:"駅",reading:"えき",meaning:"station",type:"noun"},
-            {japanese:"空港",reading:"くうこう",meaning:"airport",type:"noun"},
-            {japanese:"部屋",reading:"へや",meaning:"room",type:"noun"},
-            {japanese:"町",reading:"まち",meaning:"town",type:"noun"},
-            {japanese:"国",reading:"くに",meaning:"country",type:"noun"},
-            {japanese:"日本",reading:"にほん",meaning:"Japan",type:"noun"},
-            {japanese:"車",reading:"くるま",meaning:"car",type:"noun"},
-            {japanese:"電車",reading:"でんしゃ",meaning:"train",type:"noun"},
-            {japanese:"バス",reading:"ばす",meaning:"bus",type:"noun"},
-            {japanese:"飛行機",reading:"ひこうき",meaning:"airplane",type:"noun"},
-            {japanese:"自転車",reading:"じてんしゃ",meaning:"bicycle",type:"noun"},
-            {japanese:"ご飯",reading:"ごはん",meaning:"rice/meal",type:"noun"},
-            {japanese:"朝ご飯",reading:"あさごはん",meaning:"breakfast",type:"noun"},
-            {japanese:"昼ご飯",reading:"ひるごはん",meaning:"lunch",type:"noun"},
-            {japanese:"晩ご飯",reading:"ばんごはん",meaning:"dinner",type:"noun"},
-            {japanese:"パン",reading:"ぱん",meaning:"bread",type:"noun"},
-            {japanese:"肉",reading:"にく",meaning:"meat",type:"noun"},
-            {japanese:"魚",reading:"さかな",meaning:"fish",type:"noun"},
-            {japanese:"野菜",reading:"やさい",meaning:"vegetable",type:"noun"},
-            {japanese:"果物",reading:"くだもの",meaning:"fruit",type:"noun"},
-            {japanese:"水",reading:"みず",meaning:"water",type:"noun"},
-            {japanese:"お茶",reading:"おちゃ",meaning:"tea",type:"noun"},
-            {japanese:"コーヒー",reading:"こーひー",meaning:"coffee",type:"noun"},
-            {japanese:"牛乳",reading:"ぎゅうにゅう",meaning:"milk",type:"noun"},
-            {japanese:"ビール",reading:"びーる",meaning:"beer",type:"noun"},
-            {japanese:"山",reading:"やま",meaning:"mountain",type:"noun"},
-            {japanese:"川",reading:"かわ",meaning:"river",type:"noun"},
-            {japanese:"海",reading:"うみ",meaning:"sea",type:"noun"},
-            {japanese:"雪",reading:"ゆき",meaning:"snow",type:"noun"},
-            {japanese:"雨",reading:"あめ",meaning:"rain",type:"noun"},
-            {japanese:"風",reading:"かぜ",meaning:"wind",type:"noun"},
-            {japanese:"空",reading:"そら",meaning:"sky",type:"noun"},
-            {japanese:"天気",reading:"てんき",meaning:"weather",type:"noun"},
-            {japanese:"春",reading:"はる",meaning:"spring",type:"noun"},
-            {japanese:"夏",reading:"なつ",meaning:"summer",type:"noun"},
-            {japanese:"秋",reading:"あき",meaning:"autumn",type:"noun"},
-            {japanese:"冬",reading:"ふゆ",meaning:"winter",type:"noun"},
-            {japanese:"花",reading:"はな",meaning:"flower",type:"noun"},
-            {japanese:"犬",reading:"いぬ",meaning:"dog",type:"noun"},
-            {japanese:"猫",reading:"ねこ",meaning:"cat",type:"noun"},
-            {japanese:"鳥",reading:"とり",meaning:"bird",type:"noun"},
-            {japanese:"動物",reading:"どうぶつ",meaning:"animal",type:"noun"},
-            {japanese:"赤",reading:"あか",meaning:"red",type:"noun"},
-            {japanese:"青",reading:"あお",meaning:"blue",type:"noun"},
-            {japanese:"白",reading:"しろ",meaning:"white",type:"noun"},
-            {japanese:"黒",reading:"くろ",meaning:"black",type:"noun"},
-            {japanese:"緑",reading:"みどり",meaning:"green",type:"noun"},
-            {japanese:"色",reading:"いろ",meaning:"color",type:"noun"},
-            {japanese:"本",reading:"ほん",meaning:"book",type:"noun"},
-            {japanese:"ペン",reading:"ぺん",meaning:"pen",type:"noun"},
-            {japanese:"鉛筆",reading:"えんぴつ",meaning:"pencil",type:"noun"},
-            {japanese:"机",reading:"つくえ",meaning:"desk",type:"noun"},
-            {japanese:"椅子",reading:"いす",meaning:"chair",type:"noun"},
-            {japanese:"時計",reading:"とけい",meaning:"clock",type:"noun"},
-            {japanese:"傘",reading:"かさ",meaning:"umbrella",type:"noun"},
-            {japanese:"鞄",reading:"かばん",meaning:"bag",type:"noun"},
-            {japanese:"靴",reading:"くつ",meaning:"shoes",type:"noun"},
-            {japanese:"服",reading:"ふく",meaning:"clothes",type:"noun"},
-            {japanese:"眼鏡",reading:"めがね",meaning:"glasses",type:"noun"},
-            {japanese:"テレビ",reading:"てれび",meaning:"television",type:"noun"},
-            {japanese:"電話",reading:"でんわ",meaning:"telephone",type:"noun"},
-            {japanese:"勉強",reading:"べんきょう",meaning:"study",type:"noun"},
-            {japanese:"仕事",reading:"しごと",meaning:"work",type:"noun"},
-            {japanese:"買い物",reading:"かいもの",meaning:"shopping",type:"noun"},
-            {japanese:"旅行",reading:"りょこう",meaning:"travel",type:"noun"},
-            {japanese:"散歩",reading:"さんぽ",meaning:"walk",type:"noun"},
-            {japanese:"運動",reading:"うんどう",meaning:"exercise",type:"noun"},
-            {japanese:"音楽",reading:"おんがく",meaning:"music",type:"noun"},
-            {japanese:"映画",reading:"えいが",meaning:"movie",type:"noun"},
-            {japanese:"写真",reading:"しゃしん",meaning:"photograph",type:"noun"},
-            {japanese:"お金",reading:"おかね",meaning:"money",type:"noun"},
             {japanese:"行く",reading:"いく",meaning:"to go",type:"verb"},
             {japanese:"来る",reading:"くる",meaning:"to come",type:"verb"},
             {japanese:"帰る",reading:"かえる",meaning:"to return",type:"verb"},
@@ -1267,25 +1367,6 @@
             {japanese:"働く",reading:"はたらく",meaning:"to work",type:"verb"},
             {japanese:"勉強する",reading:"べんきょうする",meaning:"to study",type:"verb"},
             {japanese:"買う",reading:"かう",meaning:"to buy",type:"verb"},
-            {japanese:"作る",reading:"つくる",meaning:"to make",type:"verb"},
-            {japanese:"開く",reading:"あく",meaning:"to open",type:"verb"},
-            {japanese:"閉める",reading:"しめる",meaning:"to close",type:"verb"},
-            {japanese:"入る",reading:"はいる",meaning:"to enter",type:"verb"},
-            {japanese:"出る",reading:"でる",meaning:"to exit",type:"verb"},
-            {japanese:"着る",reading:"きる",meaning:"to wear",type:"verb"},
-            {japanese:"待つ",reading:"まつ",meaning:"to wait",type:"verb"},
-            {japanese:"会う",reading:"あう",meaning:"to meet",type:"verb"},
-            {japanese:"教える",reading:"おしえる",meaning:"to teach",type:"verb"},
-            {japanese:"習う",reading:"ならう",meaning:"to learn",type:"verb"},
-            {japanese:"もらう",reading:"もらう",meaning:"to receive",type:"verb"},
-            {japanese:"あげる",reading:"あげる",meaning:"to give",type:"verb"},
-            {japanese:"忘れる",reading:"わすれる",meaning:"to forget",type:"verb"},
-            {japanese:"覚える",reading:"おぼえる",meaning:"to remember",type:"verb"},
-            {japanese:"知る",reading:"しる",meaning:"to know",type:"verb"},
-            {japanese:"分かる",reading:"わかる",meaning:"to understand",type:"verb"},
-            {japanese:"住む",reading:"すむ",meaning:"to live",type:"verb"},
-            {japanese:"使う",reading:"つかう",meaning:"to use",type:"verb"},
-            {japanese:"持つ",reading:"もつ",meaning:"to have/hold",type:"verb"},
             {japanese:"新しい",reading:"あたらしい",meaning:"new",type:"i-adjective"},
             {japanese:"古い",reading:"ふるい",meaning:"old",type:"i-adjective"},
             {japanese:"大きい",reading:"おおきい",meaning:"big",type:"i-adjective"},
@@ -1297,78 +1378,29 @@
             {japanese:"美味しい",reading:"おいしい",meaning:"delicious",type:"i-adjective"},
             {japanese:"暑い",reading:"あつい",meaning:"hot",type:"i-adjective"},
             {japanese:"寒い",reading:"さむい",meaning:"cold",type:"i-adjective"},
-            {japanese:"暖かい",reading:"あたたかい",meaning:"warm",type:"i-adjective"},
-            {japanese:"涼しい",reading:"すずしい",meaning:"cool",type:"i-adjective"},
-            {japanese:"明るい",reading:"あかるい",meaning:"bright",type:"i-adjective"},
-            {japanese:"暗い",reading:"くらい",meaning:"dark",type:"i-adjective"},
-            {japanese:"重い",reading:"おもい",meaning:"heavy",type:"i-adjective"},
-            {japanese:"軽い",reading:"かるい",meaning:"light",type:"i-adjective"},
-            {japanese:"強い",reading:"つよい",meaning:"strong",type:"i-adjective"},
-            {japanese:"弱い",reading:"よわい",meaning:"weak",type:"i-adjective"},
-            {japanese:"長い",reading:"ながい",meaning:"long",type:"i-adjective"},
-            {japanese:"短い",reading:"みじかい",meaning:"short",type:"i-adjective"},
-            {japanese:"広い",reading:"ひろい",meaning:"wide",type:"i-adjective"},
-            {japanese:"狭い",reading:"せまい",meaning:"narrow",type:"i-adjective"},
-            {japanese:"多い",reading:"おおい",meaning:"many",type:"i-adjective"},
-            {japanese:"少ない",reading:"すくない",meaning:"few",type:"i-adjective"},
-            {japanese:"早い",reading:"はやい",meaning:"early",type:"i-adjective"},
-            {japanese:"遅い",reading:"おそい",meaning:"late",type:"i-adjective"},
-            {japanese:"速い",reading:"はやい",meaning:"fast",type:"i-adjective"},
-            {japanese:"遠い",reading:"とおい",meaning:"far",type:"i-adjective"},
-            {japanese:"近い",reading:"ちかい",meaning:"near",type:"i-adjective"},
-            {japanese:"難しい",reading:"むずかしい",meaning:"difficult",type:"i-adjective"},
-            {japanese:"易しい",reading:"やさしい",meaning:"easy",type:"i-adjective"},
-            {japanese:"面白い",reading:"おもしろい",meaning:"interesting",type:"i-adjective"},
-            {japanese:"楽しい",reading:"たのしい",meaning:"fun",type:"i-adjective"},
-            {japanese:"忙しい",reading:"いそがしい",meaning:"busy",type:"i-adjective"},
-            {japanese:"若い",reading:"わかい",meaning:"young",type:"i-adjective"},
-            {japanese:"赤い",reading:"あかい",meaning:"red",type:"i-adjective"},
-            {japanese:"青い",reading:"あおい",meaning:"blue",type:"i-adjective"},
-            {japanese:"白い",reading:"しろい",meaning:"white",type:"i-adjective"},
-            {japanese:"黒い",reading:"くろい",meaning:"black",type:"i-adjective"},
-            {japanese:"可愛い",reading:"かわいい",meaning:"cute",type:"i-adjective"},
-            {japanese:"美しい",reading:"うつくしい",meaning:"beautiful",type:"i-adjective"},
             {japanese:"有名",reading:"ゆうめい",meaning:"famous",type:"na-adjective"},
             {japanese:"便利",reading:"べんり",meaning:"convenient",type:"na-adjective"},
             {japanese:"綺麗",reading:"きれい",meaning:"beautiful/clean",type:"na-adjective"},
             {japanese:"静か",reading:"しずか",meaning:"quiet",type:"na-adjective"},
-            {japanese:"親切",reading:"しんせつ",meaning:"kind",type:"na-adjective"},
-            {japanese:"簡単",reading:"かんたん",meaning:"simple",type:"na-adjective"},
-            {japanese:"大変",reading:"たいへん",meaning:"tough/hard",type:"na-adjective"},
-            {japanese:"大丈夫",reading:"だいじょうぶ",meaning:"OK/alright",type:"na-adjective"},
-            {japanese:"安全",reading:"あんぜん",meaning:"safe",type:"na-adjective"},
-            {japanese:"危険",reading:"きけん",meaning:"dangerous",type:"na-adjective"},
-            {japanese:"大切",reading:"たいせつ",meaning:"important",type:"na-adjective"},
-            {japanese:"特別",reading:"とくべつ",meaning:"special",type:"na-adjective"},
-            {japanese:"普通",reading:"ふつう",meaning:"normal",type:"na-adjective"},
-            {japanese:"好き",reading:"すき",meaning:"like",type:"na-adjective"},
-            {japanese:"嫌い",reading:"きらい",meaning:"dislike",type:"na-adjective"},
-            {japanese:"上手",reading:"じょうず",meaning:"skillful",type:"na-adjective"},
-            {japanese:"下手",reading:"へた",meaning:"unskillful",type:"na-adjective"},
-            {japanese:"元気",reading:"げんき",meaning:"healthy/energetic",type:"na-adjective"}
+            {japanese:"親切",reading:"しんせつ",meaning:"kind",type:"na-adjective"}
         ];
 
-        // SPACED REPETITION SYSTEM - CORE IMPLEMENTATION
-
-        // Learning intervals in milliseconds
+        // SPACED REPETITION SYSTEM
         const LEARNING_INTERVALS = {
-            'new': 0, // immediate
+            'new': 0,
             'learning_1': 30 * 60 * 1000, // 30 minutes
             'learning_2': 24 * 60 * 60 * 1000, // 1 day
             'review_1': 3 * 24 * 60 * 60 * 1000, // 3 days
-            'review_2': 5 * 24 * 60 * 60 * 1000, // 5 days
-            'review_3': 7 * 24 * 60 * 60 * 1000, // 7 days
+            'review_2': 7 * 24 * 60 * 60 * 1000, // 7 days
             'mastered': 14 * 24 * 60 * 60 * 1000 // 14 days
         };
 
-        // Learning state progressions
         const STATE_PROGRESSIONS = {
             'new': { correct: 'learning_1', incorrect: 'new' },
             'learning_1': { correct: 'learning_2', incorrect: 'new' },
             'learning_2': { correct: 'review_1', incorrect: 'learning_1' },
             'review_1': { correct: 'review_2', incorrect: 'learning_1' },
-            'review_2': { correct: 'review_3', incorrect: 'learning_1' },
-            'review_3': { correct: 'mastered', incorrect: 'learning_1' },
+            'review_2': { correct: 'mastered', incorrect: 'learning_1' },
             'mastered': { correct: 'mastered', incorrect: 'review_1' }
         };
 
@@ -1384,24 +1416,12 @@
         let activeFilters = new Set(['all']);
         let keyboardListenerActive = true;
         let quizStartTime = 0;
-
-        // Spaced Repetition Data
+        let speedChallengeTimer = null;
+        let speedChallengeInterval = null;
         let wordProgress = {};
-        let studyQueue = [];
-
-        // Enhanced statistics tracking
-        let categoryStats = {
-            'noun': { studied: new Set(), quizAttempts: 0, quizCorrect: 0 },
-            'verb': { studied: new Set(), quizAttempts: 0, quizCorrect: 0 },
-            'i-adjective': { studied: new Set(), quizAttempts: 0, quizCorrect: 0 },
-            'na-adjective': { studied: new Set(), quizAttempts: 0, quizCorrect: 0 }
-        };
-
-        // Audio cache management
-        let audioCache = null;
         let currentAudio = null;
 
-        // Initialize word counts by type
+        // Word counts by type
         const wordCounts = {
             all: 0,
             noun: 0,
@@ -1410,47 +1430,37 @@
             'na-adjective': 0
         };
 
-        // ======= SPACED REPETITION CORE FUNCTIONS =======
-
+        // Initialize word progress
         function initializeWordProgress() {
             const saved = localStorage.getItem('jlpt-word-progress');
             if (saved) {
                 wordProgress = JSON.parse(saved);
-                
-                // Ensure all words have progress entries
-                allFlashcards.forEach(card => {
-                    if (!wordProgress[card.japanese]) {
-                        wordProgress[card.japanese] = createNewWordProgress();
-                    }
-                });
             } else {
-                // Initialize all words as new
-                allFlashcards.forEach(card => {
-                    wordProgress[card.japanese] = createNewWordProgress();
-                });
+                wordProgress = {};
             }
+            
+            allFlashcards.forEach(card => {
+                if (!wordProgress[card.japanese]) {
+                    wordProgress[card.japanese] = {
+                        state: 'new',
+                        lastReviewed: null,
+                        nextReview: Date.now(),
+                        correctStreak: 0,
+                        totalAttempts: 0,
+                        correctAttempts: 0,
+                        created: Date.now()
+                    };
+                }
+            });
+            
             saveWordProgress();
-        }
-
-        function createNewWordProgress() {
-            return {
-                state: 'new',
-                lastReviewed: null,
-                nextReview: Date.now(),
-                correctStreak: 0,
-                totalAttempts: 0,
-                correctAttempts: 0,
-                averageResponseTime: 0,
-                audioUsageFreq: 0,
-                created: Date.now()
-            };
         }
 
         function saveWordProgress() {
             localStorage.setItem('jlpt-word-progress', JSON.stringify(wordProgress));
         }
 
-        function updateWordProgress(japanese, isCorrect, responseTime = 0) {
+        function updateWordProgress(japanese, isCorrect) {
             const progress = wordProgress[japanese];
             if (!progress) return;
 
@@ -1465,48 +1475,25 @@
                 progress.correctStreak = 0;
             }
 
-            // Update average response time
-            if (responseTime > 0) {
-                progress.averageResponseTime = 
-                    (progress.averageResponseTime * (progress.totalAttempts - 1) + responseTime) / progress.totalAttempts;
-            }
-
-            // Progress to next state
             const currentState = progress.state;
             const nextState = STATE_PROGRESSIONS[currentState][isCorrect ? 'correct' : 'incorrect'];
             progress.state = nextState;
 
-            // Calculate next review time
             const interval = LEARNING_INTERVALS[nextState];
             progress.nextReview = now + interval;
 
             saveWordProgress();
-            
-            // Analytics tracking
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'word_progress_update', {
-                    japanese_word: japanese,
-                    old_state: currentState,
-                    new_state: nextState,
-                    is_correct: isCorrect,
-                    response_time: responseTime
-                });
-            }
         }
 
-        function getNextCards(count = 20) {
+        function getNextCards(count = 50) {
             const now = Date.now();
-            const availableCards = [];
-
-            // Apply current filters
             let filteredCards = allFlashcards;
+            
             if (!activeFilters.has('all')) {
                 filteredCards = allFlashcards.filter(card => activeFilters.has(card.type));
             }
 
-            // Categorize cards by priority
             const dueCards = [];
-            const strugglingCards = [];
             const newCards = [];
             const futureCards = [];
 
@@ -1516,9 +1503,6 @@
 
                 if (progress.nextReview <= now) {
                     dueCards.push(card);
-                } else if (progress.totalAttempts > 0 && 
-                          progress.correctAttempts / progress.totalAttempts < 0.7) {
-                    strugglingCards.push(card);
                 } else if (progress.state === 'new' && progress.totalAttempts === 0) {
                     newCards.push(card);
                 } else {
@@ -1526,60 +1510,25 @@
                 }
             });
 
-            // Priority order: due > struggling > new > future
-            // Due cards (highest priority)
+            let result = [];
             if (dueCards.length > 0) {
-                dueCards.sort((a, b) => {
-                    const progressA = wordProgress[a.japanese];
-                    const progressB = wordProgress[b.japanese];
-                    return progressA.nextReview - progressB.nextReview;
-                });
-                availableCards.push(...dueCards.slice(0, count));
+                result.push(...dueCards.slice(0, count));
+            }
+            if (result.length < count && newCards.length > 0) {
+                const needed = count - result.length;
+                result.push(...newCards.slice(0, needed));
+            }
+            if (result.length < count && futureCards.length > 0) {
+                const needed = count - result.length;
+                result.push(...futureCards.slice(0, needed));
             }
 
-            // Fill remaining slots with struggling cards
-            if (availableCards.length < count && strugglingCards.length > 0) {
-                strugglingCards.sort((a, b) => {
-                    const progressA = wordProgress[a.japanese];
-                    const progressB = wordProgress[b.japanese];
-                    const rateA = progressA.correctAttempts / progressA.totalAttempts;
-                    const rateB = progressB.correctAttempts / progressB.totalAttempts;
-                    return rateA - rateB; // Lowest success rate first
-                });
-                const needed = count - availableCards.length;
-                availableCards.push(...strugglingCards.slice(0, needed));
-            }
-
-            // Fill remaining slots with new cards (limit introduction rate)
-            if (availableCards.length < count && newCards.length > 0) {
-                const needed = Math.min(count - availableCards.length, Math.max(3, Math.floor(count * 0.3)));
-                const shuffledNew = shuffleArray(newCards);
-                availableCards.push(...shuffledNew.slice(0, needed));
-            }
-
-            // Fill any remaining slots with future cards
-            if (availableCards.length < count && futureCards.length > 0) {
-                futureCards.sort((a, b) => {
-                    const progressA = wordProgress[a.japanese];
-                    const progressB = wordProgress[b.japanese];
-                    return progressA.nextReview - progressB.nextReview;
-                });
-                const needed = count - availableCards.length;
-                availableCards.push(...futureCards.slice(0, needed));
-            }
-
-            return availableCards.length > 0 ? availableCards : filteredCards.slice(0, count);
+            return result.length > 0 ? result : filteredCards.slice(0, count);
         }
 
         function getDueCounts() {
             const now = Date.now();
-            const counts = {
-                due: 0,
-                new: 0,
-                learning: 0,
-                review: 0,
-                mastered: 0
-            };
+            const counts = { due: 0, new: 0, learning: 0, review: 0, mastered: 0 };
 
             let filteredCards = allFlashcards;
             if (!activeFilters.has('all')) {
@@ -1594,7 +1543,6 @@
                     counts.due++;
                 }
 
-                // Count by state
                 if (progress.state === 'new') {
                     counts.new++;
                 } else if (progress.state.includes('learning')) {
@@ -1608,57 +1556,6 @@
 
             return counts;
         }
-
-        function getUpcomingReviews() {
-            const now = Date.now();
-            const upcoming = [];
-
-            let filteredCards = allFlashcards;
-            if (!activeFilters.has('all')) {
-                filteredCards = allFlashcards.filter(card => activeFilters.has(card.type));
-            }
-
-            filteredCards.forEach(card => {
-                const progress = wordProgress[card.japanese];
-                if (!progress || progress.nextReview <= now) return;
-
-                upcoming.push({
-                    card: card,
-                    nextReview: progress.nextReview,
-                    timeUntil: progress.nextReview - now
-                });
-            });
-
-            // Sort by next review time
-            upcoming.sort((a, b) => a.nextReview - b.nextReview);
-
-            // Group by time periods
-            const grouped = {
-                today: [],
-                tomorrow: [],
-                thisWeek: [],
-                later: []
-            };
-
-            const oneDay = 24 * 60 * 60 * 1000;
-            const oneWeek = 7 * oneDay;
-
-            upcoming.forEach(item => {
-                if (item.timeUntil <= oneDay) {
-                    grouped.today.push(item);
-                } else if (item.timeUntil <= 2 * oneDay) {
-                    grouped.tomorrow.push(item);
-                } else if (item.timeUntil <= oneWeek) {
-                    grouped.thisWeek.push(item);
-                } else {
-                    grouped.later.push(item);
-                }
-            });
-
-            return grouped;
-        }
-
-        // ======= UI UPDATE FUNCTIONS =======
 
         function updateDueAlert() {
             const counts = getDueCounts();
@@ -1680,10 +1577,8 @@
 
             if (!progress) return;
 
-            // Remove all state classes
             flashcard.classList.remove('state-new', 'state-learning', 'state-review', 'state-mastered');
 
-            // Update indicator and flashcard styling
             switch (progress.state) {
                 case 'new':
                     indicator.textContent = 'N';
@@ -1698,7 +1593,6 @@
                     break;
                 case 'review_1':
                 case 'review_2':
-                case 'review_3':
                     indicator.textContent = 'R';
                     indicator.className = 'learning-state-indicator state-review';
                     flashcard.classList.add('state-review');
@@ -1711,20 +1605,25 @@
             }
         }
 
+        // Enhanced statistics tracking
+        let categoryStats = {
+            'noun': { studied: new Set(), quizAttempts: 0, quizCorrect: 0 },
+            'verb': { studied: new Set(), quizAttempts: 0, quizCorrect: 0 },
+            'i-adjective': { studied: new Set(), quizAttempts: 0, quizCorrect: 0 },
+            'na-adjective': { studied: new Set(), quizAttempts: 0, quizCorrect: 0 }
+        };
+
         function updateEnhancedStats() {
             const counts = getDueCounts();
             
-            // Update learning overview
             document.getElementById('statDue').textContent = counts.due;
             document.getElementById('statNew').textContent = counts.new;
             document.getElementById('statLearning').textContent = counts.learning;
             document.getElementById('statReview').textContent = counts.review;
             document.getElementById('statMastered').textContent = counts.mastered;
 
-            // Update upcoming reviews
             updateUpcomingReviewsList();
 
-            // Update overall stats
             const totalStudied = Object.values(wordProgress).filter(p => p.totalAttempts > 0).length;
             const totalMastered = Object.values(wordProgress).filter(p => p.state === 'mastered').length;
             const masteryPercent = allFlashcards.length > 0 ? Math.round((totalMastered / allFlashcards.length) * 100) : 0;
@@ -1732,12 +1631,11 @@
             document.getElementById('cardsStudied').textContent = totalStudied;
             document.getElementById('progressPercent').textContent = masteryPercent + '%';
 
-            // Learning streak (simplified - days since first study)
             const firstStudyDate = Math.min(...Object.values(wordProgress)
                 .filter(p => p.lastReviewed)
                 .map(p => p.lastReviewed));
             
-            const streakDays = firstStudyDate ? Math.floor((Date.now() - firstStudyDate) / (24 * 60 * 60 * 1000)) : 0;
+            const streakDays = firstStudyDate && firstStudyDate < Date.now() ? Math.floor((Date.now() - firstStudyDate) / (24 * 60 * 60 * 1000)) : 0;
             document.getElementById('learningStreak').textContent = streakDays;
         }
 
@@ -1770,8 +1668,120 @@
             listContainer.innerHTML = html;
         }
 
-        // ======= ENHANCED TAB SYSTEM =======
+        function getUpcomingReviews() {
+            const now = Date.now();
+            const upcoming = [];
 
+            let filteredCards = allFlashcards;
+            if (!activeFilters.has('all')) {
+                filteredCards = allFlashcards.filter(card => activeFilters.has(card.type));
+            }
+
+            filteredCards.forEach(card => {
+                const progress = wordProgress[card.japanese];
+                if (!progress || progress.nextReview <= now) return;
+
+                upcoming.push({
+                    card: card,
+                    nextReview: progress.nextReview,
+                    timeUntil: progress.nextReview - now
+                });
+            });
+
+            upcoming.sort((a, b) => a.nextReview - b.nextReview);
+
+            const grouped = { today: [], tomorrow: [], thisWeek: [], later: [] };
+            const oneDay = 24 * 60 * 60 * 1000;
+            const oneWeek = 7 * oneDay;
+
+            upcoming.forEach(item => {
+                if (item.timeUntil <= oneDay) {
+                    grouped.today.push(item);
+                } else if (item.timeUntil <= 2 * oneDay) {
+                    grouped.tomorrow.push(item);
+                } else if (item.timeUntil <= oneWeek) {
+                    grouped.thisWeek.push(item);
+                } else {
+                    grouped.later.push(item);
+                }
+            });
+
+            return grouped;
+        }
+
+        function updateDetailedStats() {
+            const statsContainer = document.getElementById('detailedStats');
+            if (!statsContainer) return;
+
+            const categoryNames = {
+                'noun': 'Nouns',
+                'verb': 'Verbs', 
+                'i-adjective': 'い-Adjectives',
+                'na-adjective': 'な-Adjectives'
+            };
+
+            let html = '';
+            
+            for (const [type, name] of Object.entries(categoryNames)) {
+                const totalInCategory = wordCounts[type];
+                const studiedCount = categoryStats[type].studied.size;
+                const quizAttempts = categoryStats[type].quizAttempts;
+                const quizCorrect = categoryStats[type].quizCorrect;
+                const quizIncorrect = quizAttempts - quizCorrect;
+                
+                const studiedPercent = totalInCategory > 0 ? (studiedCount / totalInCategory) * 100 : 0;
+                const correctPercent = totalInCategory > 0 ? (quizCorrect / totalInCategory) * 100 : 0;
+                const incorrectPercent = totalInCategory > 0 ? (quizIncorrect / totalInCategory) * 100 : 0;
+                
+                html += `
+                    <div class="category-stats">
+                        <div class="category-header">
+                            <span class="category-title">${name}</span>
+                            <span class="category-numbers">${studiedCount}/${totalInCategory} studied • ${quizCorrect}/${quizAttempts} quiz</span>
+                        </div>
+                        <div class="stacked-progress-bar">
+                            <div class="progress-segment studied-progress" style="width: ${studiedPercent}%"></div>
+                            <div class="progress-segment quiz-correct" style="width: ${correctPercent}%"></div>
+                            <div class="progress-segment quiz-incorrect" style="width: ${incorrectPercent}%"></div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            html += `
+                <div class="progress-legend">
+                    <div class="legend-item">
+                        <div class="legend-color studied-progress"></div>
+                        <span>Studied</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color quiz-correct"></div>
+                        <span>Quiz Correct</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color quiz-incorrect"></div>
+                        <span>Quiz Incorrect</span>
+                    </div>
+                </div>
+            `;
+            
+            statsContainer.innerHTML = html;
+
+            let filterText = 'All words';
+            if (!activeFilters.has('all')) {
+                const filterNames = {
+                    'noun': 'Nouns',
+                    'verb': 'Verbs',
+                    'i-adjective': 'i-Adjectives',
+                    'na-adjective': 'na-Adjectives'
+                };
+                const activeFilterNames = Array.from(activeFilters).map(f => filterNames[f]).join(', ');
+                filterText = activeFilterNames;
+            }
+            document.getElementById('currentFilter').textContent = filterText;
+        }
+
+        // Tab system initialization
         function initializeTabs() {
             const tabButtons = document.querySelectorAll('.tab-button');
             const tabContents = document.querySelectorAll('.tab-content');
@@ -1780,18 +1790,14 @@
                 button.addEventListener('click', () => {
                     const tabId = button.getAttribute('data-tab');
                     
-                    // Remove active classes
                     tabButtons.forEach(btn => btn.classList.remove('active'));
                     tabContents.forEach(content => content.classList.remove('active'));
                     
-                    // Add active classes
                     button.classList.add('active');
                     document.getElementById(tabId + 'Tab').classList.add('active');
                     
-                    // Update current mode
                     currentMode = tabId;
                     
-                    // Update flip button text
                     const flipBtn = document.getElementById('flipBtn');
                     if (tabId === 'study') {
                         flipBtn.textContent = 'Flip Card';
@@ -1801,15 +1807,7 @@
                         flipBtn.onclick = nextCard;
                     }
                     
-                    // Update card display
                     updateCard();
-                    
-                    // Analytics tracking
-                    if (typeof gtag !== 'undefined') {
-                        gtag('event', 'tab_switch', {
-                            tab_name: tabId
-                        });
-                    }
                 });
             });
         }
@@ -1821,535 +1819,19 @@
                 button.addEventListener('click', () => {
                     const mode = button.getAttribute('data-mode');
                     
-                    // Remove active classes
                     quizModeButtons.forEach(btn => btn.classList.remove('active'));
-                    
-                    // Add active class
                     button.classList.add('active');
                     
-                    // Update current quiz mode
                     currentQuizMode = mode;
                     
-                    // Update quiz display
                     if (currentMode === 'quiz') {
                         updateQuiz(currentDeck[currentCardIndex]);
                     }
-                    
-                    // Analytics tracking
-                    if (typeof gtag !== 'undefined') {
-                        gtag('event', 'quiz_mode_change', {
-                            quiz_mode: mode
-                        });
-                    }
                 });
             });
         }
 
-        // ======= AUDIO SYSTEM =======
-
-        async function initAudioCache() {
-            return new Promise((resolve, reject) => {
-                const request = indexedDB.open('jlpt-audio-cache', 1);
-                
-                request.onerror = () => reject(request.error);
-                request.onsuccess = () => {
-                    audioCache = request.result;
-                    resolve(audioCache);
-                };
-                
-                request.onupgradeneeded = (event) => {
-                    const db = event.target.result;
-                    if (!db.objectStoreNames.contains('audio')) {
-                        const store = db.createObjectStore('audio', { keyPath: 'cacheKey' });
-                        store.createIndex('timestamp', 'timestamp', { unique: false });
-                    }
-                };
-            });
-        }
-
-        async function getAudioFromCache(cacheKey) {
-            if (!audioCache) return null;
-            
-            return new Promise((resolve, reject) => {
-                const transaction = audioCache.transaction(['audio'], 'readonly');
-                const store = transaction.objectStore('audio');
-                const request = store.get(cacheKey);
-                
-                request.onsuccess = () => {
-                    const result = request.result;
-                    if (result) {
-                        const thirtyDaysAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
-                        if (result.timestamp > thirtyDaysAgo) {
-                            resolve(result.audioData);
-                        } else {
-                            deleteFromCache(cacheKey);
-                            resolve(null);
-                        }
-                    } else {
-                        resolve(null);
-                    }
-                };
-                
-                request.onerror = () => resolve(null);
-            });
-        }
-
-        async function saveAudioToCache(cacheKey, audioData) {
-            if (!audioCache) return;
-            
-            const transaction = audioCache.transaction(['audio'], 'readwrite');
-            const store = transaction.objectStore('audio');
-            
-            store.put({
-                cacheKey: cacheKey,
-                audioData: audioData,
-                timestamp: Date.now()
-            });
-        }
-
-        async function deleteFromCache(cacheKey) {
-            if (!audioCache) return;
-            
-            const transaction = audioCache.transaction(['audio'], 'readwrite');
-            const store = transaction.objectStore('audio');
-            store.delete(cacheKey);
-        }
-
-        async function playAudio(event) {
-            event.stopPropagation();
-            
-            const audioButton = document.getElementById('audioButton');
-            const card = currentDeck[currentCardIndex];
-            
-            if (!card) return;
-            
-            let textToSpeak = card.japanese;
-            if (currentMode === 'quiz' && currentQuizMode === 'listening-first' && !quizAnswered) {
-                // For listening-first quiz, always play Japanese
-                textToSpeak = card.japanese;
-            } else if (currentMode === 'study' && !isFlipped) {
-                textToSpeak = card.japanese;
-            } else {
-                return; // Don't play audio for English prompts
-            }
-            
-            const cacheKey = `${textToSpeak}-ja-JP-Wavenet-B-1.0`;
-            
-            try {
-                audioButton.disabled = true;
-                audioButton.classList.add('loading');
-                audioButton.innerHTML = '⏳';
-                
-                if (currentAudio) {
-                    currentAudio.pause();
-                    currentAudio = null;
-                }
-                
-                let audioData = await getAudioFromCache(cacheKey);
-                
-                if (!audioData) {
-                    const response = await fetch('/.netlify/functions/tts', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            text: textToSpeak,
-                            voice: 'ja-JP-Wavenet-B',
-                            speed: 1.0
-                        })
-                    });
-                    
-                    if (!response.ok) {
-                        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                    }
-                    
-                    const result = await response.json();
-                    audioData = result.audio;
-                    
-                    await saveAudioToCache(cacheKey, audioData);
-                }
-                
-                const audioBlob = new Blob([
-                    Uint8Array.from(atob(audioData), c => c.charCodeAt(0))
-                ], { type: 'audio/mpeg' });
-                
-                const audioUrl = URL.createObjectURL(audioBlob);
-                currentAudio = new Audio(audioUrl);
-                
-                currentAudio.onended = () => {
-                    URL.revokeObjectURL(audioUrl);
-                    currentAudio = null;
-                };
-                
-                await currentAudio.play();
-
-                // Track audio usage for spaced repetition
-                if (wordProgress[card.japanese]) {
-                    const progress = wordProgress[card.japanese];
-                    progress.audioUsageFreq = (progress.audioUsageFreq || 0) + 0.1;
-                    if (progress.audioUsageFreq > 1) progress.audioUsageFreq = 1;
-                    saveWordProgress();
-                }
-                
-            } catch (error) {
-                console.error('Audio playback error:', error);
-                
-                const errorMsg = document.createElement('div');
-                errorMsg.style.cssText = `
-                    position: fixed; top: 20px; right: 20px; background: #f44336;
-                    color: white; padding: 15px 20px; border-radius: 10px;
-                    box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3); z-index: 1001;
-                    font-weight: 500;
-                `;
-                errorMsg.textContent = '🔊 Audio temporarily unavailable';
-                document.body.appendChild(errorMsg);
-                
-                setTimeout(() => document.body.removeChild(errorMsg), 3000);
-                
-            } finally {
-                audioButton.disabled = false;
-                audioButton.classList.remove('loading');
-                audioButton.innerHTML = '🔊';
-            }
-        }
-
-        // ======= CARD MANAGEMENT FUNCTIONS =======
-
-        function calculateWordCounts() {
-            wordCounts.all = allFlashcards.length;
-            wordCounts.noun = allFlashcards.filter(card => card.type === 'noun').length;
-            wordCounts.verb = allFlashcards.filter(card => card.type === 'verb').length;
-            wordCounts['i-adjective'] = allFlashcards.filter(card => card.type === 'i-adjective').length;
-            wordCounts['na-adjective'] = allFlashcards.filter(card => card.type === 'na-adjective').length;
-            
-            document.getElementById('allCount').textContent = wordCounts.all;
-            document.getElementById('nounCount').textContent = wordCounts.noun;
-            document.getElementById('verbCount').textContent = wordCounts.verb;
-            document.getElementById('iAdjCount').textContent = wordCounts['i-adjective'];
-            document.getElementById('naAdjCount').textContent = wordCounts['na-adjective'];
-        }
-
-        function applyFilters() {
-            // Get new deck using spaced repetition algorithm
-            currentDeck = getNextCards(50);
-            currentCardIndex = 0;
-            cardsStudied.clear();
-            
-            Object.keys(categoryStats).forEach(type => {
-                categoryStats[type].studied.clear();
-                categoryStats[type].quizAttempts = 0;
-                categoryStats[type].quizCorrect = 0;
-            });
-            
-            updateCard();
-            updateEnhancedStats();
-            updateDueAlert();
-            updateDetailedStats();
-        }
-
-        function shuffleArray(array) {
-            const newArray = [...array];
-            for (let i = newArray.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
-            }
-            return newArray;
-        }
-
-        function updateCard() {
-            const card = currentDeck[currentCardIndex];
-            if (!card) {
-                // Refill deck if exhausted
-                currentDeck = getNextCards(50);
-                currentCardIndex = 0;
-                if (currentDeck.length === 0) return;
-            }
-
-            if (currentMode === 'quiz') {
-                updateQuiz(currentDeck[currentCardIndex]);
-                return;
-            }
-
-            // Update study card
-            const promptText = document.getElementById('promptText');
-            const japaneseWord = document.getElementById('japaneseWord');
-            const reading = document.getElementById('reading');
-            const meaning = document.getElementById('meaning');
-
-            promptText.textContent = '';
-            meaning.style.display = 'none';
-            japaneseWord.style.fontSize = '42px';
-            isFlipped = false;
-            document.getElementById('flashcard').classList.remove('flipped');
-
-            japaneseWord.textContent = card.japanese;
-            reading.textContent = card.reading;
-            meaning.textContent = card.meaning;
-
-            // Update learning state indicator
-            updateLearningStateIndicator(card);
-
-            document.getElementById('cardCounter').textContent = 
-                `Card ${currentCardIndex + 1} of ${currentDeck.length}`;
-            document.getElementById('progressBar').style.width = 
-                ((currentCardIndex + 1) / currentDeck.length) * 100 + '%';
-
-            cardsStudied.add(currentCardIndex);
-            
-            const cardType = card.type;
-            categoryStats[cardType].studied.add(card.japanese);
-        }
-
-        function updateQuiz(card) {
-            if (!card) return;
-
-            const quizQuestion = document.getElementById('quizQuestion');
-            const quizOptions = document.getElementById('quizOptions');
-            const quizFeedback = document.getElementById('quizFeedback');
-            
-            quizFeedback.textContent = '';
-            quizAnswered = false;
-            quizStartTime = Date.now();
-
-            // Different quiz modes
-            if (currentQuizMode === 'listening-first') {
-                quizQuestion.innerHTML = '🔊 Listen and choose the meaning<br><small>Click the audio button to hear the word</small>';
-                generateStandardQuizOptions(card, quizOptions);
-            } else if (currentQuizMode === 'mixed-challenge') {
-                const rand = Math.random();
-                if (rand < 0.5) {
-                    quizQuestion.textContent = card.japanese;
-                } else {
-                    quizQuestion.textContent = `What is "${card.meaning}" in Japanese?`;
-                }
-                generateMixedQuizOptions(card, quizOptions, rand < 0.5);
-            } else if (currentQuizMode === 'speed-challenge') {
-                quizQuestion.innerHTML = `⚡ Speed Round: ${card.japanese}<br><small>Answer quickly!</small>`;
-                generateStandardQuizOptions(card, quizOptions);
-                
-                // Auto-advance after 10 seconds
-                setTimeout(() => {
-                    if (!quizAnswered) {
-                        selectQuizAnswer(null, null, card, true); // Mark as timeout
-                    }
-                }, 10000);
-            } else {
-                // Standard multiple choice
-                quizQuestion.textContent = card.japanese;
-                generateStandardQuizOptions(card, quizOptions);
-            }
-            
-            document.getElementById('cardCounter').textContent = 
-                `Quiz ${currentCardIndex + 1} of ${currentDeck.length}`;
-            document.getElementById('progressBar').style.width = 
-                ((currentCardIndex + 1) / currentDeck.length) * 100 + '%';
-                
-            cardsStudied.add(currentCardIndex);
-            categoryStats[card.type].studied.add(card.japanese);
-        }
-
-        function generateStandardQuizOptions(correctCard, container) {
-            const options = [correctCard];
-            const otherCards = allFlashcards.filter(card => 
-                card.japanese !== correctCard.japanese
-            );
-            
-            // Enhanced distractor selection for better difficulty
-            const sameTypeCards = otherCards.filter(card => card.type === correctCard.type);
-            const otherTypeCards = otherCards.filter(card => card.type !== correctCard.type);
-            
-            // Use 2 same-type and 1 different-type for balanced difficulty
-            const wrongAnswers = [
-                ...shuffleArray(sameTypeCards).slice(0, 2),
-                ...shuffleArray(otherTypeCards).slice(0, 1)
-            ];
-            
-            options.push(...wrongAnswers);
-            const shuffledOptions = shuffleArray(options);
-            
-            container.innerHTML = '';
-            shuffledOptions.forEach(option => {
-                const button = document.createElement('button');
-                button.className = 'quiz-option';
-                button.innerHTML = `
-                    <div style="font-size: 16px; margin-bottom: 5px;">${option.meaning}</div>
-                    <div style="font-size: 14px; color: #666;">${option.reading}</div>
-                `;
-                button.onclick = () => selectQuizAnswer(button, option, correctCard);
-                container.appendChild(button);
-            });
-        }
-
-        function generateMixedQuizOptions(correctCard, container, isJapaneseQuestion) {
-            const options = [correctCard];
-            const otherCards = shuffleArray(allFlashcards.filter(card => 
-                card.japanese !== correctCard.japanese
-            )).slice(0, 3);
-            
-            options.push(...otherCards);
-            const shuffledOptions = shuffleArray(options);
-            
-            container.innerHTML = '';
-            shuffledOptions.forEach(option => {
-                const button = document.createElement('button');
-                button.className = 'quiz-option';
-                
-                if (isJapaneseQuestion) {
-                    button.innerHTML = `
-                        <div style="font-size: 16px; margin-bottom: 5px;">${option.meaning}</div>
-                        <div style="font-size: 14px; color: #666;">${option.reading}</div>
-                    `;
-                } else {
-                    button.innerHTML = `
-                        <div style="font-size: 16px; margin-bottom: 5px;">${option.japanese}</div>
-                        <div style="font-size: 14px; color: #666;">${option.reading}</div>
-                    `;
-                }
-                
-                button.onclick = () => selectQuizAnswer(button, option, correctCard);
-                container.appendChild(button);
-            });
-        }
-
-        function selectQuizAnswer(button, selectedOption, correctCard, isTimeout = false) {
-            if (quizAnswered) return;
-            
-            const allOptions = document.querySelectorAll('.quiz-option');
-            const feedback = document.getElementById('quizFeedback');
-            const responseTime = Date.now() - quizStartTime;
-            
-            quizAnswered = true;
-            
-            const cardType = correctCard.type;
-            categoryStats[cardType].quizAttempts++;
-            
-            let isCorrect = false;
-            if (!isTimeout && selectedOption && selectedOption.japanese === correctCard.japanese) {
-                isCorrect = true;
-                if (button) button.classList.add('correct');
-                feedback.textContent = `Correct! ${correctCard.reading}`;
-                feedback.className = 'quiz-feedback correct';
-                categoryStats[cardType].quizCorrect++;
-            } else {
-                if (button && !isTimeout) button.classList.add('incorrect');
-                
-                // Highlight correct answer
-                allOptions.forEach(opt => {
-                    if (opt.innerHTML.includes(correctCard.meaning) || 
-                        opt.innerHTML.includes(correctCard.japanese)) {
-                        opt.classList.add('correct');
-                    }
-                });
-                
-                if (isTimeout) {
-                    feedback.textContent = `⏰ Time's up! Answer: ${correctCard.meaning} (${correctCard.reading})`;
-                } else {
-                    feedback.textContent = `Wrong. Correct answer: ${correctCard.meaning} (${correctCard.reading})`;
-                }
-                feedback.className = 'quiz-feedback incorrect';
-            }
-            
-            // Update spaced repetition progress
-            updateWordProgress(correctCard.japanese, isCorrect, responseTime);
-            
-            allOptions.forEach(opt => {
-                opt.style.pointerEvents = 'none';
-            });
-            
-            updateEnhancedStats();
-            updateDueAlert();
-            
-            // Analytics tracking
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'quiz_answer', {
-                    quiz_mode: currentQuizMode,
-                    is_correct: isCorrect,
-                    response_time: responseTime,
-                    word_state: wordProgress[correctCard.japanese]?.state,
-                    is_timeout: isTimeout
-                });
-            }
-        }
-
-        function flipCard() {
-            if (currentMode === 'quiz') {
-                nextCard();
-                return;
-            }
-            
-            const card = currentDeck[currentCardIndex];
-            const meaning = document.getElementById('meaning');
-            const flashcard = document.getElementById('flashcard');
-            
-            if (isFlipped) {
-                meaning.style.display = 'none';
-                flashcard.classList.remove('flipped');
-            } else {
-                meaning.style.display = 'block';
-                flashcard.classList.add('flipped');
-                flipCount++;
-
-                // Update progress for study cards (considered "correct" when flipped)
-                updateWordProgress(card.japanese, true, 0);
-                updateEnhancedStats();
-                updateDueAlert();
-            }
-            isFlipped = !isFlipped;
-        }
-
-        function nextCard() {
-            if (currentCardIndex < currentDeck.length - 1) {
-                currentCardIndex++;
-            } else {
-                // Deck exhausted, get new cards
-                const newDeck = getNextCards(50);
-                if (newDeck.length > 0) {
-                    currentDeck = newDeck;
-                    currentCardIndex = 0;
-                    cardsStudied.clear();
-                } else {
-                    // No more cards available
-                    return;
-                }
-            }
-            updateCard();
-        }
-
-        function previousCard() {
-            if (currentCardIndex > 0) {
-                currentCardIndex--;
-                updateCard();
-            }
-        }
-
-        function resetProgress() {
-            if (confirm('Reset all learning progress? This will clear your spaced repetition data.')) {
-                wordProgress = {};
-                allFlashcards.forEach(card => {
-                    wordProgress[card.japanese] = createNewWordProgress();
-                });
-                saveWordProgress();
-                
-                currentCardIndex = 0;
-                cardsStudied.clear();
-                flipCount = 0;
-                
-                Object.keys(categoryStats).forEach(type => {
-                    categoryStats[type].studied.clear();
-                    categoryStats[type].quizAttempts = 0;
-                    categoryStats[type].quizCorrect = 0;
-                });
-                
-                applyFilters();
-                
-                // Analytics tracking
-                if (typeof gtag !== 'undefined') {
-                    gtag('event', 'progress_reset');
-                }
-            }
-        }
-
-        // ======= FILTER SYSTEM =======
-
+        // Hamburger menu functionality
         function initializeHamburgerMenu() {
             const hamburgerMenu = document.getElementById('hamburgerMenu');
             const dropdownMenu = document.getElementById('dropdownMenu');
@@ -2423,7 +1905,77 @@
             applyFilters();
         }
 
-        // ======= STATISTICS =======
+        function calculateWordCounts() {
+            wordCounts.all = allFlashcards.length;
+            wordCounts.noun = allFlashcards.filter(card => card.type === 'noun').length;
+            wordCounts.verb = allFlashcards.filter(card => card.type === 'verb').length;
+            wordCounts['i-adjective'] = allFlashcards.filter(card => card.type === 'i-adjective').length;
+            wordCounts['na-adjective'] = allFlashcards.filter(card => card.type === 'na-adjective').length;
+            
+            document.getElementById('allCount').textContent = wordCounts.all;
+            document.getElementById('nounCount').textContent = wordCounts.noun;
+            document.getElementById('verbCount').textContent = wordCounts.verb;
+            document.getElementById('iAdjCount').textContent = wordCounts['i-adjective'];
+            document.getElementById('naAdjCount').textContent = wordCounts['na-adjective'];
+        }
+
+        function applyFilters() {
+            currentDeck = getNextCards(50);
+            currentCardIndex = 0;
+            cardsStudied.clear();
+            
+            updateCard();
+            updateEnhancedStats();
+            updateDueAlert();
+        }
+
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        function updateCard() {
+            const card = currentDeck[currentCardIndex];
+            if (!card) {
+                currentDeck = getNextCards(50);
+                currentCardIndex = 0;
+                if (currentDeck.length === 0) return;
+            }
+
+            if (currentMode === 'quiz') {
+                updateQuiz(currentDeck[currentCardIndex]);
+                return;
+            }
+
+            const promptText = document.getElementById('promptText');
+            const japaneseWord = document.getElementById('japaneseWord');
+            const reading = document.getElementById('reading');
+            const meaning = document.getElementById('meaning');
+
+            promptText.textContent = '';
+            meaning.style.display = 'none';
+            japaneseWord.style.fontSize = '42px';
+            isFlipped = false;
+            document.getElementById('flashcard').classList.remove('flipped');
+
+            japaneseWord.textContent = card.japanese;
+            reading.textContent = card.reading;
+            meaning.textContent = card.meaning;
+
+            updateLearningStateIndicator(card);
+
+            document.getElementById('cardCounter').textContent = 
+                `Card ${currentCardIndex + 1} of ${currentDeck.length}`;
+            document.getElementById('progressBar').style.width = 
+                ((currentCardIndex + 1) / currentDeck.length) * 100 + '%';
+
+            cardsStudied.add(currentCardIndex);
+            categoryStats[card.type].studied.add(card.japanese);
+        }
 
         function toggleStats() {
             const statsElement = document.getElementById('stats');
@@ -2434,80 +1986,34 @@
             }
         }
 
-        function updateDetailedStats() {
-            const statsContainer = document.getElementById('detailedStats');
-            if (!statsContainer) return;
-
-            const categoryNames = {
-                'noun': 'Nouns',
-                'verb': 'Verbs', 
-                'i-adjective': 'い-Adjectives',
-                'na-adjective': 'な-Adjectives'
-            };
-
-            let html = '';
+        function applyFilters() {
+            currentDeck = getNextCards(50);
+            currentCardIndex = 0;
+            cardsStudied.clear();
             
-            for (const [type, name] of Object.entries(categoryNames)) {
-                const totalInCategory = wordCounts[type];
-                const studiedCount = categoryStats[type].studied.size;
-                const quizAttempts = categoryStats[type].quizAttempts;
-                const quizCorrect = categoryStats[type].quizCorrect;
-                const quizIncorrect = quizAttempts - quizCorrect;
-                
-                const studiedPercent = totalInCategory > 0 ? (studiedCount / totalInCategory) * 100 : 0;
-                const correctPercent = totalInCategory > 0 ? (quizCorrect / totalInCategory) * 100 : 0;
-                const incorrectPercent = totalInCategory > 0 ? (quizIncorrect / totalInCategory) * 100 : 0;
-                
-                html += `
-                    <div class="category-stats">
-                        <div class="category-header">
-                            <span class="category-title">${name}</span>
-                            <span class="category-numbers">${studiedCount}/${totalInCategory} studied • ${quizCorrect}/${quizAttempts} quiz</span>
-                        </div>
-                        <div class="stacked-progress-bar">
-                            <div class="progress-segment studied-progress" style="width: ${studiedPercent}%"></div>
-                            <div class="progress-segment quiz-correct" style="width: ${correctPercent}%"></div>
-                            <div class="progress-segment quiz-incorrect" style="width: ${incorrectPercent}%"></div>
-                        </div>
-                    </div>
-                `;
-            }
+            Object.keys(categoryStats).forEach(type => {
+                categoryStats[type].studied.clear();
+                categoryStats[type].quizAttempts = 0;
+                categoryStats[type].quizCorrect = 0;
+            });
             
-            html += `
-                <div class="progress-legend">
-                    <div class="legend-item">
-                        <div class="legend-color studied-progress"></div>
-                        <span>Studied</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color quiz-correct"></div>
-                        <span>Quiz Correct</span>
-                    </div>
-                    <div class="legend-item">
-                        <div class="legend-color quiz-incorrect"></div>
-                        <span>Quiz Incorrect</span>
-                    </div>
-                </div>
-            `;
-            
-            statsContainer.innerHTML = html;
-
-            // Update current filter display
-            let filterText = 'All words';
-            if (!activeFilters.has('all')) {
-                const filterNames = {
-                    'noun': 'Nouns',
-                    'verb': 'Verbs',
-                    'i-adjective': 'i-Adjectives',
-                    'na-adjective': 'na-Adjectives'
-                };
-                const activeFilterNames = Array.from(activeFilters).map(f => filterNames[f]).join(', ');
-                filterText = activeFilterNames;
-            }
-            document.getElementById('currentFilter').textContent = filterText;
+            updateCard();
+            updateEnhancedStats();
+            updateDueAlert();
+            updateDetailedStats();
         }
 
-        // ======= FEEDBACK SYSTEM =======
+        // ======= FEEDBACK & HELP SYSTEM =======
+
+        function showLearningExplainer() {
+            document.getElementById('learningExplainerModal').style.display = 'block';
+            keyboardListenerActive = false;
+        }
+
+        function hideLearningExplainer() {
+            document.getElementById('learningExplainerModal').style.display = 'none';
+            keyboardListenerActive = true;
+        }
 
         function showFeedbackForm() {
             document.getElementById('feedbackModal').style.display = 'block';
@@ -2543,15 +2049,417 @@
             form.reset();
         }
 
+        // Close modals when clicking outside
         document.addEventListener('click', function(event) {
-            const modal = document.getElementById('feedbackModal');
-            if (event.target === modal) {
+            const feedbackModal = document.getElementById('feedbackModal');
+            const explainerModal = document.getElementById('learningExplainerModal');
+            
+            if (event.target === feedbackModal) {
                 hideFeedbackForm();
+            }
+            if (event.target === explainerModal) {
+                hideLearningExplainer();
             }
         });
 
-        // ======= KEYBOARD SHORTCUTS =======
+        // Make functions globally available
+        window.showLearningExplainer = showLearningExplainer;
+        window.hideLearningExplainer = hideLearningExplainer;
+        window.showFeedbackForm = showFeedbackForm;
+        window.hideFeedbackForm = hideFeedbackForm;
+        window.showDonateInfo = showDonateInfo;
+        window.submitFeedback = submitFeedback;
+        window.playAudio = playAudio;
+        window.flipCard = flipCard;
+        window.nextCard = nextCard;
+        window.previousCard = previousCard;
+        window.resetProgress = resetProgress;
+        window.toggleStats = toggleStats;
 
+        // FIXED: Enhanced updateQuiz function with better audio button integration
+        function updateQuiz(card) {
+            if (!card) return;
+
+            const quizQuestion = document.getElementById('quizQuestion');
+            const quizOptions = document.getElementById('quizOptions');
+            const quizFeedback = document.getElementById('quizFeedback');
+            const quizAudioSection = document.getElementById('quizAudioSection');
+            
+            quizFeedback.textContent = '';
+            quizAnswered = false;
+            quizStartTime = Date.now();
+
+            clearSpeedTimer();
+
+            // Reset quiz question classes
+            quizQuestion.className = 'japanese-word quiz-question';
+
+            if (currentQuizMode === 'listening-first') {
+                quizQuestion.classList.add('listening-mode');
+                quizQuestion.textContent = '🔊 Listen and choose the meaning';
+                quizAudioSection.style.display = 'flex';
+                
+                generateStandardQuizOptions(card, quizOptions);
+                
+            } else if (currentQuizMode === 'mixed-challenge') {
+                quizAudioSection.style.display = 'none';
+                
+                const rand = Math.random();
+                if (rand < 0.5) {
+                    quizQuestion.textContent = card.japanese;
+                } else {
+                    quizQuestion.innerHTML = `What is "<em>${card.meaning}</em>" in Japanese?`;
+                }
+                generateMixedQuizOptions(card, quizOptions, rand < 0.5);
+                
+            } else if (currentQuizMode === 'speed-challenge') {
+                quizAudioSection.style.display = 'none';
+                
+                quizQuestion.innerHTML = `⚡ Speed Round: ${card.japanese}<br><small style="font-size: 14px; font-weight: normal; color: #ff6b6b;">Answer quickly! 8 seconds remaining</small>`;
+                generateStandardQuizOptions(card, quizOptions);
+                
+                const timerElement = document.createElement('div');
+                timerElement.className = 'speed-timer';
+                timerElement.textContent = '8s';
+                document.getElementById('quizContainer').appendChild(timerElement);
+                
+                startSpeedChallengeTimer(card, timerElement);
+                
+            } else {
+                // Standard multiple choice
+                quizAudioSection.style.display = 'none';
+                quizQuestion.textContent = card.japanese;
+                generateStandardQuizOptions(card, quizOptions);
+            }
+            
+            document.getElementById('cardCounter').textContent = 
+                `Quiz ${currentCardIndex + 1} of ${currentDeck.length}`;
+            document.getElementById('progressBar').style.width = 
+                ((currentCardIndex + 1) / currentDeck.length) * 100 + '%';
+                
+            cardsStudied.add(currentCardIndex);
+        }
+
+        function startSpeedChallengeTimer(card, timerElement) {
+            let timeLeft = 8;
+            
+            speedChallengeInterval = setInterval(() => {
+                timeLeft--;
+                if (timerElement) {
+                    timerElement.textContent = timeLeft + 's';
+                    
+                    if (timeLeft <= 3) {
+                        timerElement.classList.add('warning');
+                    }
+                }
+                
+                if (timeLeft <= 0) {
+                    clearInterval(speedChallengeInterval);
+                }
+            }, 1000);
+            
+            speedChallengeTimer = setTimeout(() => {
+                if (!quizAnswered) {
+                    selectQuizAnswer(null, null, card, true);
+                }
+                clearSpeedTimer();
+            }, 8000);
+        }
+
+        function clearSpeedTimer() {
+            if (speedChallengeTimer) {
+                clearTimeout(speedChallengeTimer);
+                speedChallengeTimer = null;
+            }
+            if (speedChallengeInterval) {
+                clearInterval(speedChallengeInterval);
+                speedChallengeInterval = null;
+            }
+        }
+
+        function generateStandardQuizOptions(correctCard, container) {
+            const options = [correctCard];
+            const otherCards = allFlashcards.filter(card => 
+                card.japanese !== correctCard.japanese
+            );
+            
+            const sameTypeCards = otherCards.filter(card => card.type === correctCard.type);
+            const otherTypeCards = otherCards.filter(card => card.type !== correctCard.type);
+            
+            const wrongAnswers = [
+                ...shuffleArray(sameTypeCards).slice(0, 2),
+                ...shuffleArray(otherTypeCards).slice(0, 1)
+            ];
+            
+            options.push(...wrongAnswers);
+            const shuffledOptions = shuffleArray(options);
+            
+            container.innerHTML = '';
+            shuffledOptions.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'quiz-option';
+                button.innerHTML = `
+                    <div style="font-size: 16px; margin-bottom: 5px;">${option.meaning}</div>
+                    <div style="font-size: 14px; color: #666;">${option.reading}</div>
+                `;
+                button.onclick = () => selectQuizAnswer(button, option, correctCard);
+                container.appendChild(button);
+            });
+        }
+
+        function generateMixedQuizOptions(correctCard, container, isJapaneseQuestion) {
+            const options = [correctCard];
+            const otherCards = shuffleArray(allFlashcards.filter(card => 
+                card.japanese !== correctCard.japanese
+            )).slice(0, 3);
+            
+            options.push(...otherCards);
+            const shuffledOptions = shuffleArray(options);
+            
+            container.innerHTML = '';
+            shuffledOptions.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'quiz-option';
+                
+                if (isJapaneseQuestion) {
+                    button.innerHTML = `
+                        <div style="font-size: 16px; margin-bottom: 5px;">${option.meaning}</div>
+                        <div style="font-size: 14px; color: #666;">${option.reading}</div>
+                    `;
+                } else {
+                    button.innerHTML = `
+                        <div style="font-size: 16px; margin-bottom: 5px;">${option.japanese}</div>
+                        <div style="font-size: 14px; color: #666;">${option.reading}</div>
+                    `;
+                }
+                
+                button.onclick = () => selectQuizAnswer(button, option, correctCard);
+                container.appendChild(button);
+            });
+        }
+
+        function selectQuizAnswer(button, selectedOption, correctCard, isTimeout = false) {
+            if (quizAnswered) return;
+            
+            clearSpeedTimer();
+            
+            const allOptions = document.querySelectorAll('.quiz-option');
+            const feedback = document.getElementById('quizFeedback');
+            const responseTime = Date.now() - quizStartTime;
+            
+            quizAnswered = true;
+            
+            const timerElement = document.querySelector('.speed-timer');
+            if (timerElement) {
+                timerElement.remove();
+            }
+            
+            const cardType = correctCard.type;
+            categoryStats[cardType].quizAttempts++;
+            
+            let isCorrect = false;
+            if (!isTimeout && selectedOption && selectedOption.japanese === correctCard.japanese) {
+                isCorrect = true;
+                if (button) button.classList.add('correct');
+                
+                feedback.textContent = `Correct! ${correctCard.reading}`;
+                feedback.className = 'quiz-feedback correct';
+                categoryStats[cardType].quizCorrect++;
+            } else {
+                if (button && !isTimeout) button.classList.add('incorrect');
+                
+                allOptions.forEach(opt => {
+                    if (opt.innerHTML.includes(correctCard.meaning) || 
+                        opt.innerHTML.includes(correctCard.japanese)) {
+                        opt.classList.add('correct');
+                    }
+                });
+                
+                if (isTimeout) {
+                    feedback.textContent = `⏰ Time's up! Answer: ${correctCard.meaning} (${correctCard.reading})`;
+                } else {
+                    feedback.textContent = `Wrong. Correct answer: ${correctCard.meaning} (${correctCard.reading})`;
+                }
+                feedback.className = 'quiz-feedback incorrect';
+            }
+            
+            updateWordProgress(correctCard.japanese, isCorrect);
+            
+            allOptions.forEach(opt => {
+                opt.style.pointerEvents = 'none';
+            });
+            
+            updateEnhancedStats();
+            updateDueAlert();
+        }
+
+        // Enhanced audio playback function
+        async function playAudio(event) {
+            event.stopPropagation();
+            
+            const card = currentDeck[currentCardIndex];
+            if (!card) return;
+            
+            const textToSpeak = card.japanese;
+            const audioButton = event.target.closest('.audio-button, .quiz-audio-button');
+            
+            if (!audioButton) return;
+            
+            try {
+                audioButton.disabled = true;
+                audioButton.classList.add('loading');
+                const originalText = audioButton.innerHTML;
+                audioButton.innerHTML = '⏳';
+                
+                if (currentAudio) {
+                    currentAudio.pause();
+                    currentAudio = null;
+                }
+                
+                // Call TTS API
+                const response = await fetch('/.netlify/functions/tts', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        text: textToSpeak,
+                        voice: 'ja-JP-Wavenet-B',
+                        speed: 1.0
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const result = await response.json();
+                
+                // Convert base64 to audio and play
+                const audioBlob = new Blob([
+                    Uint8Array.from(atob(result.audio), c => c.charCodeAt(0))
+                ], { type: 'audio/mpeg' });
+                
+                const audioUrl = URL.createObjectURL(audioBlob);
+                currentAudio = new Audio(audioUrl);
+                
+                currentAudio.onended = () => {
+                    URL.revokeObjectURL(audioUrl);
+                    currentAudio = null;
+                };
+                
+                await currentAudio.play();
+                
+            } catch (error) {
+                console.error('Audio playback error:', error);
+                
+                // Show error message
+                const errorMsg = document.createElement('div');
+                errorMsg.style.cssText = `
+                    position: fixed; top: 20px; right: 20px; background: #f44336;
+                    color: white; padding: 15px 20px; border-radius: 10px;
+                    box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3); z-index: 1001;
+                    font-weight: 500;
+                `;
+                errorMsg.textContent = '🔊 Audio temporarily unavailable';
+                document.body.appendChild(errorMsg);
+                
+                setTimeout(() => {
+                    if (document.body.contains(errorMsg)) {
+                        document.body.removeChild(errorMsg);
+                    }
+                }, 3000);
+                
+            } finally {
+                audioButton.disabled = false;
+                audioButton.classList.remove('loading');
+                audioButton.innerHTML = originalText;
+            }
+        }
+
+        function flipCard() {
+            if (currentMode === 'quiz') {
+                nextCard();
+                return;
+            }
+            
+            const card = currentDeck[currentCardIndex];
+            const meaning = document.getElementById('meaning');
+            const flashcard = document.getElementById('flashcard');
+            
+            if (isFlipped) {
+                meaning.style.display = 'none';
+                flashcard.classList.remove('flipped');
+            } else {
+                meaning.style.display = 'block';
+                flashcard.classList.add('flipped');
+                flipCount++;
+
+                updateWordProgress(card.japanese, true);
+                updateEnhancedStats();
+                updateDueAlert();
+            }
+            isFlipped = !isFlipped;
+        }
+
+        function nextCard() {
+            clearSpeedTimer();
+            
+            if (currentCardIndex < currentDeck.length - 1) {
+                currentCardIndex++;
+            } else {
+                const newDeck = getNextCards(50);
+                if (newDeck.length > 0) {
+                    currentDeck = newDeck;
+                    currentCardIndex = 0;
+                    cardsStudied.clear();
+                } else {
+                    currentCardIndex = 0; // Loop back to start
+                }
+            }
+            updateCard();
+        }
+
+        function previousCard() {
+            clearSpeedTimer();
+            
+            if (currentCardIndex > 0) {
+                currentCardIndex--;
+                updateCard();
+            }
+        }
+
+        function resetProgress() {
+            if (confirm('Reset all learning progress? This will clear your spaced repetition data.')) {
+                wordProgress = {};
+                allFlashcards.forEach(card => {
+                    wordProgress[card.japanese] = {
+                        state: 'new',
+                        lastReviewed: null,
+                        nextReview: Date.now(),
+                        correctStreak: 0,
+                        totalAttempts: 0,
+                        correctAttempts: 0,
+                        created: Date.now()
+                    };
+                });
+                saveWordProgress();
+                
+                currentCardIndex = 0;
+                cardsStudied.clear();
+                flipCount = 0;
+                
+                applyFilters();
+            }
+        }
+
+        function toggleStats() {
+            const statsElement = document.getElementById('stats');
+            statsElement.classList.toggle('show');
+            if (statsElement.classList.contains('show')) {
+                updateEnhancedStats();
+            }
+        }
+
+        // Keyboard shortcuts
         function handleKeyboard(event) {
             if (!keyboardListenerActive) return;
             
@@ -2601,46 +2509,28 @@
 
         document.addEventListener('keydown', handleKeyboard);
 
-        // ======= INITIALIZATION =======
-
+        // Initialize the app
         async function initializeApp() {
             console.log('🚀 Initializing JLPT N5 Adaptive Learning System...');
             
-            // Initialize spaced repetition data
-            initializeWordProgress();
-            
-            // Initialize UI components
-            calculateWordCounts();
-            initializeHamburgerMenu();
-            initializeTabs();
-            initializeQuizModes();
-            
-            // Initialize deck with spaced repetition
-            currentDeck = getNextCards(50);
-            updateCard();
-            updateEnhancedStats();
-            updateDueAlert();
-            
-            // Initialize audio cache
             try {
-                await initAudioCache();
-                console.log('✅ Audio cache initialized');
+                initializeWordProgress();
+                
+                calculateWordCounts();
+                initializeHamburgerMenu();
+                initializeTabs();
+                initializeQuizModes();
+                
+                currentDeck = getNextCards(50);
+                updateCard();
+                updateEnhancedStats();
+                updateDueAlert();
+                
+                console.log('✅ JLPT N5 Adaptive Learning System Ready!');
+                console.log('Current deck size:', currentDeck.length);
+                
             } catch (error) {
-                console.warn('⚠️ Audio cache initialization failed:', error);
-            }
-            
-            console.log('✅ JLPT N5 Adaptive Learning System Ready!');
-            console.log('📊 Spaced Repetition Algorithm: Active');
-            console.log('📚 Vocabulary Database:', allFlashcards.length, 'words');
-            console.log('🎯 Learning Modes: Study + 4 Quiz Types');
-            console.log('🧠 Smart Card Selection: Enabled');
-            
-            // Analytics initialization tracking
-            if (typeof gtag !== 'undefined') {
-                gtag('event', 'app_initialized', {
-                    total_words: allFlashcards.length,
-                    spaced_repetition: 'enabled'
-                });
+                console.error('❌ Initialization failed:', error);
             }
         }
 
