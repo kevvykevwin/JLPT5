@@ -1725,20 +1725,28 @@
                 }
             });
 
+            // Shuffle each category to mix word types
+            const shuffledDueCards = shuffleArray(dueCards);
+            const shuffledNewCards = shuffleArray(newCards);
+            const shuffledFutureCards = shuffleArray(futureCards);
+
             let result = [];
-            if (dueCards.length > 0) {
-                result.push(...dueCards.slice(0, count));
+            if (shuffledDueCards.length > 0) {
+                result.push(...shuffledDueCards.slice(0, count));
             }
-            if (result.length < count && newCards.length > 0) {
+            if (result.length < count && shuffledNewCards.length > 0) {
                 const needed = count - result.length;
-                result.push(...newCards.slice(0, needed));
+                result.push(...shuffledNewCards.slice(0, needed));
             }
-            if (result.length < count && futureCards.length > 0) {
+            if (result.length < count && shuffledFutureCards.length > 0) {
                 const needed = count - result.length;
-                result.push(...futureCards.slice(0, needed));
+                result.push(...shuffledFutureCards.slice(0, needed));
             }
 
-            return result.length > 0 ? result : filteredCards.slice(0, count);
+            // Final shuffle to interleave different priority levels and word types
+            result = shuffleArray(result);
+
+            return result.length > 0 ? result : shuffleArray(filteredCards.slice(0, count));
         }
 
         function getDueCounts() {
@@ -1827,6 +1835,55 @@
                 [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
             }
             return newArray;
+        }
+
+        // Enhanced interleaved shuffle to better mix word types
+        function interleavedShuffle(array) {
+            if (array.length <= 1) return array;
+            
+            // Group cards by type
+            const cardsByType = {
+                noun: [],
+                verb: [],
+                'i-adjective': [],
+                'na-adjective': []
+            };
+            
+            array.forEach(card => {
+                if (cardsByType[card.type]) {
+                    cardsByType[card.type].push(card);
+                }
+            });
+            
+            // Shuffle each type separately
+            Object.keys(cardsByType).forEach(type => {
+                cardsByType[type] = shuffleArray(cardsByType[type]);
+            });
+            
+            // Create interleaved result
+            const result = [];
+            const typeKeys = Object.keys(cardsByType).filter(type => cardsByType[type].length > 0);
+            let typeIndex = 0;
+            
+            while (result.length < array.length) {
+                const currentType = typeKeys[typeIndex % typeKeys.length];
+                if (cardsByType[currentType].length > 0) {
+                    result.push(cardsByType[currentType].shift());
+                }
+                typeIndex++;
+            }
+            
+            // Final light shuffle to avoid perfect patterns while maintaining good distribution
+            const lightShuffled = [...result];
+            const swapCount = Math.max(1, Math.floor(array.length * 0.1)); // Swap 10% of positions
+            
+            for (let i = 0; i < swapCount; i++) {
+                const pos1 = Math.floor(Math.random() * lightShuffled.length);
+                const pos2 = Math.floor(Math.random() * lightShuffled.length);
+                [lightShuffled[pos1], lightShuffled[pos2]] = [lightShuffled[pos2], lightShuffled[pos1]];
+            }
+            
+            return lightShuffled;
         }
 
         function generateStandardQuizOptions(correctCard, container) {
@@ -2659,7 +2716,7 @@
         }
 
         function shuffleCards() {
-            currentDeck = shuffleArray([...currentDeck]);
+            currentDeck = interleavedShuffle([...currentDeck]);
             currentCardIndex = 0;
             updateCard();
             
@@ -2671,7 +2728,7 @@
                 box-shadow: 0 4px 15px rgba(56, 142, 60, 0.3); z-index: 1001;
                 font-weight: 500;
             `;
-            shuffleMsg.textContent = '🔀 Cards shuffled!';
+            shuffleMsg.textContent = '🔀 Cards mixed by type!';
             document.body.appendChild(shuffleMsg);
             
             setTimeout(() => {
