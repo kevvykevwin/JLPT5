@@ -155,11 +155,29 @@
             background: #f8f9fa;
         }
 
+        .filter-option label {
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 14px;
+            flex: 1;
+            text-align: left;
+            margin-right: 8px;
+        }
+
+        .word-count-badge {
+            background: #388e3c;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-right: 12px;
+        }
+
         .toggle-switch {
             position: relative;
             width: 50px;
             height: 24px;
-            margin-left: 12px;
             flex-shrink: 0;
         }
 
@@ -200,23 +218,6 @@
 
         input:checked + .toggle-slider:before {
             transform: translateX(26px);
-        }
-
-        .filter-option label {
-            cursor: pointer;
-            font-weight: 500;
-            font-size: 14px;
-            flex: 1;
-            margin-right: 12px;
-        }
-
-        .word-count-badge {
-            background: #388e3c;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 12px;
-            font-size: 11px;
-            font-weight: 600;
         }
 
         .retention-prompt {
@@ -447,12 +448,12 @@
         .quiz-mode-selector {
             display: flex;
             gap: 8px;
-            justify-content: flex-start;
+            justify-content: center;
             flex-wrap: wrap;
-            flex: 1;
+            margin-bottom: 20px;
         }
-        
-        .quiz-mode-btn, .reading-toggle-btn {
+
+        .quiz-mode-btn {
             padding: 8px 16px;
             border: 2px solid #e0e0e0;
             border-radius: 20px;
@@ -462,6 +463,7 @@
             transition: all 0.3s ease;
             font-size: 12px;
             font-weight: 500;
+            white-space: nowrap;
         }
         
         .quiz-mode-btn.active {
@@ -472,24 +474,10 @@
             box-shadow: 0 4px 12px rgba(56, 142, 60, 0.3);
         }
 
-        .reading-toggle-btn {
-            border-color: #9c27b0;
-            color: #9c27b0;
-        }
-
-        .reading-toggle-btn:hover {
-            background: #9c27b0;
-            color: white;
+        .quiz-mode-btn:hover:not(.active) {
+            border-color: #388e3c;
+            color: #388e3c;
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(156, 39, 176, 0.3);
-        }
-
-        .reading-toggle-btn.active {
-            background: #9c27b0;
-            color: white;
-            border-color: #9c27b0;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(156, 39, 176, 0.3);
         }
 
         .quiz-container {
@@ -506,19 +494,41 @@
             display: block;
         }
 
+        .quiz-settings {
+            display: flex;
+            justify-content: flex-start;
+            margin-bottom: 20px;
+            padding-left: 10px;
+        }
+
+        .kana-toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .kana-toggle-label {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
         .quiz-question {
-            font-size: 32px;
+            font-size: 40px;
             font-weight: bold;
             color: #1b5e20;
             margin-bottom: 30px;
             text-align: center;
             position: relative;
+            font-family: 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;
         }
 
         .quiz-question.listening-mode {
             font-size: 20px;
             line-height: 1.4;
             margin-bottom: 20px;
+            font-family: 'Arial', sans-serif;
         }
 
         .quiz-audio-section {
@@ -625,21 +635,6 @@
         .quiz-option.disabled {
             pointer-events: none;
             opacity: 0.7;
-        }
-
-        .quiz-option-reading {
-            font-size: 14px;
-            color: #666;
-            margin-top: 5px;
-            font-style: italic;
-            transition: opacity 0.3s ease, height 0.3s ease, margin 0.3s ease;
-        }
-
-        .quiz-option-reading.hidden {
-            opacity: 0;
-            height: 0;
-            margin: 0;
-            overflow: hidden;
         }
 
         .quiz-feedback {
@@ -900,6 +895,17 @@
             box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3) !important;
         }
         
+        @media (max-width: 768px) {
+            .quiz-mode-selector {
+                gap: 6px;
+            }
+
+            .quiz-mode-btn {
+                font-size: 11px;
+                padding: 6px 12px;
+            }
+        }
+
         @media (max-width: 480px) {
             .flashcard-container { 
                 padding: 20px; 
@@ -908,6 +914,14 @@
             
             .japanese-word { 
                 font-size: 32px; 
+            }
+
+            .quiz-question {
+                font-size: 28px;
+            }
+            
+            .quiz-question.listening-mode {
+                font-size: 16px;
             }
             
             .controls { 
@@ -924,21 +938,9 @@
                 grid-template-columns: repeat(2, 1fr);
             }
 
-            .quiz-question {
-                font-size: 24px;
-            }
-            
-            .quiz-question.listening-mode {
-                font-size: 16px;
-            }
-
-            .quiz-mode-selector {
-                gap: 6px;
-            }
-
-            .quiz-mode-btn, .reading-toggle-btn {
-                font-size: 11px;
-                padding: 6px 12px;
+            .quiz-mode-btn {
+                font-size: 10px;
+                padding: 5px 10px;
             }
         }
     </style>
@@ -1035,25 +1037,25 @@
         </div>
 
         <div class="tab-content" id="quizTab">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <div class="quiz-mode-selector">
-                    <button class="quiz-mode-btn active" data-mode="multiple-choice">Multiple Choice</button>
-                    <button class="quiz-mode-btn" data-mode="listening-first">Listening First</button>
-                    <button class="quiz-mode-btn" data-mode="mixed-challenge">Mixed Challenge</button>
-                    <button class="quiz-mode-btn" data-mode="speed-challenge">Speed Challenge</button>
-                    <button class="quiz-mode-btn" data-mode="kanji-only">Kanji Only</button>
-                </div>
-                
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <span style="font-size: 14px; color: #666;">Show kana:</span>
-                    <div class="toggle-switch">
-                        <input type="checkbox" id="showKana" checked>
-                        <span class="toggle-slider"></span>
-                    </div>
-                </div>
+            <div class="quiz-mode-selector">
+                <button class="quiz-mode-btn active" data-mode="multiple-choice">Multiple Choice</button>
+                <button class="quiz-mode-btn" data-mode="listening-first">Listening First</button>
+                <button class="quiz-mode-btn" data-mode="mixed-challenge">Mixed Challenge</button>
+                <button class="quiz-mode-btn" data-mode="speed-challenge">Speed Challenge</button>
+                <button class="quiz-mode-btn" data-mode="kanji-only">Kanji Only</button>
             </div>
 
             <div class="quiz-container active" id="quizContainer">
+                <div class="quiz-settings">
+                    <div class="kana-toggle-container">
+                        <span class="kana-toggle-label">Show kana:</span>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="showKana" checked>
+                            <span class="toggle-slider"></span>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="japanese-word quiz-question" id="quizQuestion">What does this mean?</div>
                 <div id="quizAudioSection" class="quiz-audio-section" style="display: none;">
                     <button class="quiz-audio-button" id="quizAudioButton" onclick="playAudio(event)" title="Listen to pronunciation">
@@ -1403,7 +1405,7 @@
             'mastered': { correct: 'mastered', incorrect: 'review_1' }
         };
 
-        // Global variables
+        // Global variables - COMPLETE DECLARATION
         let currentMode = 'study';
         let currentQuizMode = 'multiple-choice';
         let currentCardIndex = 0;
@@ -1419,11 +1421,10 @@
         let speedChallengeInterval = null;
         let wordProgress = {};
         let currentAudio = null;
-        let showKanaEnabled = true;
         let engagementCount = 0;
         let retentionPromptShown = false;
         let autoAdvanceTimer = null;
-
+  
         // Word counts by type
         const wordCounts = {
             all: 0,
@@ -1448,7 +1449,7 @@
                 if (currentMode === 'quiz' && quizAnswered) {
                     nextCard();
                 }
-            }, 2500); // 2.5 seconds
+            }, 2500);
         }
 
         function clearAutoAdvanceTimer() {
@@ -1604,7 +1605,6 @@
 
             result = interleavedShuffle(result);
 
-            // Track review cards for retention prompt
             const reviewCardsInDeck = result.filter(card => {
                 const progress = wordProgress[card.japanese];
                 return progress && progress.nextReview <= now;
@@ -1705,11 +1705,10 @@
             return counts;
         }
 
-        // Enhanced quiz option generation with better randomization
+        // Enhanced quiz option generation with kana toggle functionality
         function generateStandardQuizOptions(correctCard, container) {
             if (!correctCard || !container) return;
             
-            // Start with all cards except the correct one
             const otherCards = allFlashcards.filter(card => 
                 card.japanese !== correctCard.japanese
             );
@@ -1719,27 +1718,22 @@
                 return;
             }
             
-            // Enhanced randomization with better mixing
             const sameTypeCards = shuffleArray(otherCards.filter(card => card.type === correctCard.type));
             const diffTypeCards = shuffleArray(otherCards.filter(card => card.type !== correctCard.type));
             
-            // Create more challenging distractors with better variety
             const wrongAnswers = [];
             
-            // Add 2 same-type distractors (more challenging)
             if (sameTypeCards.length >= 2) {
                 wrongAnswers.push(...sameTypeCards.slice(0, 2));
             } else {
                 wrongAnswers.push(...sameTypeCards);
             }
             
-            // Add different-type distractors for variety
             const remainingSlots = 3 - wrongAnswers.length;
             if (remainingSlots > 0 && diffTypeCards.length > 0) {
                 wrongAnswers.push(...diffTypeCards.slice(0, remainingSlots));
             }
             
-            // If we still don't have enough, fill with any remaining cards
             if (wrongAnswers.length < 3) {
                 const remaining = otherCards.filter(card => 
                     !wrongAnswers.some(wa => wa.japanese === card.japanese)
@@ -1748,7 +1742,6 @@
                 wrongAnswers.push(...shuffledRemaining.slice(0, 3 - wrongAnswers.length));
             }
             
-            // Create final options array and shuffle completely
             const allOptions = [correctCard, ...wrongAnswers.slice(0, 3)];
             const shuffledOptions = shuffleArray(allOptions);
             
@@ -1757,29 +1750,18 @@
                 const button = document.createElement('button');
                 button.className = 'quiz-option';
                 
-                if (currentQuizMode === 'kanji-only') {
-                    // Consistent formatting for kanji-only mode - smaller font size
-                    if (showKanaEnabled) {
-                        button.innerHTML = `
-                            <div style="font-size: 16px; font-weight: 600; margin-bottom: 5px;">${option.meaning}</div>
-                            <div style="font-size: 14px; color: #666; font-style: italic;">${option.reading}</div>
-                        `;
-                    } else {
-                        button.innerHTML = `
-                            <div style="font-size: 16px; font-weight: 600;">${option.meaning}</div>
-                        `;
-                    }
+                const showKanaCheckbox = document.getElementById('showKana');
+                const showKana = showKanaCheckbox ? showKanaCheckbox.checked : true;
+                
+                if (showKana) {
+                    button.innerHTML = `
+                        <div style="font-size: 16px; margin-bottom: 5px;">${option.meaning}</div>
+                        <div style="font-size: 14px; color: #666;">${option.reading}</div>
+                    `;
                 } else {
-                    if (showKanaEnabled) {
-                        button.innerHTML = `
-                            <div style="font-size: 16px; margin-bottom: 5px;">${option.meaning}</div>
-                            <div style="font-size: 14px; color: #666;">${option.reading}</div>
-                        `;
-                    } else {
-                        button.innerHTML = `
-                            <div style="font-size: 16px;">${option.meaning}</div>
-                        `;
-                    }
+                    button.innerHTML = `
+                        <div style="font-size: 16px;">${option.meaning}</div>
+                    `;
                 }
                 
                 button.onclick = () => selectQuizAnswer(button, option, correctCard);
@@ -1838,8 +1820,11 @@
                 const button = document.createElement('button');
                 button.className = 'quiz-option';
                 
+                const showKanaCheckbox = document.getElementById('showKana');
+                const showKana = showKanaCheckbox ? showKanaCheckbox.checked : true;
+                
                 if (isJapaneseQuestion) {
-                    if (showKanaEnabled) {
+                    if (showKana) {
                         button.innerHTML = `
                             <div style="font-size: 16px; margin-bottom: 5px;">${option.meaning}</div>
                             <div style="font-size: 14px; color: #666;">${option.reading}</div>
@@ -1850,7 +1835,7 @@
                         `;
                     }
                 } else {
-                    if (showKanaEnabled) {
+                    if (showKana) {
                         button.innerHTML = `
                             <div style="font-size: 20px; margin-bottom: 8px; font-family: 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif;">${option.japanese}</div>
                             <div style="font-size: 14px; color: #666;">${option.reading}</div>
@@ -1921,7 +1906,6 @@
             
             updateWordProgress(correctCard.japanese, isCorrect);
             
-            // Disable all options after answering
             allOptions.forEach(opt => {
                 opt.classList.add('disabled');
                 opt.style.pointerEvents = 'none';
@@ -1929,13 +1913,12 @@
             
             updateEnhancedStats();
 
-            // Start auto-advance timer for quiz mode
             if (currentMode === 'quiz') {
                 startAutoAdvanceTimer();
             }
         }
 
-        // Enhanced updateQuiz with proper cleanup
+        // Enhanced updateQuiz with proper cleanup and kana toggle support
         function updateQuiz(card) {
             if (!card) {
                 console.error('No card provided to updateQuiz');
@@ -1954,12 +1937,10 @@
                 return;
             }
             
-            // Clean up previous quiz state completely
             quizFeedback.textContent = '';
             quizAnswered = false;
             quizStartTime = Date.now();
 
-            // Remove any existing option styling and re-enable all options
             const existingOptions = quizOptions.querySelectorAll('.quiz-option');
             existingOptions.forEach(option => {
                 option.classList.remove('correct', 'incorrect', 'disabled');
@@ -1988,7 +1969,7 @@
                     
                     const rand = Math.random();
                     if (rand < 0.5) {
-                        quizQuestion.innerHTML = `<div style="font-size: 36px; margin-bottom: 15px;">${card.japanese}</div><div style="font-size: 16px; color: #666; font-weight: normal;">What does this mean?</div>`;
+                        quizQuestion.innerHTML = `<div style="font-size: 40px; margin-bottom: 15px;">${card.japanese}</div><div style="font-size: 16px; color: #666; font-weight: normal;">What does this mean?</div>`;
                     } else {
                         quizQuestion.innerHTML = `<div style="font-size: 24px; color: #2e7d32; margin-bottom: 15px;">"${card.meaning}"</div><div style="font-size: 16px; color: #666; font-weight: normal;">What is this in Japanese?</div>`;
                     }
@@ -1997,7 +1978,6 @@
                 } else if (currentQuizMode === 'speed-challenge') {
                     if (quizAudioSection) quizAudioSection.style.display = 'none';
                     
-                    // Consistent kanji size with other modes - reduced from 56px to match
                     quizQuestion.innerHTML = `
                         <div style="font-size: 40px; margin-bottom: 15px; text-shadow: 0 3px 6px rgba(27, 94, 32, 0.3); font-weight: bold; color: #1b5e20;">${card.japanese}</div>
                         <div style="font-size: 14px; color: #ff6b6b; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">⚡ SPEED ROUND - 8 SECONDS! ⚡</div>
@@ -2014,7 +1994,6 @@
                 } else if (currentQuizMode === 'kanji-only') {
                     if (quizAudioSection) quizAudioSection.style.display = 'none';
                     
-                    // Consistent kanji size with other modes - reduced from 72px to match
                     quizQuestion.innerHTML = `
                         <div style="
                             font-size: 40px; 
@@ -2035,9 +2014,13 @@
                     generateStandardQuizOptions(card, quizOptions);
                     
                 } else {
-                    // Standard multiple choice with enhanced randomization
+                    // Standard multiple choice
                     if (quizAudioSection) quizAudioSection.style.display = 'none';
-                    if (showKanaEnabled) {
+                    
+                    const showKanaCheckbox = document.getElementById('showKana');
+                    const showKana = showKanaCheckbox ? showKanaCheckbox.checked : true;
+                    
+                    if (showKana) {
                         quizQuestion.innerHTML = `<div style="font-size: 40px; margin-bottom: 10px;">${card.japanese}</div><div style="font-size: 16px; color: #666; font-weight: normal;">${card.reading}</div>`;
                     } else {
                         quizQuestion.innerHTML = `<div style="font-size: 40px;">${card.japanese}</div>`;
@@ -2545,11 +2528,10 @@
                 });
             });
 
-            // Initialize "Show kana" toggle
+            // Initialize "Show kana" toggle functionality
             const showKanaToggle = document.getElementById('showKana');
             if (showKanaToggle) {
                 showKanaToggle.addEventListener('change', (e) => {
-                    showKanaEnabled = e.target.checked;
                     if (currentMode === 'quiz') {
                         const currentCard = safeGetCard(currentCardIndex);
                         if (currentCard) {
