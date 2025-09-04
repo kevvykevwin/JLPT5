@@ -784,7 +784,17 @@ input:checked + .reading-switch-slider + .reading-switch-label {
     border: 1px solid rgba(244, 67, 54, 0.2);
     animation: fadeInError 0.5s ease-in-out;
 }
+.quiz-feedback {
+    display: none !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+}
 
+.quiz-feedback.show {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+}
 @keyframes fadeInSuccess {
     0% {
         opacity: 0;

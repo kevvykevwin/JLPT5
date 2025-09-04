@@ -323,7 +323,14 @@ class JLPTApp {
             }
         }, 5000);
     }
-
+    cleanupQuizFeedback() {
+    const feedback = document.getElementById('quizFeedback');
+    if (feedback) {
+        feedback.style.display = 'none';
+        feedback.textContent = '';
+        feedback.className = 'quiz-feedback';
+    }
+    }
     continueWithCurrentMode() {
         console.log(`🎯 Auto-continuing with ${this.currentQuizMode} mode`);
         this.initializeBatch();
