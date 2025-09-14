@@ -294,7 +294,7 @@ class JLPTApp {
         this.hideQuizContainer();
         this.showModeSelector();
         this.updateCardCounter();
-        this.updateReadingToggleVisibility(); // Update toggle visibility
+        this.updateReadingToggleVisibility();
         
         // Show batch completion message
         const modeSelector = document.querySelector('.quiz-mode-selector');
@@ -323,14 +323,7 @@ class JLPTApp {
             }
         }, 5000);
     }
-    cleanupQuizFeedback() {
-    const feedback = document.getElementById('quizFeedback');
-    if (feedback) {
-        feedback.style.display = 'none';
-        feedback.textContent = '';
-        feedback.className = 'quiz-feedback';
-    }
-    }
+
     continueWithCurrentMode() {
         console.log(`🎯 Auto-continuing with ${this.currentQuizMode} mode`);
         this.initializeBatch();
@@ -365,7 +358,7 @@ class JLPTApp {
                 }
             }
 
-            // Study mode logic (unchanged)
+            // Study mode logic
             const elements = {
                 promptText: document.getElementById('promptText'),
                 japaneseWord: document.getElementById('japaneseWord'),
@@ -395,7 +388,7 @@ class JLPTApp {
 
             this.updateLearningStateIndicator(card);
             this.updateCardCounter();
-            this.updateReadingToggleVisibility(); // Update toggle visibility
+            this.updateReadingToggleVisibility();
 
             this.cardsStudied.add(this.currentCardIndex);
             const cardType = card.type;
@@ -414,22 +407,23 @@ class JLPTApp {
         }
     }
 
-    // ENHANCED: Quiz answer selection with batch management
+    // FIXED: Enhanced quiz answer selection with proper timeout handling
     selectQuizAnswer(button, selectedOption, correctCard, isTimeout = false) {
-        if (this.quizAnswered) return;
+        if (this.quizAnswered) {
+            console.warn('Quiz already answered, ignoring duplicate selection');
+            return;
+        }
         
-        this.clearSpeedTimer();
-        this.clearAutoAdvanceTimer();
+        console.log(`📝 Answer selected: ${selectedOption?.japanese || 'TIMEOUT'}, correct: ${correctCard.japanese}, isTimeout: ${isTimeout}`);
+        
+        // CRITICAL: Set answered state immediately to prevent race conditions
+        this.quizAnswered = true;
+        
+        // CRITICAL: Clear ALL timers first to prevent double-triggering
+        this.clearAllTimers();
         
         const allOptions = document.querySelectorAll('.quiz-option');
         const feedback = document.getElementById('quizFeedback');
-        
-        this.quizAnswered = true;
-        
-        const timerElement = document.querySelector('.speed-timer');
-        if (timerElement && document.body.contains(timerElement)) {
-            timerElement.remove();
-        }
         
         const cardType = correctCard.type;
         if (this.categoryStats[cardType]) {
@@ -438,7 +432,9 @@ class JLPTApp {
         
         this.totalQuizAttempts++;
         
+        // Determine if answer is correct
         let isCorrect = false;
+        
         if (!isTimeout && selectedOption && selectedOption.japanese === correctCard.japanese) {
             isCorrect = true;
             if (button) {
@@ -448,15 +444,19 @@ class JLPTApp {
             }
             
             feedback.textContent = `✅ Correct! ${correctCard.reading}`;
-            feedback.className = 'quiz-feedback correct';
+            feedback.className = 'quiz-feedback correct show';
             
             if (this.categoryStats[cardType]) {
                 this.categoryStats[cardType].quizCorrect++;
             }
             this.totalQuizCorrect++;
         } else {
-            if (button && !isTimeout) button.classList.add('incorrect');
+            // Handle both wrong answers AND timeouts as incorrect
+            if (button && !isTimeout) {
+                button.classList.add('incorrect');
+            }
             
+            // Highlight correct answer
             allOptions.forEach(opt => {
                 const optionText = opt.textContent || opt.innerText;
                 if (optionText.includes(correctCard.meaning) || 
@@ -467,14 +467,16 @@ class JLPTApp {
             
             if (isTimeout) {
                 feedback.textContent = `⏰ Time's up! Answer: ${correctCard.meaning} (${correctCard.reading})`;
+                console.log('🕒 Speed challenge timeout - marking as incorrect');
             } else {
                 feedback.textContent = `❌ Wrong. Correct answer: ${correctCard.meaning} (${correctCard.reading})`;
             }
-            feedback.className = 'quiz-feedback incorrect';
+            feedback.className = 'quiz-feedback incorrect show';
         }
         
         updateWordProgress(correctCard.japanese, isCorrect);
         
+        // Disable all options after answering
         allOptions.forEach(opt => {
             opt.classList.add('disabled');
             opt.style.pointerEvents = 'none';
@@ -482,8 +484,9 @@ class JLPTApp {
         
         this.updateEnhancedStats();
 
-        // ENHANCED: Batch management and mode selection
+        // Batch management
         const batchComplete = this.incrementBatch(isCorrect);
+        console.log(`📊 Batch progress: ${this.currentBatch.completed}/${this.currentBatch.size}, isCorrect: ${isCorrect}`);
         
         if (batchComplete) {
             // Show batch completion and mode selection
@@ -491,79 +494,65 @@ class JLPTApp {
                 this.showBatchModeSelection();
             }, 2000);
         } else {
-            // Continue with current batch
-            if (this.currentMode === 'quiz') {
-                this.startAutoAdvanceTimer();
-            }
+            // Start auto-advance timer
+            this.startAutoAdvanceTimer(isTimeout);
         }
     }
 
-    // ENHANCED: Tab switching with batch reset
-    handleTabSwitch(button) {
-        const tabId = button.getAttribute('data-tab');
-        
-        document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-        button.classList.add('active');
-        
-        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-        document.getElementById(tabId + 'Tab')?.classList.add('active');
-        
-        this.currentMode = tabId;
-        this.resetEngagementTracking();
-        
-        // Reset batch when switching to quiz mode
-        if (tabId === 'quiz') {
-            this.currentBatch = { size: 0, completed: 0, questions: [] };
-            this.isInBatchModeSelection = false;
+    // CRITICAL: Central timer cleanup method
+    clearAllTimers() {
+        // Clear speed challenge timers
+        if (this.speedChallengeTimer) {
+            clearTimeout(this.speedChallengeTimer);
+            this.speedChallengeTimer = null;
+        }
+        if (this.speedChallengeInterval) {
+            clearInterval(this.speedChallengeInterval);
+            this.speedChallengeInterval = null;
         }
         
-        const flipBtn = document.getElementById('flipBtn');
-        if (flipBtn) {
-            if (tabId === 'study') {
-                flipBtn.textContent = 'Flip Card';
-            } else {
-                flipBtn.textContent = 'Next Quiz';
+        // Clear auto-advance timer
+        if (this.autoAdvanceTimer) {
+            clearTimeout(this.autoAdvanceTimer);
+            this.autoAdvanceTimer = null;
+        }
+        
+        // Remove visual timer elements
+        const timerElements = document.querySelectorAll('.speed-timer, .speed-prompt, .warning');
+        timerElements.forEach(timer => {
+            if (document.body.contains(timer)) {
+                timer.remove();
             }
-        }
+        });
         
-        this.updateCard();
-        this.updateReadingToggleVisibility(); // Update toggle visibility
+        // Remove warning classes
+        document.querySelectorAll('.warning').forEach(el => {
+            el.classList.remove('warning');
+        });
+        
+        console.log('🧹 All timers and visual artifacts cleared');
     }
 
-    // ENHANCED: Quiz mode selection with batch initialization
-    setQuizMode(mode) {
-        console.log(`🎯 Setting quiz mode to: ${mode}`);
-        
-        this.clearSpeedTimer();
+    // FIXED: Reliable auto-advance with proper cleanup
+    startAutoAdvanceTimer(isTimeout = false) {
         this.clearAutoAdvanceTimer();
-        const existingTimer = document.querySelector('.speed-timer');
-        if (existingTimer) existingTimer.remove();
         
-        this.currentQuizMode = mode;
-        this.updateQuizModeButtons();
-        
-        const preferences = loadUserPreferences();
-        preferences.currentQuizMode = mode;
-        saveUserPreferences(preferences);
-        
-        // Clean up batch completion UI
-        const modeSelector = document.querySelector('.quiz-mode-selector');
-        if (modeSelector) {
-            modeSelector.classList.remove('batch-complete-selection');
-            const completionMsg = modeSelector.querySelector('.batch-completion-msg');
-            if (completionMsg) {
-                completionMsg.remove();
-            }
+        if (this.currentMode === 'quiz') {
+            const advanceDelay = isTimeout ? 3500 : 2500; // Longer delay for timeouts
+            
+            this.autoAdvanceTimer = setTimeout(() => {
+                if (this.currentMode === 'quiz' && this.quizAnswered) {
+                    console.log('⏭️ Auto-advancing to next question');
+                    this.nextCard();
+                }
+            }, advanceDelay);
         }
-        
-        // Initialize new batch and start quiz
-        if (this.isInBatchModeSelection || this.currentBatch.completed === 0) {
-            this.initializeBatch();
-            const card = this.safeGetCard(this.currentCardIndex);
-            if (card) {
-                this.updateQuiz(card);
-                console.log(`✅ New batch started with ${mode} mode (${this.currentBatch.size} questions)`);
-            }
+    }
+
+    clearAutoAdvanceTimer() {
+        if (this.autoAdvanceTimer) {
+            clearTimeout(this.autoAdvanceTimer);
+            this.autoAdvanceTimer = null;
         }
     }
 
@@ -595,224 +584,41 @@ class JLPTApp {
         }
     }
 
-    showErrorFallback(error) {
-        const japaneseWord = document.getElementById('japaneseWord');
-        const reading = document.getElementById('reading');
-        const cardCounter = document.getElementById('cardCounter');
+    // NEW: Comprehensive quiz cleanup method
+    cleanupQuizState() {
+        // Clear all timers
+        this.clearAllTimers();
         
-        if (japaneseWord) japaneseWord.textContent = 'System Error';
-        if (reading) reading.textContent = 'Please refresh the page';
-        if (cardCounter) cardCounter.textContent = `Error: ${error.message}`;
-        
-        this.showNotification('System initialization failed. Please refresh the page.', 'error');
-    }
-
-    initializeUI() {
-        this.calculateWordCounts();
-        this.updateReadingToggleState();
-        this.updateQuizModeButtons();
-    }
-
-    calculateWordCounts() {
-        this.wordCounts.all = allFlashcards.length;
-        this.wordCounts.noun = allFlashcards.filter(card => card.type === 'noun').length;
-        this.wordCounts.verb = allFlashcards.filter(card => card.type === 'verb').length;
-        this.wordCounts['i-adjective'] = allFlashcards.filter(card => card.type === 'i-adjective').length;
-        this.wordCounts['na-adjective'] = allFlashcards.filter(card => card.type === 'na-adjective').length;
-        
-        const elements = {
-            'allCount': this.wordCounts.all,
-            'nounCount': this.wordCounts.noun,
-            'verbCount': this.wordCounts.verb,
-            'iAdjCount': this.wordCounts['i-adjective'],
-            'naAdjCount': this.wordCounts['na-adjective']
-        };
-        
-        Object.entries(elements).forEach(([id, count]) => {
-            const element = document.getElementById(id);
-            if (element) element.textContent = count;
+        // Remove all quiz-specific visual elements
+        const elementsToRemove = document.querySelectorAll('.speed-timer, .speed-prompt, .warning, .firework-particle');
+        elementsToRemove.forEach(el => {
+            if (document.body.contains(el)) {
+                el.remove();
+            }
         });
         
-        console.log('📊 Word counts updated:', this.wordCounts);
-    }
-
-    safeGetCard(index) {
-        if (!this.currentDeck || this.currentDeck.length === 0) {
-            console.warn('Empty deck detected, reinitializing...');
-            this.currentDeck = getNextCards(50, this.activeFilters);
-            if (this.currentDeck.length === 0) {
-                this.currentDeck = this.shuffleArray(allFlashcards.slice(0, 50));
-            }
+        // Reset quiz state
+        this.quizAnswered = false;
+        this.currentQuizAttempt = 0;
+        
+        // Clean up option states
+        const allOptions = document.querySelectorAll('.quiz-option');
+        allOptions.forEach(opt => {
+            opt.classList.remove('correct', 'incorrect', 'disabled', 'correct-celebration', 'warning');
+            opt.style.pointerEvents = 'auto';
+            opt.style.opacity = '1';
+            opt.style.animation = '';
+        });
+        
+        // Clean up feedback
+        const feedback = document.getElementById('quizFeedback');
+        if (feedback) {
+            feedback.textContent = '';
+            feedback.className = 'quiz-feedback';
+            feedback.style.display = 'none';
         }
         
-        const safeIndex = Math.max(0, Math.min(index, this.currentDeck.length - 1));
-        
-        if (safeIndex !== index) {
-            console.warn(`Index ${index} out of bounds, using ${safeIndex}`);
-            this.currentCardIndex = safeIndex;
-        }
-        
-        return this.currentDeck[safeIndex];
-    }
-
-    updateLearningStateIndicator(card) {
-        if (!card) return;
-        
-        const indicator = document.getElementById('stateIndicator');
-        const flashcard = document.getElementById('flashcard');
-        const progress = getWordProgress(card.japanese);
-
-        if (!progress || !indicator || !flashcard) return;
-
-        flashcard.classList.remove('state-new', 'state-learning', 'state-review', 'state-mastered');
-
-        switch (progress.state) {
-            case 'new':
-                indicator.textContent = 'N';
-                indicator.className = 'learning-state-indicator state-new';
-                flashcard.classList.add('state-new');
-                break;
-            case 'learning_1':
-            case 'learning_2':
-                indicator.textContent = 'L';
-                indicator.className = 'learning-state-indicator state-learning';
-                flashcard.classList.add('state-learning');
-                break;
-            case 'review_1':
-            case 'review_2':
-                indicator.textContent = 'R';
-                indicator.className = 'learning-state-indicator state-review';
-                flashcard.classList.add('state-review');
-                break;
-            case 'mastered':
-                indicator.textContent = 'M';
-                indicator.className = 'learning-state-indicator state-mastered';
-                flashcard.classList.add('state-mastered');
-                break;
-            default:
-                indicator.textContent = '?';
-                indicator.className = 'learning-state-indicator state-new';
-                break;
-        }
-    }
-
-    // Navigation functions
-    flipCard() {
-        if (this.currentMode === 'quiz') {
-            this.nextCard();
-            return;
-        }
-        
-        const card = this.safeGetCard(this.currentCardIndex);
-        if (!card) return;
-        
-        const meaning = document.getElementById('meaning');
-        const flashcard = document.getElementById('flashcard');
-        
-        if (!meaning || !flashcard) return;
-        
-        if (this.isFlipped) {
-            meaning.style.display = 'none';
-            flashcard.classList.remove('flipped');
-        } else {
-            meaning.style.display = 'block';
-            flashcard.classList.add('flipped');
-            this.flipCount++;
-            
-            updateWordProgress(card.japanese, true);
-            this.updateEnhancedStats();
-            
-            this.engagementCount++;
-            if (this.engagementCount >= 3 && this.currentDeck.reviewCardCount > 0 && !this.retentionPromptShown) {
-                this.showRetentionPrompt(this.currentDeck.reviewCardCount);
-            }
-        }
-        this.isFlipped = !this.isFlipped;
-    }
-
-    nextCard() {
-        this.clearSpeedTimer();
-        this.clearAutoAdvanceTimer();
-        
-        if (this.currentCardIndex < this.currentDeck.length - 1) {
-            this.currentCardIndex++;
-        } else {
-            const newDeck = getNextCards(50, this.activeFilters);
-            if (newDeck.length > 0) {
-                this.currentDeck = newDeck;
-                this.currentCardIndex = 0;
-                this.cardsStudied.clear();
-            } else {
-                this.currentCardIndex = 0;
-            }
-        }
-        this.updateCard();
-    }
-
-    previousCard() {
-        this.clearSpeedTimer();
-        this.clearAutoAdvanceTimer();
-        
-        if (this.currentCardIndex > 0) {
-            this.currentCardIndex--;
-        } else {
-            this.currentCardIndex = Math.max(0, this.currentDeck.length - 1);
-        }
-        this.updateCard();
-    }
-
-    // Quiz functionality
-    showQuizModeSelection() {
-        console.log('📋 Showing quiz mode selection...');
-        
-        this.isInBatchModeSelection = true;
-        this.hideQuizContainer();
-        this.showModeSelector();
-        this.updateCardCounter();
-        this.updateReadingToggleVisibility(); // Update toggle visibility
-        
-        this.enableQuizModeButtons();
-        
-        const modeSelector = document.querySelector('.quiz-mode-selector');
-        if (modeSelector) {
-            modeSelector.classList.add('selection-phase');
-        }
-    }
-
-    hideModeSelection() {
-        this.isInBatchModeSelection = false;
-        
-        const modeSelector = document.querySelector('.quiz-mode-selector');
-        if (modeSelector) {
-            modeSelector.classList.remove('selection-phase', 'batch-complete-selection');
-            const completionMsg = modeSelector.querySelector('.batch-completion-msg');
-            if (completionMsg) {
-                completionMsg.remove();
-            }
-        }
-        
-        this.updateReadingToggleVisibility(); // Update toggle visibility
-    }
-
-    showModeSelector() {
-        const modeSelector = document.querySelector('.quiz-mode-selector');
-        if (modeSelector) {
-            modeSelector.style.display = 'flex';
-        }
-    }
-
-    hideQuizContainer() {
-        const quizContainer = document.getElementById('quizContainer');
-        if (quizContainer) {
-            quizContainer.classList.add('hidden');
-        }
-    }
-
-    showQuizContainer() {
-        const quizContainer = document.getElementById('quizContainer');
-        if (quizContainer) {
-            quizContainer.classList.remove('hidden');
-        }
+        console.log('🧹 Complete quiz state cleanup performed');
     }
 
     updateQuiz(card) {
@@ -821,10 +627,12 @@ class JLPTApp {
             return;
         }
 
+        // CRITICAL: Comprehensive cleanup before starting new quiz
+        this.cleanupQuizState();
+        
         this.hideModeSelection();
         this.showQuizContainer();
-        this.clearAutoAdvanceTimer();
-        this.updateReadingToggleVisibility(); // Update toggle visibility
+        this.updateReadingToggleVisibility();
 
         const quizQuestion = document.getElementById('quizQuestion');
         const quizOptions = document.getElementById('quizOptions');
@@ -839,20 +647,10 @@ class JLPTApp {
         this.currentQuizAttempt++;
         this.quizStartTime = Date.now();
         
-        quizFeedback.textContent = '';
-        this.quizAnswered = false;
-
-        const existingOptions = quizOptions.querySelectorAll('.quiz-option');
-        existingOptions.forEach(option => {
-            option.classList.remove('correct', 'incorrect', 'disabled', 'correct-celebration');
-            option.style.pointerEvents = 'auto';
-        });
-
-        this.clearSpeedTimer();
-        const existingTimer = document.querySelector('.speed-timer');
-        if (existingTimer) existingTimer.remove();
-
+        // Reset question styling
         quizQuestion.className = 'japanese-word quiz-question';
+        quizQuestion.style.animation = '';
+        
         this.disableQuizModeButtons();
 
         try {
@@ -887,32 +685,95 @@ class JLPTApp {
         }
     }
 
-    disableQuizModeButtons() {
-        const quizModeButtons = document.querySelectorAll('.quiz-mode-btn');
-        quizModeButtons.forEach(btn => {
-            btn.disabled = true;
-            btn.style.opacity = '0.5';
-            btn.style.cursor = 'not-allowed';
-        });
+    setupSpeedQuiz(card, quizQuestion, quizOptions, quizAudioSection) {
+        if (quizAudioSection) quizAudioSection.style.display = 'none';
+        
+        quizQuestion.classList.add('speed-challenge');
+        quizQuestion.innerHTML = `
+            <div style="font-size: 28px; margin-bottom: 20px; text-shadow: 0 3px 6px rgba(27, 94, 32, 0.2); font-weight: 900; color: #1b5e20; line-height: 0.9; font-family: 'Hiragino Sans', 'Yu Gothic', 'Meiryo', 'Noto Sans CJK JP', sans-serif;">${card.japanese}</div>
+            <div class="speed-prompt" style="font-size: 11px; color: #ff6b6b; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">⚡ SPEED ROUND - 8 SECONDS! ⚡</div>
+        `;
+        
+        this.generateQuizOptions(card, quizOptions, true);
+        
+        // CRITICAL: Only start timer after UI is fully set up
+        setTimeout(() => {
+            this.startSpeedChallengeTimer(card);
+        }, 100);
     }
 
-    enableQuizModeButtons() {
-        const quizModeButtons = document.querySelectorAll('.quiz-mode-btn');
-        quizModeButtons.forEach(btn => {
-            btn.disabled = false;
-            btn.style.opacity = '1';
-            btn.style.cursor = 'pointer';
-        });
+    // FIXED: Enhanced speed timer with guaranteed cleanup
+    startSpeedChallengeTimer(card) {
+        // CRITICAL: Clear any existing timers first
+        this.clearAllTimers();
+        
+        console.log('⏱️ Speed challenge timer started for:', card.japanese);
+        
+        // Create timer UI element
+        const timerElement = document.createElement('div');
+        timerElement.className = 'speed-timer';
+        timerElement.textContent = '8s';
+        timerElement.style.cssText = `
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ff6b6b;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 14px;
+            font-weight: bold;
+            z-index: 100;
+            animation: pulse 1s infinite;
+        `;
+        
+        const quizContainer = document.getElementById('quizContainer');
+        if (quizContainer && !quizContainer.querySelector('.speed-timer')) {
+            quizContainer.appendChild(timerElement);
+        }
+        
+        let timeLeft = 8;
+        
+        // Countdown interval
+        this.speedChallengeInterval = setInterval(() => {
+            timeLeft--;
+            
+            if (timerElement && document.body.contains(timerElement)) {
+                timerElement.textContent = timeLeft + 's';
+                
+                if (timeLeft <= 3) {
+                    timerElement.classList.add('warning');
+                    timerElement.style.background = '#ff3030';
+                }
+                
+                if (timeLeft <= 1) {
+                    timerElement.style.animation = 'pulse 0.3s infinite';
+                }
+            }
+            
+            if (timeLeft <= 0) {
+                clearInterval(this.speedChallengeInterval);
+                this.speedChallengeInterval = null;
+            }
+        }, 1000);
+        
+        // Timeout handler
+        this.speedChallengeTimer = setTimeout(() => {
+            console.log('🕒 Speed challenge TIMEOUT triggered');
+            
+            // CRITICAL: Check if quiz was already answered
+            if (!this.quizAnswered) {
+                console.log('🕒 Processing timeout as incorrect answer');
+                this.selectQuizAnswer(null, null, card, true);
+            } else {
+                console.log('🕒 Quiz already answered, ignoring timeout');
+            }
+        }, 8000);
+        
+        console.log('⏱️ Speed challenge timer successfully started with 8 second countdown');
     }
 
-    highlightAvailableButtons() {
-        const quizModeButtons = document.querySelectorAll('.quiz-mode-btn');
-        quizModeButtons.forEach(btn => {
-            btn.classList.add('mode-available');
-            setTimeout(() => btn.classList.remove('mode-available'), 3000);
-        });
-    }
-
+    // Additional quiz setup methods...
     setupStandardQuiz(card, quizQuestion, quizOptions, quizAudioSection) {
         if (quizAudioSection) quizAudioSection.style.display = 'none';
         
@@ -950,25 +811,6 @@ class JLPTApp {
         }
         
         this.generateQuizOptions(card, quizOptions, isJapaneseToEnglish);
-    }
-
-    setupSpeedQuiz(card, quizQuestion, quizOptions, quizAudioSection) {
-        if (quizAudioSection) quizAudioSection.style.display = 'none';
-        
-        quizQuestion.classList.add('speed-challenge');
-        quizQuestion.innerHTML = `
-            <div style="font-size: 28px; margin-bottom: 20px; text-shadow: 0 3px 6px rgba(27, 94, 32, 0.2); font-weight: 900; color: #1b5e20; line-height: 0.9; font-family: 'Hiragino Sans', 'Yu Gothic', 'Meiryo', 'Noto Sans CJK JP', sans-serif;">${card.japanese}</div>
-            <div class="speed-prompt" style="font-size: 11px; color: #ff6b6b; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">⚡ SPEED ROUND - 8 SECONDS! ⚡</div>
-        `;
-        
-        this.generateQuizOptions(card, quizOptions, true);
-        
-        const timerElement = document.createElement('div');
-        timerElement.className = 'speed-timer';
-        timerElement.textContent = '8s';
-        document.getElementById('quizContainer').appendChild(timerElement);
-        
-        this.startSpeedChallengeTimer(card, timerElement);
     }
 
     setupKanjiQuiz(card, quizQuestion, quizOptions, quizAudioSection) {
@@ -1121,65 +963,313 @@ class JLPTApp {
                 duration: 600,
                 easing: 'ease-out'
             }).onfinish = () => {
-                document.body.removeChild(particle);
+                if (document.body.contains(particle)) {
+                    document.body.removeChild(particle);
+                }
             };
         }
     }
 
-    // Timer management
-    startSpeedChallengeTimer(card, timerElement) {
-        let timeLeft = 8;
+    showErrorFallback(error) {
+        const japaneseWord = document.getElementById('japaneseWord');
+        const reading = document.getElementById('reading');
+        const cardCounter = document.getElementById('cardCounter');
         
-        this.speedChallengeInterval = setInterval(() => {
-            timeLeft--;
-            if (timerElement && document.body.contains(timerElement)) {
-                timerElement.textContent = timeLeft + 's';
-                
-                if (timeLeft <= 3) {
-                    timerElement.classList.add('warning');
-                }
+        if (japaneseWord) japaneseWord.textContent = 'System Error';
+        if (reading) reading.textContent = 'Please refresh the page';
+        if (cardCounter) cardCounter.textContent = `Error: ${error.message}`;
+        
+        this.showNotification('System initialization failed. Please refresh the page.', 'error');
+    }
+
+    initializeUI() {
+        this.calculateWordCounts();
+        this.updateReadingToggleState();
+        this.updateQuizModeButtons();
+    }
+
+    calculateWordCounts() {
+        this.wordCounts.all = allFlashcards.length;
+        this.wordCounts.noun = allFlashcards.filter(card => card.type === 'noun').length;
+        this.wordCounts.verb = allFlashcards.filter(card => card.type === 'verb').length;
+        this.wordCounts['i-adjective'] = allFlashcards.filter(card => card.type === 'i-adjective').length;
+        this.wordCounts['na-adjective'] = allFlashcards.filter(card => card.type === 'na-adjective').length;
+        
+        const elements = {
+            'allCount': this.wordCounts.all,
+            'nounCount': this.wordCounts.noun,
+            'verbCount': this.wordCounts.verb,
+            'iAdjCount': this.wordCounts['i-adjective'],
+            'naAdjCount': this.wordCounts['na-adjective']
+        };
+        
+        Object.entries(elements).forEach(([id, count]) => {
+            const element = document.getElementById(id);
+            if (element) element.textContent = count;
+        });
+        
+        console.log('📊 Word counts updated:', this.wordCounts);
+    }
+
+    safeGetCard(index) {
+        if (!this.currentDeck || this.currentDeck.length === 0) {
+            console.warn('Empty deck detected, reinitializing...');
+            this.currentDeck = getNextCards(50, this.activeFilters);
+            if (this.currentDeck.length === 0) {
+                this.currentDeck = this.shuffleArray(allFlashcards.slice(0, 50));
+            }
+        }
+        
+        const safeIndex = Math.max(0, Math.min(index, this.currentDeck.length - 1));
+        
+        if (safeIndex !== index) {
+            console.warn(`Index ${index} out of bounds, using ${safeIndex}`);
+            this.currentCardIndex = safeIndex;
+        }
+        
+        return this.currentDeck[safeIndex];
+    }
+
+    updateLearningStateIndicator(card) {
+        if (!card) return;
+        
+        const indicator = document.getElementById('stateIndicator');
+        const flashcard = document.getElementById('flashcard');
+        const progress = getWordProgress(card.japanese);
+
+        if (!progress || !indicator || !flashcard) return;
+
+        flashcard.classList.remove('state-new', 'state-learning', 'state-review', 'state-mastered');
+
+        switch (progress.state) {
+            case 'new':
+                indicator.textContent = 'N';
+                indicator.className = 'learning-state-indicator state-new';
+                flashcard.classList.add('state-new');
+                break;
+            case 'learning_1':
+            case 'learning_2':
+                indicator.textContent = 'L';
+                indicator.className = 'learning-state-indicator state-learning';
+                flashcard.classList.add('state-learning');
+                break;
+            case 'review_1':
+            case 'review_2':
+                indicator.textContent = 'R';
+                indicator.className = 'learning-state-indicator state-review';
+                flashcard.classList.add('state-review');
+                break;
+            case 'mastered':
+                indicator.textContent = 'M';
+                indicator.className = 'learning-state-indicator state-mastered';
+                flashcard.classList.add('state-mastered');
+                break;
+            default:
+                indicator.textContent = '?';
+                indicator.className = 'learning-state-indicator state-new';
+                break;
+        }
+    }
+
+    // ENHANCED: Tab switching with batch reset
+    handleTabSwitch(button) {
+        const tabId = button.getAttribute('data-tab');
+        
+        document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+        
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+        document.getElementById(tabId + 'Tab')?.classList.add('active');
+        
+        this.currentMode = tabId;
+        this.resetEngagementTracking();
+        
+        // Reset batch when switching to quiz mode
+        if (tabId === 'quiz') {
+            this.currentBatch = { size: 0, completed: 0, questions: [] };
+            this.isInBatchModeSelection = false;
+        }
+        
+        const flipBtn = document.getElementById('flipBtn');
+        if (flipBtn) {
+            if (tabId === 'study') {
+                flipBtn.textContent = 'Flip Card';
             } else {
-                clearInterval(this.speedChallengeInterval);
+                flipBtn.textContent = 'Next Quiz';
             }
-            
-            if (timeLeft <= 0) {
-                clearInterval(this.speedChallengeInterval);
-            }
-        }, 1000);
+        }
         
-        this.speedChallengeTimer = setTimeout(() => {
-            if (!this.quizAnswered) {
-                this.selectQuizAnswer(null, null, card, true);
+        this.updateCard();
+        this.updateReadingToggleVisibility();
+    }
+
+    // ENHANCED: Quiz mode selection with batch initialization
+    setQuizMode(mode) {
+        console.log(`🎯 Setting quiz mode to: ${mode}`);
+        
+        this.clearAllTimers();
+        
+        this.currentQuizMode = mode;
+        this.updateQuizModeButtons();
+        
+        const preferences = loadUserPreferences();
+        preferences.currentQuizMode = mode;
+        saveUserPreferences(preferences);
+        
+        // Clean up batch completion UI
+        const modeSelector = document.querySelector('.quiz-mode-selector');
+        if (modeSelector) {
+            modeSelector.classList.remove('batch-complete-selection', 'selection-phase');
+            const completionMsg = modeSelector.querySelector('.batch-completion-msg');
+            if (completionMsg) {
+                completionMsg.remove();
             }
-            this.clearSpeedTimer();
-        }, 8000);
-    }
-
-    clearSpeedTimer() {
-        if (this.speedChallengeTimer) {
-            clearTimeout(this.speedChallengeTimer);
-            this.speedChallengeTimer = null;
         }
-        if (this.speedChallengeInterval) {
-            clearInterval(this.speedChallengeInterval);
-            this.speedChallengeInterval = null;
-        }
-    }
-
-    startAutoAdvanceTimer() {
-        this.clearAutoAdvanceTimer();
-        this.autoAdvanceTimer = setTimeout(() => {
-            if (this.currentMode === 'quiz' && this.quizAnswered) {
-                this.nextCard();
+        
+        // Initialize new batch and start quiz
+        if (this.isInBatchModeSelection || this.currentBatch.completed === 0) {
+            this.initializeBatch();
+            const card = this.safeGetCard(this.currentCardIndex);
+            if (card) {
+                this.updateQuiz(card);
+                console.log(`✅ New batch started with ${mode} mode (${this.currentBatch.size} questions)`);
             }
-        }, 2500);
+        }
     }
 
-    clearAutoAdvanceTimer() {
-        if (this.autoAdvanceTimer) {
-            clearTimeout(this.autoAdvanceTimer);
-            this.autoAdvanceTimer = null;
+    // Navigation functions
+    flipCard() {
+        if (this.currentMode === 'quiz') {
+            this.nextCard();
+            return;
         }
+        
+        const card = this.safeGetCard(this.currentCardIndex);
+        if (!card) return;
+        
+        const meaning = document.getElementById('meaning');
+        const flashcard = document.getElementById('flashcard');
+        
+        if (!meaning || !flashcard) return;
+        
+        if (this.isFlipped) {
+            meaning.style.display = 'none';
+            flashcard.classList.remove('flipped');
+        } else {
+            meaning.style.display = 'block';
+            flashcard.classList.add('flipped');
+            this.flipCount++;
+            
+            updateWordProgress(card.japanese, true);
+            this.updateEnhancedStats();
+            
+            this.engagementCount++;
+            if (this.engagementCount >= 3 && this.currentDeck.reviewCardCount > 0 && !this.retentionPromptShown) {
+                this.showRetentionPrompt(this.currentDeck.reviewCardCount);
+            }
+        }
+        this.isFlipped = !this.isFlipped;
+    }
+
+    nextCard() {
+        this.clearAllTimers();
+        
+        if (this.currentCardIndex < this.currentDeck.length - 1) {
+            this.currentCardIndex++;
+        } else {
+            const newDeck = getNextCards(50, this.activeFilters);
+            if (newDeck.length > 0) {
+                this.currentDeck = newDeck;
+                this.currentCardIndex = 0;
+                this.cardsStudied.clear();
+            } else {
+                this.currentCardIndex = 0;
+            }
+        }
+        this.updateCard();
+    }
+
+    previousCard() {
+        this.clearAllTimers();
+        
+        if (this.currentCardIndex > 0) {
+            this.currentCardIndex--;
+        } else {
+            this.currentCardIndex = Math.max(0, this.currentDeck.length - 1);
+        }
+        this.updateCard();
+    }
+
+    // Quiz UI management
+    showQuizModeSelection() {
+        console.log('📋 Showing quiz mode selection...');
+        
+        this.isInBatchModeSelection = true;
+        this.hideQuizContainer();
+        this.showModeSelector();
+        this.updateCardCounter();
+        this.updateReadingToggleVisibility();
+        
+        this.enableQuizModeButtons();
+        
+        const modeSelector = document.querySelector('.quiz-mode-selector');
+        if (modeSelector) {
+            modeSelector.classList.add('selection-phase');
+        }
+    }
+
+    hideModeSelection() {
+        this.isInBatchModeSelection = false;
+        
+        const modeSelector = document.querySelector('.quiz-mode-selector');
+        if (modeSelector) {
+            modeSelector.classList.remove('selection-phase', 'batch-complete-selection');
+            const completionMsg = modeSelector.querySelector('.batch-completion-msg');
+            if (completionMsg) {
+                completionMsg.remove();
+            }
+        }
+        
+        this.updateReadingToggleVisibility();
+    }
+
+    showModeSelector() {
+        const modeSelector = document.querySelector('.quiz-mode-selector');
+        if (modeSelector) {
+            modeSelector.style.display = 'flex';
+        }
+    }
+
+    hideQuizContainer() {
+        const quizContainer = document.getElementById('quizContainer');
+        if (quizContainer) {
+            quizContainer.classList.add('hidden');
+        }
+    }
+
+    showQuizContainer() {
+        const quizContainer = document.getElementById('quizContainer');
+        if (quizContainer) {
+            quizContainer.classList.remove('hidden');
+        }
+    }
+
+    disableQuizModeButtons() {
+        const quizModeButtons = document.querySelectorAll('.quiz-mode-btn');
+        quizModeButtons.forEach(btn => {
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+            btn.style.cursor = 'not-allowed';
+        });
+    }
+
+    enableQuizModeButtons() {
+        const quizModeButtons = document.querySelectorAll('.quiz-mode-btn');
+        quizModeButtons.forEach(btn => {
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            btn.style.cursor = 'pointer';
+        });
     }
 
     // Utility functions
@@ -1318,7 +1408,7 @@ class JLPTApp {
         this.applyFilters();
     }
 
-    // ENHANCED: Reading toggle functionality with proper state management
+    // Reading toggle functionality
     updateReadingToggleState() {
         const toggle = document.getElementById('quizReadingToggle');
         if (toggle) {
@@ -1453,7 +1543,7 @@ class JLPTApp {
             const correctPercent = totalInCategory > 0 ? (quizCorrect / totalInCategory) * 100 : 0;
             const incorrectPercent = totalInCategory > 0 ? (quizIncorrect / totalInCategory) * 100 : 0;
             
-            html += `
+                                html += `
                 <div class="category-stats">
                     <div class="category-header">
                         <span class="category-title">${name}</span>
@@ -1468,140 +1558,249 @@ class JLPTApp {
             `;
         }
         
+        html += `
+            <div class="progress-legend">
+                <div class="legend-item">
+                    <div class="legend-color studied-progress"></div>
+                    <span>Studied</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color quiz-correct"></div>
+                    <span>Quiz Correct</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color quiz-incorrect"></div>
+                    <span>Quiz Incorrect</span>
+                </div>
+            </div>
+        `;
+        
         statsContainer.innerHTML = html;
-    }
-
-    // Modal functions
-    showLearningGuide() {
-        const modal = document.getElementById('learningGuideModal');
-        if (modal) {
-            modal.style.display = 'block';
-            this.keyboardListenerActive = false;
-        }
-    }
-
-    hideLearningGuide() {
-        const modal = document.getElementById('learningGuideModal');
-        if (modal) {
-            modal.style.display = 'none';
-            this.keyboardListenerActive = true;
-        }
-    }
-
-    showFeedback() {
-        const modal = document.getElementById('feedbackModal');
-        if (modal) {
-            modal.style.display = 'block';
-            this.keyboardListenerActive = false;
-        }
-    }
-
-    hideFeedback() {
-        const modal = document.getElementById('feedbackModal');
-        if (modal) {
-            modal.style.display = 'none';
-            this.keyboardListenerActive = true;
-        }
-    }
-
-    showDonate() {
-        window.open('https://www.paypal.com/donate/?hosted_button_id=Q4BB3WF8LAHWG', '_blank');
-    }
-
-    submitFeedback(event) {
-        event.preventDefault();
-        
-        this.showNotification('Thank you for your feedback!', 'success');
-        this.hideFeedback();
-        
-        const form = event.target;
-        fetch('/', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: new URLSearchParams(new FormData(form)).toString()
-        }).catch(error => console.log('Feedback submission error:', error));
-        
-        form.reset();
     }
 
     // Event listener setup
     setupEventListeners() {
-        document.getElementById('flipBtn')?.addEventListener('click', () => this.flipCard());
-        document.getElementById('nextBtn')?.addEventListener('click', () => this.nextCard());
-        document.getElementById('previousBtn')?.addEventListener('click', () => this.previousCard());
-        document.getElementById('shuffleBtn')?.addEventListener('click', () => this.shuffleCards());
-        document.getElementById('resetBtn')?.addEventListener('click', () => this.resetProgress());
-        document.getElementById('statsBtn')?.addEventListener('click', () => this.toggleStats());
+        console.log('🎮 Setting up event listeners...');
         
-        document.getElementById('audioButton')?.addEventListener('click', (e) => this.handleAudioClick(e));
-        document.getElementById('quizAudioButton')?.addEventListener('click', (e) => this.handleAudioClick(e));
+        // CRITICAL: Direct event listeners for main control buttons
+        const flipBtn = document.getElementById('flipBtn');
+        const nextBtn = document.querySelector('button[onclick="nextCard()"]') || document.getElementById('nextBtn');
+        const previousBtn = document.querySelector('button[onclick="previousCard()"]') || document.getElementById('previousBtn');
+        const shuffleBtn = document.querySelector('button[onclick="shuffleCards()"]') || document.getElementById('shuffleBtn');
+        const resetBtn = document.querySelector('button[onclick="resetProgress()"]') || document.getElementById('resetBtn');
+        const statsBtn = document.querySelector('button[onclick="toggleStats()"]') || document.getElementById('statsBtn');
+        const feedbackBtn = document.querySelector('button[onclick="showFeedbackForm()"]') || document.getElementById('feedbackBtn');
+        const donateBtn = document.querySelector('button[onclick="showDonateInfo()"]') || document.getElementById('donateBtn');
         
-        document.getElementById('learningGuideBtn')?.addEventListener('click', () => this.showLearningGuide());
-        document.getElementById('feedbackBtn')?.addEventListener('click', () => this.showFeedback());
-        document.getElementById('donateBtn')?.addEventListener('click', () => this.showDonate());
-        
-        document.getElementById('closeLearningGuideBtn')?.addEventListener('click', () => this.hideLearningGuide());
-        document.getElementById('closeFeedbackBtn')?.addEventListener('click', () => this.hideFeedback());
-        
-        // ENHANCED: Reading toggle event listeners with improved state management
-        const readingToggle = document.getElementById('quizReadingToggle');
-        const readingToggleSwitch = document.getElementById('readingToggleSwitch');
-        
-        if (readingToggle && readingToggleSwitch) {
-            readingToggle.addEventListener('change', (e) => {
-                console.log('📖 Reading toggle event triggered, checked:', e.target.checked);
-                this.readingsHidden = !e.target.checked;
-                saveReadingToggle(this.readingsHidden);
-                this.toggleQuizReadings();
-                console.log('📖 Reading toggle state saved:', this.readingsHidden ? 'OFF' : 'ON');
-            });
-
-            readingToggleSwitch.addEventListener('click', (e) => {
-                if (e.target !== readingToggle) {
-                    e.preventDefault();
-                    readingToggle.checked = !readingToggle.checked;
-                    readingToggle.dispatchEvent(new Event('change'));
-                }
-            });
+        // CRITICAL: Main flip button functionality
+        if (flipBtn) {
+            // Remove any existing event listeners to prevent duplicates
+            flipBtn.replaceWith(flipBtn.cloneNode(true));
+            const newFlipBtn = document.getElementById('flipBtn');
             
-            console.log('📖 Reading toggle event listeners attached successfully');
+            newFlipBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('🎯 Flip button clicked - current mode:', this.currentMode);
+                this.flipCard();
+            });
+            console.log('✅ Flip button event listener attached');
         } else {
-            console.error('📖 Reading toggle elements not found!');
+            console.warn('⚠️ Flip button not found in DOM');
         }
         
-        document.getElementById('flashcard')?.addEventListener('click', () => this.flipCard());
+        // Navigation buttons with fallback selectors
+        if (nextBtn) {
+            nextBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('➡️ Next button clicked');
+                this.nextCard();
+            });
+        }
         
-        document.addEventListener('keydown', (event) => this.handleKeyboard(event));
+        if (previousBtn) {
+            previousBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('⬅️ Previous button clicked');
+                this.previousCard();
+            });
+        }
         
+        if (shuffleBtn) {
+            shuffleBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('🔀 Shuffle button clicked');
+                this.shuffleCards();
+            });
+        }
+        
+        if (resetBtn) {
+            resetBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('🔄 Reset button clicked');
+                this.resetProgress();
+            });
+        }
+        
+        if (statsBtn) {
+            statsBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('📊 Stats button clicked');
+                this.toggleStats();
+            });
+        }
+        
+        if (feedbackBtn) {
+            feedbackBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.showFeedbackForm();
+            });
+        }
+        
+        if (donateBtn) {
+            donateBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.showDonateInfo();
+            });
+        }
+
+        // CRITICAL: Flashcard click-to-flip functionality
+        const flashcard = document.getElementById('flashcard');
+        if (flashcard) {
+            flashcard.addEventListener('click', (e) => {
+                // Only flip if not clicking on audio button or other interactive elements
+                if (!e.target.closest('.audio-button, .quiz-audio-button, .learning-state-indicator')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log('🎯 Flashcard clicked - flipping card');
+                    if (this.currentMode === 'study') {
+                        this.flipCard();
+                    }
+                }
+            });
+            console.log('✅ Flashcard click-to-flip enabled');
+        } else {
+            console.warn('⚠️ Flashcard element not found');
+        }
+
+        // Tab switching
         document.querySelectorAll('.tab-button').forEach(button => {
-            button.addEventListener('click', () => this.handleTabSwitch(button));
+            button.addEventListener('click', () => {
+                console.log('📋 Tab clicked:', button.getAttribute('data-tab'));
+                this.handleTabSwitch(button);
+            });
         });
-        
+
+        // Quiz mode buttons
         document.querySelectorAll('.quiz-mode-btn').forEach(button => {
             button.addEventListener('click', () => {
                 const mode = button.getAttribute('data-mode');
-                console.log(`🎯 Quiz mode button clicked: ${mode}`);
+                console.log('🎯 Quiz mode selected:', mode);
                 this.setQuizMode(mode);
             });
         });
+
+        // Reading toggle
+        const readingToggle = document.getElementById('quizReadingToggle');
+        if (readingToggle) {
+            readingToggle.addEventListener('change', (e) => {
+                this.readingsHidden = !e.target.checked;
+                saveReadingToggle(this.readingsHidden);
+                this.toggleQuizReadings();
+                console.log('📖 Reading toggle changed:', e.target.checked);
+            });
+        }
+
+        // Filter functionality
+        this.setupFilterListeners();
+
+        // Audio button - use event delegation to catch dynamically created buttons
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.audio-button, .quiz-audio-button')) {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('🔊 Audio button clicked');
+                playCardAudio(e);
+            }
+        });
+
+        // Enhanced keyboard shortcuts
+        document.addEventListener('keydown', (e) => this.handleKeyboard(e));
+
+        // Modal handling
+        document.addEventListener('click', (e) => {
+            const feedbackModal = document.getElementById('feedbackModal');
+            const learningGuideModal = document.getElementById('learningGuideModal');
+            
+            if (e.target === feedbackModal) {
+                this.hideFeedbackForm();
+            }
+            if (e.target === learningGuideModal && this.hideLearningGuide) {
+                this.hideLearningGuide();
+            }
+        });
+
+        // Modal close buttons
+        const closeFeedbackBtn = document.getElementById('closeFeedbackBtn');
+        const closeLearningGuideBtn = document.getElementById('closeLearningGuideBtn');
         
-        this.initializeHamburgerMenu();
-        
-        document.addEventListener('click', (event) => this.handleModalClicks(event));
-        
-        const feedbackForm = document.getElementById('feedbackForm');
-        if (feedbackForm) {
-            feedbackForm.addEventListener('submit', (event) => this.submitFeedback(event));
+        if (closeFeedbackBtn) {
+            closeFeedbackBtn.addEventListener('click', () => this.hideFeedbackForm());
         }
         
-        console.log('🔧 All event listeners set up');
+        if (closeLearningGuideBtn && this.hideLearningGuide) {
+            closeLearningGuideBtn.addEventListener('click', () => this.hideLearningGuide());
+        }
+
+        // Form submission
+        const feedbackForm = document.getElementById('feedbackForm');
+        if (feedbackForm) {
+            feedbackForm.addEventListener('submit', (e) => this.submitFeedback(e));
+        }
+
+        console.log('✅ All event listeners configured successfully');
     }
 
-    handleAudioClick(event) {
-        event.stopPropagation();
-        const card = this.safeGetCard(this.currentCardIndex);
-        if (card) {
-            playCardAudio(card.japanese);
+    setupFilterListeners() {
+        const hamburgerMenu = document.getElementById('hamburgerMenu');
+        const dropdownMenu = document.getElementById('dropdownMenu');
+
+        if (hamburgerMenu && dropdownMenu) {
+            hamburgerMenu.addEventListener('click', (e) => {
+                e.stopPropagation();
+                hamburgerMenu.classList.toggle('active');
+                dropdownMenu.classList.toggle('active');
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!dropdownMenu.contains(e.target) && !hamburgerMenu.contains(e.target)) {
+                    hamburgerMenu.classList.remove('active');
+                    dropdownMenu.classList.remove('active');
+                }
+            });
+
+            const filterOptions = document.querySelectorAll('.filter-option');
+            filterOptions.forEach(option => {
+                const checkbox = option.querySelector('input[type="checkbox"]');
+                if (!checkbox) return;
+                
+                option.addEventListener('click', (e) => {
+                    if (e.target !== checkbox) {
+                        e.preventDefault();
+                        checkbox.checked = !checkbox.checked;
+                        this.handleFilterChange(checkbox);
+                    }
+                });
+                
+                checkbox.addEventListener('change', () => this.handleFilterChange(checkbox));
+            });
         }
     }
 
@@ -1612,7 +1811,8 @@ class JLPTApp {
         const isFormElement = activeElement && (
             activeElement.tagName === 'TEXTAREA' || 
             activeElement.tagName === 'INPUT' || 
-            activeElement.contentEditable === 'true'
+            activeElement.contentEditable === 'true' ||
+            activeElement.isContentEditable
         );
         
         if (isFormElement) return;
@@ -1651,81 +1851,75 @@ class JLPTApp {
         }
     }
 
-    initializeHamburgerMenu() {
-        const hamburgerMenu = document.getElementById('hamburgerMenu');
-        const dropdownMenu = document.getElementById('dropdownMenu');
-
-        if (!hamburgerMenu || !dropdownMenu) {
-            console.error('Hamburger menu elements not found');
-            return;
+    // Modal functions
+    showFeedbackForm() {
+        const modal = document.getElementById('feedbackModal');
+        if (modal) {
+            modal.style.display = 'block';
+            this.keyboardListenerActive = false;
         }
-
-        hamburgerMenu.addEventListener('click', (e) => {
-            e.stopPropagation();
-            hamburgerMenu.classList.toggle('active');
-            dropdownMenu.classList.toggle('active');
-        });
-
-        document.addEventListener('click', (e) => {
-            if (!dropdownMenu.contains(e.target) && !hamburgerMenu.contains(e.target)) {
-                hamburgerMenu.classList.remove('active');
-                dropdownMenu.classList.remove('active');
-            }
-        });
-
-        const filterOptions = document.querySelectorAll('.filter-option');
-        filterOptions.forEach(option => {
-            const checkbox = option.querySelector('input[type="checkbox"]');
-            if (!checkbox) return;
-            
-            option.addEventListener('click', (e) => {
-                if (e.target !== checkbox) {
-                    e.preventDefault();
-                    checkbox.checked = !checkbox.checked;
-                    this.handleFilterChange(checkbox);
-                }
-            });
-            
-            checkbox.addEventListener('change', () => this.handleFilterChange(checkbox));
-        });
     }
 
-    handleModalClicks(event) {
-        const learningGuideModal = document.getElementById('learningGuideModal');
-        const feedbackModal = document.getElementById('feedbackModal');
-        
-        if (event.target === learningGuideModal) {
-            this.hideLearningGuide();
+    hideFeedbackForm() {
+        const modal = document.getElementById('feedbackModal');
+        if (modal) {
+            modal.style.display = 'none';
+            this.keyboardListenerActive = true;
         }
+    }
+
+    showDonateInfo() {
+        window.open('https://www.paypal.com/donate/?hosted_button_id=RDB6KTNXBLZ7Q', '_blank');
+    }
+
+    submitFeedback(event) {
+        event.preventDefault();
         
-        if (event.target === feedbackModal) {
-            this.hideFeedback();
-        }
+        this.showNotification('Thank you for your feedback!', 'success');
+        this.hideFeedbackForm();
+        
+        const form = event.target;
+        fetch('/', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams(new FormData(form)).toString()
+        }).catch(error => console.log('Feedback submission error:', error));
+        
+        form.reset();
     }
 }
 
-// Initialize the app when DOM is ready
-const app = new JLPTApp();
-window.jlptApp = app;
+// Global app instance
+let app;
 
-// Initialize when DOM is ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => app.initialize());
-} else {
-    app.initialize();
-}
+// Initialize the application when DOM is loaded
+document.addEventListener('DOMContentLoaded', async () => {
+    try {
+        app = new JLPTApp();
+        await app.initialize();
+        
+        // Make methods available globally for HTML onclick handlers
+        window.showFeedbackForm = () => app.showFeedbackForm();
+        window.hideFeedbackForm = () => app.hideFeedbackForm();
+        window.showDonateInfo = () => app.showDonateInfo();
+        window.submitFeedback = (e) => app.submitFeedback(e);
+        window.flipCard = () => app.flipCard();
+        window.nextCard = () => app.nextCard();
+        window.previousCard = () => app.previousCard();
+        window.shuffleCards = () => app.shuffleCards();
+        window.resetProgress = () => app.resetProgress();
+        window.toggleStats = () => app.toggleStats();
+        window.playAudio = (e) => playCardAudio(e);
+        
+    } catch (error) {
+        console.error('Failed to initialize JLPT app:', error);
+        
+        // Show fallback error message
+        const japaneseWord = document.getElementById('japaneseWord');
+        const reading = document.getElementById('reading');
+        if (japaneseWord) japaneseWord.textContent = 'Initialization Error';
+        if (reading) reading.textContent = 'Please refresh the page';
+    }
+});
 
-// Make key methods globally available for backward compatibility
-window.flipCard = () => window.jlptApp.flipCard();
-window.nextCard = () => window.jlptApp.nextCard();
-window.previousCard = () => window.jlptApp.previousCard();
-window.shuffleCards = () => window.jlptApp.shuffleCards();
-window.resetProgress = () => window.jlptApp.resetProgress();
-window.toggleStats = () => window.jlptApp.toggleStats();
-window.showFeedbackForm = () => window.jlptApp.showFeedback();
-window.hideFeedbackForm = () => window.jlptApp.hideFeedback();
-window.showDonateInfo = () => window.jlptApp.showDonate();
-window.submitFeedback = (event) => window.jlptApp.submitFeedback(event);
-window.playAudio = (event) => window.jlptApp.handleAudioClick(event);
-
-export { app as default };
+export { JLPTApp };
