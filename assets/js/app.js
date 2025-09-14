@@ -1707,16 +1707,38 @@ class JLPTApp {
             });
         });
 
-        // Reading toggle
-        const readingToggle = document.getElementById('quizReadingToggle');
-        if (readingToggle) {
-            readingToggle.addEventListener('change', (e) => {
-                this.readingsHidden = !e.target.checked;
-                saveReadingToggle(this.readingsHidden);
-                this.toggleQuizReadings();
-                console.log('📖 Reading toggle changed:', e.target.checked);
-            });
+        // Reading toggle - FIXED: Handle both toggle switch and label clicks
+const readingToggle = document.getElementById('quizReadingToggle');
+const readingToggleContainer = document.querySelector('.quiz-reading-toggle');
+
+if (readingToggle && readingToggleContainer) {
+    // Handle clicking anywhere on the toggle container
+    readingToggleContainer.addEventListener('click', (e) => {
+        // Prevent double-triggering if clicking directly on checkbox
+        if (e.target !== readingToggle) {
+            e.preventDefault();
+            readingToggle.checked = !readingToggle.checked;
         }
+        
+        this.readingsHidden = !readingToggle.checked;
+        saveReadingToggle(this.readingsHidden);
+        this.toggleQuizReadings();
+        this.updateReadingToggleState();
+        console.log('📖 Reading toggle changed:', readingToggle.checked);
+    });
+    
+    // Also handle direct checkbox changes
+    readingToggle.addEventListener('change', (e) => {
+        this.readingsHidden = !e.target.checked;
+        saveReadingToggle(this.readingsHidden);
+        this.toggleQuizReadings();
+        console.log('📖 Reading toggle changed (direct):', e.target.checked);
+    });
+    
+    console.log('✅ Reading toggle event listeners attached');
+} else {
+    console.warn('⚠️ Reading toggle element not found');
+}
 
         // Filter functionality
         this.setupFilterListeners();
