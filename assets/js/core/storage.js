@@ -1,334 +1,309 @@
-// assets/js/core/storage.js - Data Persistence & User Preferences
+// assets/js/core/storage.js - Streamlined Storage Management
 
-/**
- * Storage utility for managing user preferences and settings
- */
-
-const STORAGE_KEYS = {
-    WORD_PROGRESS: 'jlpt-word-progress',
-    USER_PREFERENCES: 'jlpt-user-preferences',
-    READING_TOGGLE: 'jlpt-reading-toggle',
-    QUIZ_SETTINGS: 'jlpt-quiz-settings',
-    STATS_DATA: 'jlpt-stats-data'
-};
-
-/**
- * Default user preferences
- */
-const DEFAULT_PREFERENCES = {
-    readingToggle: false,
-    currentQuizMode: 'multiple-choice',
-    audioEnabled: true,
-    keyboardShortcuts: true,
-    autoAdvance: true,
-    theme: 'default',
-    language: 'en'
-};
-
-/**
- * Safe localStorage operations with error handling
- */
-class SafeStorage {
-    static get(key, defaultValue = null) {
-        try {
-            const item = localStorage.getItem(key);
-            return item ? JSON.parse(item) : defaultValue;
-        } catch (error) {
-            console.error(`Error reading from localStorage (${key}):`, error);
-            return defaultValue;
-        }
-    }
-
-    static set(key, value) {
-        try {
-            localStorage.setItem(key, JSON.stringify(value));
-            return true;
-        } catch (error) {
-            console.error(`Error writing to localStorage (${key}):`, error);
-            return false;
-        }
-    }
-
-    static remove(key) {
-        try {
-            localStorage.removeItem(key);
-            return true;
-        } catch (error) {
-            console.error(`Error removing from localStorage (${key}):`, error);
-            return false;
-        }
-    }
-
-    static clear() {
-        try {
-            localStorage.clear();
-            return true;
-        } catch (error) {
-            console.error('Error clearing localStorage:', error);
-            return false;
-        }
-    }
-
-    static isAvailable() {
-        try {
-            const test = '__localStorage_test__';
-            localStorage.setItem(test, test);
-            localStorage.removeItem(test);
-            return true;
-        } catch (error) {
-            return false;
-        }
-    }
-}
-
-/**
- * Load user preferences with defaults
- */
-export function loadUserPreferences() {
-    if (!SafeStorage.isAvailable()) {
-        console.warn('localStorage not available, using defaults');
-        return DEFAULT_PREFERENCES;
-    }
-
-    const saved = SafeStorage.get(STORAGE_KEYS.USER_PREFERENCES, {});
-    const preferences = { ...DEFAULT_PREFERENCES, ...saved };
-    
-    console.log('📋 User preferences loaded:', preferences);
-    return preferences;
-}
-
-/**
- * Save user preferences
- */
-export function saveUserPreferences(preferences) {
-    if (!SafeStorage.isAvailable()) {
-        console.warn('localStorage not available, cannot save preferences');
-        return false;
-    }
-
-    const success = SafeStorage.set(STORAGE_KEYS.USER_PREFERENCES, preferences);
-    if (success) {
-        console.log('💾 User preferences saved:', preferences);
-    }
-    return success;
-}
-
-/**
- * Load reading toggle preference
- */
-export function loadReadingToggle() {
-    return SafeStorage.get(STORAGE_KEYS.READING_TOGGLE, false);
-}
-
-/**
- * Save reading toggle preference
- */
-export function saveReadingToggle(enabled) {
-    return SafeStorage.set(STORAGE_KEYS.READING_TOGGLE, enabled);
-}
-
-/**
- * Load quiz settings
- */
-export function loadQuizSettings() {
-    const defaultSettings = {
-        currentMode: 'multiple-choice',
-        readingsHidden: false,
-        speedChallengeTime: 8000,
-        autoAdvance: true,
-        soundEnabled: true
-    };
-
-    return SafeStorage.get(STORAGE_KEYS.QUIZ_SETTINGS, defaultSettings);
-}
-
-/**
- * Save quiz settings
- */
-export function saveQuizSettings(settings) {
-    return SafeStorage.set(STORAGE_KEYS.QUIZ_SETTINGS, settings);
-}
-
-/**
- * Load statistics data
- */
-export function loadStatsData() {
-    const defaultStats = {
-        totalFlips: 0,
-        totalQuizzes: 0,
-        correctAnswers: 0,
-        studySessionsCount: 0,
-        totalStudyTime: 0,
-        streakDays: 0,
-        lastStudyDate: null,
-        categoryStats: {
-            'noun': { studied: [], quizAttempts: 0, quizCorrect: 0 },
-            'verb': { studied: [], quizAttempts: 0, quizCorrect: 0 },
-            'i-adjective': { studied: [], quizAttempts: 0, quizCorrect: 0 },
-            'na-adjective': { studied: [], quizAttempts: 0, quizCorrect: 0 }
-        }
-    };
-
-    return SafeStorage.get(STORAGE_KEYS.STATS_DATA, defaultStats);
-}
-
-/**
- * Save statistics data
- */
-export function saveStatsData(stats) {
-    return SafeStorage.set(STORAGE_KEYS.STATS_DATA, stats);
-}
-
-/**
- * Export all user data
- */
-export function exportAllData() {
-    const data = {
-        wordProgress: SafeStorage.get(STORAGE_KEYS.WORD_PROGRESS, {}),
-        preferences: SafeStorage.get(STORAGE_KEYS.USER_PREFERENCES, {}),
-        quizSettings: SafeStorage.get(STORAGE_KEYS.QUIZ_SETTINGS, {}),
-        statsData: SafeStorage.get(STORAGE_KEYS.STATS_DATA, {}),
-        exportDate: new Date().toISOString(),
-        version: '1.0.0'
-    };
-
-    return JSON.stringify(data, null, 2);
-}
-
-/**
- * Import all user data
- */
-export function importAllData(jsonData) {
-    try {
-        const data = JSON.parse(jsonData);
+export class StorageManager {
+    constructor() {
+        this.STORAGE_KEYS = {
+            WORD_PROGRESS: 'jlpt-word-progress',
+            USER_PREFERENCES: 'jlpt-user-preferences',
+            CATEGORY_STATS: 'jlpt-category-stats'
+        };
         
-        if (!data || typeof data !== 'object') {
-            throw new Error('Invalid data format');
-        }
-
-        let importCount = 0;
-
-        if (data.wordProgress) {
-            SafeStorage.set(STORAGE_KEYS.WORD_PROGRESS, data.wordProgress);
-            importCount++;
-        }
-
-        if (data.preferences) {
-            SafeStorage.set(STORAGE_KEYS.USER_PREFERENCES, data.preferences);
-            importCount++;
-        }
-
-        if (data.quizSettings) {
-            SafeStorage.set(STORAGE_KEYS.QUIZ_SETTINGS, data.quizSettings);
-            importCount++;
-        }
-
-        if (data.statsData) {
-            SafeStorage.set(STORAGE_KEYS.STATS_DATA, data.statsData);
-            importCount++;
-        }
-
-        console.log(`✅ Successfully imported ${importCount} data sections`);
-        return { success: true, importCount };
-
-    } catch (error) {
-        console.error('❌ Error importing data:', error);
-        return { success: false, error: error.message };
-    }
-}
-
-/**
- * Clear all stored data (with confirmation)
- */
-export function clearAllData(confirm = false) {
-    if (!confirm) {
-        console.warn('clearAllData called without confirmation');
-        return false;
+        this.defaultProgress = {
+            state: 'new',
+            lastReviewed: null,
+            nextReview: Date.now(),
+            correctStreak: 0,
+            totalAttempts: 0,
+            correctAttempts: 0,
+            created: Date.now()
+        };
+        
+        this.defaultPreferences = {
+            currentLevel: 'N5',
+            readingsHidden: false,
+            kanaMode: false,
+            audioEnabled: true,
+            quizMode: 'multiple-choice',
+            studyMode: 'adaptive'
+        };
     }
 
-    const keysToRemove = Object.values(STORAGE_KEYS);
-    let removedCount = 0;
-
-    keysToRemove.forEach(key => {
-        if (SafeStorage.remove(key)) {
-            removedCount++;
+    // Word Progress Management
+    getWordProgress() {
+        try {
+            const saved = localStorage.getItem(this.STORAGE_KEYS.WORD_PROGRESS);
+            return saved ? JSON.parse(saved) : {};
+        } catch (error) {
+            console.error('Error loading word progress:', error);
+            return {};
         }
-    });
-
-    console.log(`🗑️ Cleared ${removedCount}/${keysToRemove.length} storage keys`);
-    return removedCount === keysToRemove.length;
-}
-
-/**
- * Get storage usage statistics
- */
-export function getStorageStats() {
-    if (!SafeStorage.isAvailable()) {
-        return { available: false };
     }
 
-    const stats = {
-        available: true,
-        keys: Object.keys(STORAGE_KEYS).length,
-        data: {}
-    };
+    saveWordProgress(progress) {
+        try {
+            localStorage.setItem(this.STORAGE_KEYS.WORD_PROGRESS, JSON.stringify(progress));
+            return true;
+        } catch (error) {
+            console.error('Error saving word progress:', error);
+            return false;
+        }
+    }
 
-    Object.entries(STORAGE_KEYS).forEach(([name, key]) => {
-        const data = SafeStorage.get(key);
-        if (data) {
-            const size = JSON.stringify(data).length;
-            stats.data[name] = {
+    initializeWordProgress(vocabularyWords) {
+        const currentProgress = this.getWordProgress();
+        let hasChanges = false;
+
+        vocabularyWords.forEach((word, index) => {
+            if (!currentProgress[word.japanese]) {
+                currentProgress[word.japanese] = {
+                    ...this.defaultProgress,
+                    cardIndex: index
+                };
+                hasChanges = true;
+            }
+        });
+
+        // Clean up invalid entries
+        const validWords = new Set(vocabularyWords.map(w => w.japanese));
+        Object.keys(currentProgress).forEach(japanese => {
+            if (!validWords.has(japanese)) {
+                delete currentProgress[japanese];
+                hasChanges = true;
+            }
+        });
+
+        if (hasChanges) {
+            this.saveWordProgress(currentProgress);
+        }
+
+        return currentProgress;
+    }
+
+    updateWordProgress(japanese, updates) {
+        const currentProgress = this.getWordProgress();
+        
+        if (!currentProgress[japanese]) {
+            currentProgress[japanese] = { ...this.defaultProgress };
+        }
+
+        currentProgress[japanese] = {
+            ...currentProgress[japanese],
+            ...updates,
+            lastReviewed: Date.now()
+        };
+
+        return this.saveWordProgress(currentProgress);
+    }
+
+    getWordProgressStats() {
+        const progress = this.getWordProgress();
+        const stats = {
+            total: 0,
+            new: 0,
+            learning: 0,
+            review: 0,
+            mastered: 0,
+            totalAttempts: 0,
+            correctAttempts: 0
+        };
+
+        Object.values(progress).forEach(wordProgress => {
+            stats.total++;
+            stats.totalAttempts += wordProgress.totalAttempts || 0;
+            stats.correctAttempts += wordProgress.correctAttempts || 0;
+
+            const state = wordProgress.state || 'new';
+            if (state === 'new') {
+                stats.new++;
+            } else if (state.includes('learning')) {
+                stats.learning++;
+            } else if (state.includes('review')) {
+                stats.review++;
+            } else if (state === 'mastered') {
+                stats.mastered++;
+            }
+        });
+
+        return stats;
+    }
+
+    // User Preferences Management
+    getUserPreferences() {
+        try {
+            const saved = localStorage.getItem(this.STORAGE_KEYS.USER_PREFERENCES);
+            return saved ? { ...this.defaultPreferences, ...JSON.parse(saved) } : { ...this.defaultPreferences };
+        } catch (error) {
+            console.error('Error loading user preferences:', error);
+            return { ...this.defaultPreferences };
+        }
+    }
+
+    setUserPreference(key, value) {
+        try {
+            const preferences = this.getUserPreferences();
+            preferences[key] = value;
+            localStorage.setItem(this.STORAGE_KEYS.USER_PREFERENCES, JSON.stringify(preferences));
+            return true;
+        } catch (error) {
+            console.error('Error saving user preference:', error);
+            return false;
+        }
+    }
+
+    getUserPreference(key, defaultValue = null) {
+        const preferences = this.getUserPreferences();
+        return preferences[key] !== undefined ? preferences[key] : defaultValue;
+    }
+
+    // Backward Compatibility Methods
+    getReadingToggle() {
+        return this.getUserPreference('readingsHidden', false);
+    }
+
+    setReadingToggle(hidden) {
+        return this.setUserPreference('readingsHidden', hidden);
+    }
+
+    // Category Statistics Management
+    getCategoryStats() {
+        try {
+            const saved = localStorage.getItem(this.STORAGE_KEYS.CATEGORY_STATS);
+            return saved ? JSON.parse(saved) : this.getDefaultCategoryStats();
+        } catch (error) {
+            console.error('Error loading category stats:', error);
+            return this.getDefaultCategoryStats();
+        }
+    }
+
+    saveCategoryStats(stats) {
+        try {
+            // Convert Sets to Arrays for JSON serialization
+            const serializable = {};
+            Object.keys(stats).forEach(category => {
+                serializable[category] = {
+                    ...stats[category],
+                    studied: Array.from(stats[category].studied || [])
+                };
+            });
+            
+            localStorage.setItem(this.STORAGE_KEYS.CATEGORY_STATS, JSON.stringify(serializable));
+            return true;
+        } catch (error) {
+            console.error('Error saving category stats:', error);
+            return false;
+        }
+    }
+
+    loadCategoryStats() {
+        const stats = this.getCategoryStats();
+        
+        // Convert Arrays back to Sets
+        Object.keys(stats).forEach(category => {
+            if (Array.isArray(stats[category].studied)) {
+                stats[category].studied = new Set(stats[category].studied);
+            } else {
+                stats[category].studied = new Set();
+            }
+        });
+        
+        return stats;
+    }
+
+    getDefaultCategoryStats() {
+        return {
+            'noun': { studied: new Set(), quizAttempts: 0, quizCorrect: 0 },
+            'verb': { studied: new Set(), quizAttempts: 0, quizCorrect: 0 },
+            'i-adjective': { studied: new Set(), quizAttempts: 0, quizCorrect: 0 },
+            'na-adjective': { studied: new Set(), quizAttempts: 0, quizCorrect: 0 }
+        };
+    }
+
+    updateCategoryStats(category, updates) {
+        const stats = this.loadCategoryStats();
+        
+        if (!stats[category]) {
+            stats[category] = { studied: new Set(), quizAttempts: 0, quizCorrect: 0 };
+        }
+
+        Object.keys(updates).forEach(key => {
+            if (key === 'studied' && typeof updates[key] === 'string') {
+                stats[category].studied.add(updates[key]);
+            } else if (key !== 'studied') {
+                stats[category][key] = (stats[category][key] || 0) + (updates[key] || 0);
+            }
+        });
+
+        return this.saveCategoryStats(stats);
+    }
+
+    // Data Management
+    exportAllData() {
+        return {
+            wordProgress: this.getWordProgress(),
+            userPreferences: this.getUserPreferences(),
+            categoryStats: this.getCategoryStats(),
+            exportDate: new Date().toISOString(),
+            version: '1.0'
+        };
+    }
+
+    importAllData(data) {
+        try {
+            if (data.wordProgress) {
+                this.saveWordProgress(data.wordProgress);
+            }
+            if (data.userPreferences) {
+                localStorage.setItem(this.STORAGE_KEYS.USER_PREFERENCES, JSON.stringify(data.userPreferences));
+            }
+            if (data.categoryStats) {
+                localStorage.setItem(this.STORAGE_KEYS.CATEGORY_STATS, JSON.stringify(data.categoryStats));
+            }
+            return true;
+        } catch (error) {
+            console.error('Error importing data:', error);
+            return false;
+        }
+    }
+
+    clearAllData() {
+        try {
+            Object.values(this.STORAGE_KEYS).forEach(key => {
+                localStorage.removeItem(key);
+            });
+            return true;
+        } catch (error) {
+            console.error('Error clearing data:', error);
+            return false;
+        }
+    }
+
+    // Storage usage monitoring
+    getStorageUsage() {
+        let totalSize = 0;
+        const usage = {};
+
+        Object.entries(this.STORAGE_KEYS).forEach(([name, key]) => {
+            const data = localStorage.getItem(key);
+            const size = data ? new Blob([data]).size : 0;
+            usage[name] = {
                 size: size,
-                sizeFormatted: formatBytes(size),
-                lastModified: data.lastModified || 'Unknown'
+                sizeFormatted: this.formatBytes(size)
             };
-        }
-    });
+            totalSize += size;
+        });
 
-    return stats;
+        return {
+            individual: usage,
+            total: totalSize,
+            totalFormatted: this.formatBytes(totalSize)
+        };
+    }
+
+    formatBytes(bytes) {
+        if (bytes === 0) return '0 Bytes';
+        const k = 1024;
+        const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+        const i = Math.floor(Math.log(bytes) / Math.log(k));
+        return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    }
 }
-
-/**
- * Format bytes into human readable format
- */
-function formatBytes(bytes, decimals = 2) {
-    if (bytes === 0) return '0 Bytes';
-
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-}
-
-/**
- * Check if data migration is needed
- */
-export function checkDataMigration() {
-    // Future functionality for data format migrations
-    const currentVersion = '1.0.0';
-    const storedVersion = SafeStorage.get('data_version', '1.0.0');
-    
-    return {
-        needed: currentVersion !== storedVersion,
-        currentVersion,
-        storedVersion
-    };
-}
-
-/**
- * Create backup before major operations
- */
-export function createBackup() {
-    const backup = {
-        timestamp: Date.now(),
-        data: exportAllData()
-    };
-
-    const backupKey = `jlpt-backup-${Date.now()}`;
-    return SafeStorage.set(backupKey, backup);
-}
-
-export { STORAGE_KEYS, DEFAULT_PREFERENCES };

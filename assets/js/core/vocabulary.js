@@ -1,7 +1,5 @@
-// assets/js/core/vocabulary.js - JLPT N5 Vocabulary Database
-
-export const allFlashcards = [
-    // Family & People
+// assets/js/core/vocabulary.js
+export const N5_VOCABULARY = [
     {japanese:"姉",reading:"あね",meaning:"older sister",type:"noun"},
     {japanese:"兄",reading:"あに",meaning:"older brother",type:"noun"},
     {japanese:"父",reading:"ちち",meaning:"father",type:"noun"},
@@ -21,8 +19,6 @@ export const allFlashcards = [
     {japanese:"先生",reading:"せんせい",meaning:"teacher",type:"noun"},
     {japanese:"生徒",reading:"せいと",meaning:"pupil",type:"noun"},
     {japanese:"医者",reading:"いしゃ",meaning:"doctor",type:"noun"},
-
-    // Body Parts
     {japanese:"頭",reading:"あたま",meaning:"head",type:"noun"},
     {japanese:"手",reading:"て",meaning:"hand",type:"noun"},
     {japanese:"足",reading:"あし",meaning:"foot",type:"noun"},
@@ -31,8 +27,6 @@ export const allFlashcards = [
     {japanese:"鼻",reading:"はな",meaning:"nose",type:"noun"},
     {japanese:"口",reading:"くち",meaning:"mouth",type:"noun"},
     {japanese:"体",reading:"からだ",meaning:"body",type:"noun"},
-
-    // Time
     {japanese:"朝",reading:"あさ",meaning:"morning",type:"noun"},
     {japanese:"昼",reading:"ひる",meaning:"noon",type:"noun"},
     {japanese:"晩",reading:"ばん",meaning:"evening",type:"noun"},
@@ -48,8 +42,6 @@ export const allFlashcards = [
     {japanese:"今年",reading:"ことし",meaning:"this year",type:"noun"},
     {japanese:"来年",reading:"らいねん",meaning:"next year",type:"noun"},
     {japanese:"時間",reading:"じかん",meaning:"time",type:"noun"},
-
-    // Days of the Week
     {japanese:"月曜日",reading:"げつようび",meaning:"Monday",type:"noun"},
     {japanese:"火曜日",reading:"かようび",meaning:"Tuesday",type:"noun"},
     {japanese:"水曜日",reading:"すいようび",meaning:"Wednesday",type:"noun"},
@@ -57,8 +49,6 @@ export const allFlashcards = [
     {japanese:"金曜日",reading:"きんようび",meaning:"Friday",type:"noun"},
     {japanese:"土曜日",reading:"どようび",meaning:"Saturday",type:"noun"},
     {japanese:"日曜日",reading:"にちようび",meaning:"Sunday",type:"noun"},
-
-    // Numbers
     {japanese:"一",reading:"いち",meaning:"one",type:"noun"},
     {japanese:"二",reading:"に",meaning:"two",type:"noun"},
     {japanese:"三",reading:"さん",meaning:"three",type:"noun"},
@@ -69,8 +59,6 @@ export const allFlashcards = [
     {japanese:"八",reading:"はち",meaning:"eight",type:"noun"},
     {japanese:"九",reading:"きゅう",meaning:"nine",type:"noun"},
     {japanese:"十",reading:"じゅう",meaning:"ten",type:"noun"},
-
-    // Places
     {japanese:"家",reading:"いえ",meaning:"house",type:"noun"},
     {japanese:"学校",reading:"がっこう",meaning:"school",type:"noun"},
     {japanese:"図書館",reading:"としょかん",meaning:"library",type:"noun"},
@@ -82,15 +70,11 @@ export const allFlashcards = [
     {japanese:"町",reading:"まち",meaning:"town",type:"noun"},
     {japanese:"国",reading:"くに",meaning:"country",type:"noun"},
     {japanese:"日本",reading:"にほん",meaning:"Japan",type:"noun"},
-
-    // Transportation
     {japanese:"車",reading:"くるま",meaning:"car",type:"noun"},
     {japanese:"電車",reading:"でんしゃ",meaning:"train",type:"noun"},
     {japanese:"バス",reading:"ばす",meaning:"bus",type:"noun"},
     {japanese:"飛行機",reading:"ひこうき",meaning:"airplane",type:"noun"},
     {japanese:"自転車",reading:"じてんしゃ",meaning:"bicycle",type:"noun"},
-
-    // Food & Drinks
     {japanese:"ご飯",reading:"ごはん",meaning:"rice/meal",type:"noun"},
     {japanese:"朝ご飯",reading:"あさごはん",meaning:"breakfast",type:"noun"},
     {japanese:"昼ご飯",reading:"ひるごはん",meaning:"lunch",type:"noun"},
@@ -105,8 +89,6 @@ export const allFlashcards = [
     {japanese:"コーヒー",reading:"こーひー",meaning:"coffee",type:"noun"},
     {japanese:"牛乳",reading:"ぎゅうにゅう",meaning:"milk",type:"noun"},
     {japanese:"ビール",reading:"びーる",meaning:"beer",type:"noun"},
-
-    // Nature & Weather
     {japanese:"山",reading:"やま",meaning:"mountain",type:"noun"},
     {japanese:"川",reading:"かわ",meaning:"river",type:"noun"},
     {japanese:"海",reading:"うみ",meaning:"sea",type:"noun"},
@@ -115,29 +97,21 @@ export const allFlashcards = [
     {japanese:"風",reading:"かぜ",meaning:"wind",type:"noun"},
     {japanese:"空",reading:"そら",meaning:"sky",type:"noun"},
     {japanese:"天気",reading:"てんき",meaning:"weather",type:"noun"},
-
-    // Seasons
     {japanese:"春",reading:"はる",meaning:"spring",type:"noun"},
     {japanese:"夏",reading:"なつ",meaning:"summer",type:"noun"},
     {japanese:"秋",reading:"あき",meaning:"autumn",type:"noun"},
     {japanese:"冬",reading:"ふゆ",meaning:"winter",type:"noun"},
-
-    // Animals & Nature
     {japanese:"花",reading:"はな",meaning:"flower",type:"noun"},
     {japanese:"犬",reading:"いぬ",meaning:"dog",type:"noun"},
     {japanese:"猫",reading:"ねこ",meaning:"cat",type:"noun"},
     {japanese:"鳥",reading:"とり",meaning:"bird",type:"noun"},
     {japanese:"動物",reading:"どうぶつ",meaning:"animal",type:"noun"},
-
-    // Colors
     {japanese:"赤",reading:"あか",meaning:"red",type:"noun"},
     {japanese:"青",reading:"あお",meaning:"blue",type:"noun"},
     {japanese:"白",reading:"しろ",meaning:"white",type:"noun"},
     {japanese:"黒",reading:"くろ",meaning:"black",type:"noun"},
     {japanese:"緑",reading:"みどり",meaning:"green",type:"noun"},
     {japanese:"色",reading:"いろ",meaning:"color",type:"noun"},
-
-    // Objects
     {japanese:"本",reading:"ほん",meaning:"book",type:"noun"},
     {japanese:"ペン",reading:"ぺん",meaning:"pen",type:"noun"},
     {japanese:"鉛筆",reading:"えんぴつ",meaning:"pencil",type:"noun"},
@@ -151,8 +125,6 @@ export const allFlashcards = [
     {japanese:"眼鏡",reading:"めがね",meaning:"glasses",type:"noun"},
     {japanese:"テレビ",reading:"てれび",meaning:"television",type:"noun"},
     {japanese:"電話",reading:"でんわ",meaning:"telephone",type:"noun"},
-
-    // Activities & Concepts
     {japanese:"勉強",reading:"べんきょう",meaning:"study",type:"noun"},
     {japanese:"仕事",reading:"しごと",meaning:"work",type:"noun"},
     {japanese:"買い物",reading:"かいもの",meaning:"shopping",type:"noun"},
@@ -163,8 +135,6 @@ export const allFlashcards = [
     {japanese:"映画",reading:"えいが",meaning:"movie",type:"noun"},
     {japanese:"写真",reading:"しゃしん",meaning:"photograph",type:"noun"},
     {japanese:"お金",reading:"おかね",meaning:"money",type:"noun"},
-
-    // VERBS
     {japanese:"行く",reading:"いく",meaning:"to go",type:"verb"},
     {japanese:"来る",reading:"くる",meaning:"to come",type:"verb"},
     {japanese:"帰る",reading:"かえる",meaning:"to return",type:"verb"},
@@ -204,8 +174,6 @@ export const allFlashcards = [
     {japanese:"住む",reading:"すむ",meaning:"to live",type:"verb"},
     {japanese:"使う",reading:"つかう",meaning:"to use",type:"verb"},
     {japanese:"持つ",reading:"もつ",meaning:"to have/hold",type:"verb"},
-
-    // I-ADJECTIVES
     {japanese:"新しい",reading:"あたらしい",meaning:"new",type:"i-adjective"},
     {japanese:"古い",reading:"ふるい",meaning:"old",type:"i-adjective"},
     {japanese:"大きい",reading:"おおきい",meaning:"big",type:"i-adjective"},
@@ -248,8 +216,6 @@ export const allFlashcards = [
     {japanese:"黒い",reading:"くろい",meaning:"black",type:"i-adjective"},
     {japanese:"可愛い",reading:"かわいい",meaning:"cute",type:"i-adjective"},
     {japanese:"美しい",reading:"うつくしい",meaning:"beautiful",type:"i-adjective"},
-
-    // NA-ADJECTIVES
     {japanese:"有名",reading:"ゆうめい",meaning:"famous",type:"na-adjective"},
     {japanese:"便利",reading:"べんり",meaning:"convenient",type:"na-adjective"},
     {japanese:"綺麗",reading:"きれい",meaning:"beautiful/clean",type:"na-adjective"},
@@ -270,39 +236,178 @@ export const allFlashcards = [
     {japanese:"元気",reading:"げんき",meaning:"healthy/energetic",type:"na-adjective"}
 ];
 
-// Utility functions for vocabulary management
-export function getVocabularyByType(type) {
-    return allFlashcards.filter(card => card.type === type);
-}
+export class VocabularyManager {
+    constructor() {
+        this.vocabulary = N5_VOCABULARY;
+        this.wordCounts = this.calculateWordCounts();
+    }
 
-export function getRandomVocabulary(count = 10) {
-    const shuffled = [...allFlashcards].sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, count);
-}
+    calculateWordCounts() {
+        const counts = {
+            all: this.vocabulary.length,
+            noun: 0,
+            verb: 0,
+            'i-adjective': 0,
+            'na-adjective': 0
+        };
 
-export function searchVocabulary(query) {
-    const lowercaseQuery = query.toLowerCase();
-    return allFlashcards.filter(card => 
-        card.japanese.includes(query) ||
-        card.reading.includes(lowercaseQuery) ||
-        card.meaning.toLowerCase().includes(lowercaseQuery)
-    );
-}
+        this.vocabulary.forEach(card => {
+            if (counts[card.type] !== undefined) {
+                counts[card.type]++;
+            }
+        });
 
-export function getVocabularyStats() {
-    const stats = {
-        total: allFlashcards.length,
-        byType: {}
-    };
-    
-    const types = ['noun', 'verb', 'i-adjective', 'na-adjective'];
-    types.forEach(type => {
-        stats.byType[type] = allFlashcards.filter(card => card.type === type).length;
-    });
-    
-    return stats;
-}
+        return counts;
+    }
 
-// Validate vocabulary data on import
-console.log(`✅ Vocabulary loaded: ${allFlashcards.length} cards`);
-console.log('📊 Distribution:', getVocabularyStats().byType);
+    getWordCounts() {
+        return { ...this.wordCounts };
+    }
+
+    filterByTypes(types) {
+        if (types.includes('all')) {
+            return [...this.vocabulary];
+        }
+
+        return this.vocabulary.filter(card => types.includes(card.type));
+    }
+
+    shuffleArray(array) {
+        if (!array || array.length === 0) return [];
+        
+        const newArray = [...array];
+        for (let i = newArray.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+        }
+        return newArray;
+    }
+
+    interleavedShuffle(array) {
+        if (!array || array.length <= 1) return array.slice();
+        
+        const cardsByType = {
+            noun: [],
+            verb: [],
+            'i-adjective': [],
+            'na-adjective': []
+        };
+        
+        array.forEach(card => {
+            if (cardsByType[card.type]) {
+                cardsByType[card.type].push(card);
+            }
+        });
+        
+        Object.keys(cardsByType).forEach(type => {
+            cardsByType[type] = this.shuffleArray(cardsByType[type]);
+        });
+        
+        const result = [];
+        const typeKeys = Object.keys(cardsByType).filter(type => cardsByType[type].length > 0);
+        
+        if (typeKeys.length === 0) return this.shuffleArray(array);
+        
+        let typeIndex = 0;
+        while (result.length < array.length) {
+            const currentType = typeKeys[typeIndex % typeKeys.length];
+            if (cardsByType[currentType].length > 0) {
+                result.push(cardsByType[currentType].shift());
+            }
+            
+            if (cardsByType[currentType].length === 0) {
+                typeKeys.splice(typeKeys.indexOf(currentType), 1);
+                if (typeKeys.length === 0) break;
+            }
+            
+            typeIndex++;
+        }
+        
+        // Light shuffle to add variety while maintaining type distribution
+        const lightShuffled = [...result];
+        const swapCount = Math.max(1, Math.floor(array.length * 0.15));
+        
+        for (let i = 0; i < swapCount; i++) {
+            const pos1 = Math.floor(Math.random() * lightShuffled.length);
+            const pos2 = Math.floor(Math.random() * lightShuffled.length);
+            [lightShuffled[pos1], lightShuffled[pos2]] = [lightShuffled[pos2], lightShuffled[pos1]];
+        }
+        
+        return lightShuffled;
+    }
+
+    generateQuizOptions(correctCard, count = 4, sameTypeWeight = 0.7) {
+        const options = [correctCard];
+        const otherCards = this.vocabulary.filter(card => 
+            card.japanese !== correctCard.japanese
+        );
+        
+        if (otherCards.length === 0) return options;
+        
+        const sameTypeCards = this.shuffleArray(
+            otherCards.filter(card => card.type === correctCard.type)
+        );
+        const diffTypeCards = this.shuffleArray(
+            otherCards.filter(card => card.type !== correctCard.type)
+        );
+        
+        const wrongAnswers = [];
+        const sameTypeCount = Math.floor((count - 1) * sameTypeWeight);
+        
+        // Add same type words
+        if (sameTypeCards.length > 0) {
+            wrongAnswers.push(...sameTypeCards.slice(0, Math.min(sameTypeCount, sameTypeCards.length)));
+        }
+        
+        // Fill remaining slots with different types
+        const remainingSlots = (count - 1) - wrongAnswers.length;
+        if (remainingSlots > 0 && diffTypeCards.length > 0) {
+            wrongAnswers.push(...diffTypeCards.slice(0, remainingSlots));
+        }
+        
+        // If still need more, use any available cards
+        while (wrongAnswers.length < (count - 1) && otherCards.length >= (count - 1)) {
+            const remaining = otherCards.filter(card => 
+                !wrongAnswers.some(wa => wa.japanese === card.japanese)
+            );
+            if (remaining.length > 0) {
+                wrongAnswers.push(remaining[Math.floor(Math.random() * remaining.length)]);
+            } else {
+                break;
+            }
+        }
+        
+        options.push(...wrongAnswers);
+        return this.shuffleArray(options);
+    }
+
+    searchWords(query) {
+        if (!query || query.trim() === '') return [...this.vocabulary];
+        
+        const searchTerm = query.toLowerCase().trim();
+        
+        return this.vocabulary.filter(card => 
+            card.japanese.toLowerCase().includes(searchTerm) ||
+            card.reading.toLowerCase().includes(searchTerm) ||
+            card.meaning.toLowerCase().includes(searchTerm)
+        );
+    }
+
+    getRandomWord(excludeWords = []) {
+        const availableWords = this.vocabulary.filter(card => 
+            !excludeWords.includes(card.japanese)
+        );
+        
+        if (availableWords.length === 0) return null;
+        
+        return availableWords[Math.floor(Math.random() * availableWords.length)];
+    }
+
+    getWordByJapanese(japanese) {
+        return this.vocabulary.find(card => card.japanese === japanese) || null;
+    }
+
+    getAllWords() {
+        return [...this.vocabulary];
+    }
+}

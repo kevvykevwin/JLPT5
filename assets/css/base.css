@@ -1,5 +1,6 @@
-/* assets/css/base.css - Core Application Styles */
+/* assets/css/base.css - Core Foundation Styles */
 
+/* Reset and Base */
 * { 
     margin: 0; 
     padding: 0; 
@@ -16,6 +17,7 @@ body {
     padding: 20px;
 }
 
+/* Main Container */
 .flashcard-container {
     background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(10px);
@@ -28,6 +30,7 @@ body {
     border: 1px solid rgba(56, 142, 60, 0.2);
 }
 
+/* Header */
 .header {
     position: relative;
     margin-bottom: 30px;
@@ -41,6 +44,73 @@ body {
     padding-left: 60px;
 }
 
+/* Retention Prompt */
+.retention-prompt {
+    background: linear-gradient(135deg, #43a047, #388e3c);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    text-align: center;
+    font-weight: 500;
+    box-shadow: 0 4px 15px rgba(56, 142, 60, 0.3);
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.4s ease;
+    display: none;
+}
+
+.retention-prompt.show {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.retention-prompt.fade-out {
+    opacity: 0;
+    transform: translateY(-5px);
+}
+
+/* Tab Navigation */
+.tab-container {
+    display: flex;
+    border-bottom: 2px solid #e0e0e0;
+    margin-bottom: 20px;
+    justify-content: center;
+}
+
+.tab-button {
+    background: none;
+    border: none;
+    padding: 12px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-bottom: 3px solid transparent;
+}
+
+.tab-button.active {
+    color: #388e3c;
+    border-bottom-color: #388e3c;
+}
+
+.tab-button:hover:not(.active) {
+    color: #555;
+    background: rgba(56, 142, 60, 0.05);
+}
+
+/* Tab Content */
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Progress Bar */
 .progress {
     background: #f0f0f0;
     border-radius: 10px;
@@ -56,6 +126,7 @@ body {
     width: 0%;
 }
 
+/* Card Info */
 .card-info {
     display: flex;
     justify-content: space-between;
@@ -65,6 +136,7 @@ body {
     font-weight: 500;
 }
 
+/* Study Card */
 .flashcard {
     background: rgba(255, 255, 255, 0.9);
     border: 3px solid rgba(56, 142, 60, 0.2);
@@ -92,6 +164,7 @@ body {
     box-shadow: 0 8px 20px rgba(67, 160, 71, 0.2);
 }
 
+/* Learning State Styling */
 .flashcard.state-new {
     border-color: #2196f3;
     background: rgba(33, 150, 243, 0.05);
@@ -112,6 +185,64 @@ body {
     background: rgba(76, 175, 80, 0.05);
 }
 
+/* Learning State Indicator */
+.learning-state-indicator {
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    font-size: 10px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    z-index: 5;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.state-new { background: #2196f3; }
+.state-learning { background: #ff9800; }
+.state-review { background: #9c27b0; }
+.state-mastered { background: #4caf50; }
+
+/* Audio Button */
+.audio-button {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(56, 142, 60, 0.1);
+    border: 2px solid rgba(56, 142, 60, 0.3);
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: all 0.3s ease;
+    z-index: 10;
+}
+
+.audio-button:hover {
+    background: rgba(56, 142, 60, 0.2);
+    border-color: #388e3c;
+    transform: scale(1.05);
+}
+
+.audio-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.audio-button.loading {
+    animation: spin 1s linear infinite;
+}
+
+/* Japanese Text */
 .japanese-word {
     font-size: 48px;
     font-weight: bold;
@@ -143,6 +274,7 @@ body {
     font-style: italic;
 }
 
+/* Controls */
 .controls {
     display: flex;
     gap: 15px;
@@ -159,6 +291,7 @@ body {
     font-weight: bold;
     cursor: pointer;
     transition: all 0.3s ease;
+    outline: none;
 }
 
 .btn-primary {
@@ -183,6 +316,85 @@ body {
     transform: translateY(-1px);
 }
 
+/* Statistics */
+.stats {
+    margin: 20px 0;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    display: none;
+    border: 2px solid #e0e0e0;
+}
+
+.stats.show { 
+    display: block; 
+    border-color: #388e3c;
+}
+
+.stats h3 {
+    color: #2e7d32; 
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 18px;
+}
+
+.learning-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+.learning-stat {
+    text-align: center;
+    padding: 10px;
+    border-radius: 6px;
+}
+
+.learning-stat.new {
+    background: #e3f2fd;
+    color: #1565c0;
+}
+
+.learning-stat.learning {
+    background: #fff3e0;
+    color: #ef6c00;
+}
+
+.learning-stat.review {
+    background: #f3e5f5;
+    color: #7b1fa2;
+}
+
+.learning-stat.mastered {
+    background: #e8f5e8;
+    color: #2e7d32;
+}
+
+.learning-stat-number {
+    font-size: 24px;
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.learning-stat-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.overall-stats {
+    border-top: 2px solid #e0e0e0;
+    padding-top: 15px;
+    margin-top: 15px;
+}
+
+/* Footer */
 .footer-actions {
     margin-top: 30px;
     padding-top: 20px;
@@ -225,16 +437,8 @@ body {
     box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3) !important;
 }
 
-.success-message {
-    display: none; 
-    position: fixed; 
-    top: 20px; 
-    right: 20px; 
-    background: #4caf50; 
-    color: white; 
-    padding: 15px 20px; 
-    border-radius: 10px; 
-    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3); 
-    z-index: 1001;
-    font-weight: 500;
+/* Animations */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }

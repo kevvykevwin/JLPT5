@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JLPT N5 Flashcards - Adaptive Learning System</title>
-    <meta name="description" content="Master JLPT N5 vocabulary with spaced repetition, adaptive quizzes, and pronunciation practice. Free Japanese learning tool with 230+ essential words.">
-    <meta name="keywords" content="JLPT N5, Japanese vocabulary, flashcards, spaced repetition, kanji practice, Japanese learning">
+    <meta name="description" content="Master JLPT N5 vocabulary with spaced repetition, adaptive quizzes, and pronunciation practice.">
+    <meta name="keywords" content="JLPT N5, Japanese vocabulary, flashcards, spaced repetition, kanji practice">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🇯🇵</text></svg>">
-    <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#667eea">
     
-    <!-- External CSS Files -->
+    <!-- Modular CSS -->
     <link rel="stylesheet" href="assets/css/base.css">
     <link rel="stylesheet" href="assets/css/components.css">
     <link rel="stylesheet" href="assets/css/quiz.css">
@@ -18,7 +18,9 @@
 </head>
 <body>
     <div class="flashcard-container">
+        <!-- Header Section -->
         <div class="header">
+            <!-- Filter Menu -->
             <div class="menu-container">
                 <div class="hamburger-menu" id="hamburgerMenu">
                     <div class="hamburger-icon">
@@ -30,6 +32,7 @@
                 <div class="dropdown-menu" id="dropdownMenu">
                     <div class="filter-section">
                         <div class="filter-section-title">Word Types</div>
+                        
                         <div class="filter-option" data-filter="all">
                             <div class="toggle-switch">
                                 <input type="checkbox" id="filterAll" checked>
@@ -38,6 +41,7 @@
                             <label for="filterAll">All Words</label>
                             <span class="word-count-badge" id="allCount">0</span>
                         </div>
+                        
                         <div class="filter-option" data-filter="noun">
                             <div class="toggle-switch">
                                 <input type="checkbox" id="filterNouns">
@@ -46,6 +50,7 @@
                             <label for="filterNouns">Nouns</label>
                             <span class="word-count-badge" id="nounCount">0</span>
                         </div>
+                        
                         <div class="filter-option" data-filter="verb">
                             <div class="toggle-switch">
                                 <input type="checkbox" id="filterVerbs">
@@ -54,6 +59,7 @@
                             <label for="filterVerbs">Verbs</label>
                             <span class="word-count-badge" id="verbCount">0</span>
                         </div>
+                        
                         <div class="filter-option" data-filter="i-adjective">
                             <div class="toggle-switch">
                                 <input type="checkbox" id="filterIAdj">
@@ -62,6 +68,7 @@
                             <label for="filterIAdj">い-Adjectives</label>
                             <span class="word-count-badge" id="iAdjCount">0</span>
                         </div>
+                        
                         <div class="filter-option" data-filter="na-adjective">
                             <div class="toggle-switch">
                                 <input type="checkbox" id="filterNaAdj">
@@ -73,21 +80,26 @@
                     </div>
                 </div>
             </div>
+            
             <h1>JLPT N5 Adaptive Learning</h1>
             
+            <!-- Retention Prompt -->
             <div id="retentionPrompt" class="retention-prompt">
                 ✨ Some of these help strengthen memory retention (<span id="reviewCount">0</span> reviews mixed in)
             </div>
 
+            <!-- Tab Navigation -->
             <div class="tab-container">
                 <button class="tab-button active" data-tab="study">📚 Study</button>
                 <button class="tab-button" data-tab="quiz">🧠 Quiz</button>
             </div>
             
+            <!-- Progress Bar -->
             <div class="progress">
                 <div class="progress-bar" id="progressBar"></div>
             </div>
             
+            <!-- Card Info -->
             <div class="card-info">
                 <div id="cardCounter">Card 1 of 0</div>
                 <div id="cardType">Adaptive</div>
@@ -96,9 +108,9 @@
         
         <!-- Study Tab -->
         <div class="tab-content active" id="studyTab">
-            <div class="flashcard" id="flashcard">
+            <div class="flashcard" id="flashcard" onclick="flipCard()">
                 <div class="learning-state-indicator" id="stateIndicator">N</div>
-                <button class="audio-button" id="audioButton" title="Listen to pronunciation">
+                <button class="audio-button" id="audioButton" onclick="playAudio(event)" title="Listen to pronunciation">
                     🔊
                 </button>
                 <div class="prompt-text" id="promptText"></div>
@@ -108,8 +120,9 @@
             </div>
         </div>
 
-        <!-- Quiz Tab -->
+        <!-- Quiz Tab - FIXED: Correct default kana toggle label -->
         <div class="tab-content" id="quizTab">
+            <!-- Quiz Mode Selector -->
             <div class="quiz-mode-selector">
                 <button class="quiz-mode-btn active" data-mode="multiple-choice">Multiple Choice</button>
                 <button class="quiz-mode-btn" data-mode="listening-first">Listening First</button>
@@ -118,70 +131,47 @@
                 <button class="quiz-mode-btn" data-mode="kanji-only">Kanji Only</button>
             </div>
 
-            <!-- Mode Selection Prompt (for initial quiz experience) -->
-            <div class="mode-selection-prompt" id="modeSelectionPrompt">
-                <div class="mode-selection-title">Choose Your Challenge Level</div>
-                <div class="mode-selection-subtitle">Select the quiz mode that matches your learning goals</div>
-                <div class="mode-descriptions">
-                    <div class="mode-description">
-                        <strong>Multiple Choice:</strong> Standard recognition practice with answer options
-                    </div>
-                    <div class="mode-description">
-                        <strong>Listening First:</strong> Audio-based learning to improve pronunciation
-                    </div>
-                    <div class="mode-description">
-                        <strong>Mixed Challenge:</strong> Both Japanese→English and English→Japanese
-                    </div>
-                    <div class="mode-description">
-                        <strong>Speed Challenge:</strong> 8-second time pressure for fluency building
-                    </div>
-                    <div class="mode-description">
-                        <strong>Kanji Only:</strong> Focus on character recognition without readings
-                    </div>
-                </div>
-            </div>
-
+            <!-- Quiz Container -->
             <div class="quiz-container active" id="quizContainer">
-                <!-- FIXED: Reading Toggle - Now properly positioned inside quiz container -->
-                <div class="quiz-reading-toggle">
-                    <div class="reading-toggle-switch" id="readingToggleSwitch">
-                        <input type="checkbox" id="quizReadingToggle" checked>
-                        <span class="reading-switch-slider"></span>
-                        <label for="quizReadingToggle" class="reading-switch-label">Show: Kana</label>
+                <!-- FIXED: Kana toggle with correct default label "Show: Kana" -->
+                <div class="kana-toggle-container" id="kanaToggleContainer">
+                    <div class="kana-toggle-switch">
+                        <input type="checkbox" id="kanaToggleInput">
+                        <span class="toggle-slider"></span>
                     </div>
+                    <label for="kanaToggleInput" id="kanaToggleLabel">Show: Kana</label>
                 </div>
                 
-                <!-- Adaptive Batch Progress Indicator -->
-                <div class="batch-progress" id="batchProgress">
-                    <div class="batch-progress-fill" id="batchProgressFill"></div>
-                </div>
-                
+                <!-- Quiz Question -->
                 <div class="japanese-word quiz-question" id="quizQuestion">What does this mean?</div>
                 
-                <!-- Audio Section for Listening Mode -->
+                <!-- Audio Section (for listening mode) -->
                 <div id="quizAudioSection" class="quiz-audio-section" style="display: none;">
-                    <button class="quiz-audio-button" id="quizAudioButton" title="Listen to pronunciation">
+                    <button class="quiz-audio-button" id="quizAudioButton" onclick="playAudio(event)" title="Listen to pronunciation">
                         🔊
                     </button>
-                    <div style="font-size: 14px; color: #388e3c; font-weight: 500;">Click to listen</div>
+                    <div class="quiz-audio-label">Click to listen</div>
                 </div>
                 
+                <!-- Quiz Options -->
                 <div class="quiz-options" id="quizOptions"></div>
+                
+                <!-- Quiz Feedback -->
                 <div class="quiz-feedback" id="quizFeedback"></div>
             </div>
         </div>
         
-        <!-- Controls -->
+        <!-- Control Buttons -->
         <div class="controls">
-            <button class="btn btn-secondary" id="previousBtn">← Previous</button>
-            <button class="btn btn-primary" id="flipBtn">Flip Card</button>
-            <button class="btn btn-primary" id="nextBtn">Next →</button>
+            <button class="btn btn-secondary" onclick="previousCard()">← Previous</button>
+            <button class="btn btn-primary" onclick="flipCard()" id="flipBtn">Flip Card</button>
+            <button class="btn btn-primary" onclick="nextCard()">Next →</button>
         </div>
         
         <div class="controls">
-            <button class="btn btn-secondary" id="shuffleBtn">🔀 Shuffle</button>
-            <button class="btn btn-secondary" id="resetBtn">🔄 Reset</button>
-            <button class="btn btn-secondary" id="statsBtn">📊 Stats</button>
+            <button class="btn btn-secondary" onclick="shuffleCards()">🔀 Shuffle</button>
+            <button class="btn btn-secondary" onclick="resetProgress()">🔄 Reset</button>
+            <button class="btn btn-secondary" onclick="toggleStats()">📊 Stats</button>
         </div>
         
         <!-- Statistics Panel -->
@@ -211,66 +201,50 @@
             
             <div class="overall-stats">
                 <p><strong>Study Session:</strong> <span id="cardsStudied">0</span> cards studied • <span id="timesFlipped">0</span> flips</p>
-                <p><strong>Learning Progress:</strong> <span id="progressPercent">0%</span> overall mastery • <span id="quizAccuracy">0%</span> quiz accuracy</p>
+                <p><strong>Learning Progress:</strong> <span id="progressPercent">0%</span> overall mastery</p>
             </div>
         </div>
 
         <!-- Footer Actions -->
         <div class="footer-actions">
-            <button class="footer-btn" id="learningGuideBtn">❓ How Learning Works</button>
-            <button class="footer-btn" id="feedbackBtn">💬 Feedback</button>
-            <button class="footer-btn donate-btn" id="donateBtn">💝 Donate</button>
+            <button class="footer-btn" onclick="showLearningInfo()">❓ How Learning Works</button>
+            <button class="footer-btn" onclick="showFeedbackForm()">💬 Feedback</button>
+            <button class="footer-btn donate-btn" onclick="showDonateInfo()">💝 Donate</button>
         </div>
     </div>
 
-    <!-- Learning Guide Modal -->
-    <div class="modal-overlay" id="learningGuideModal">
-        <div class="modal-content learning-guide-modal">
-            <div class="modal-header">❓ How the Adaptive Learning System Works</div>
+    <!-- Learning Info Modal -->
+    <div class="modal-overlay" id="learningModal">
+        <div class="modal-content">
+            <div class="modal-header">❓ How Spaced Repetition Learning Works</div>
             
-            <div class="learning-guide-content">
-                <div class="guide-section">
-                    <h4>🔵 New Cards (Blue)</h4>
-                    <p>Words you haven't studied yet. Start here to learn new vocabulary. Cards appear immediately for first exposure.</p>
-                </div>
+            <div style="text-align: left; line-height: 1.6; max-height: 400px; overflow-y: auto;">
+                <p><strong>🧠 Adaptive Learning System:</strong></p>
+                <ul style="margin: 10px 0 20px 20px;">
+                    <li style="margin-bottom: 8px;"><span style="color: #2196f3; font-weight: bold;">●</span> <strong>New:</strong> Words you haven't studied yet</li>
+                    <li style="margin-bottom: 8px;"><span style="color: #ff9800; font-weight: bold;">●</span> <strong>Learning:</strong> Words you're actively memorizing</li>
+                    <li style="margin-bottom: 8px;"><span style="color: #9c27b0; font-weight: bold;">●</span> <strong>Review:</strong> Words being reinforced</li>
+                    <li style="margin-bottom: 8px;"><span style="color: #4caf50; font-weight: bold;">●</span> <strong>Mastered:</strong> Words you know well</li>
+                </ul>
                 
-                <div class="guide-section">
-                    <h4>🟡 Learning Phase (Orange)</h4>
-                    <p>Cards move here after first attempt. Review again in 30 minutes, then 1 day. This reinforces initial learning.</p>
-                </div>
+                <p><strong>📈 Smart Scheduling:</strong></p>
+                <p style="margin-bottom: 20px;">The system automatically schedules reviews based on how well you know each word. Difficult words appear more frequently, while mastered words appear less often - just like the forgetting curve theory suggests.</p>
                 
-                <div class="guide-section">
-                    <h4>🟣 Review Phase (Purple)</h4>
-                    <p>Well-learned cards reviewed every 3-7 days to maintain memory. The system adapts intervals based on your performance.</p>
-                </div>
+                <p><strong>🎯 Quiz Modes:</strong></p>
+                <ul style="margin: 10px 0 20px 20px;">
+                    <li style="margin-bottom: 6px;"><strong>Multiple Choice:</strong> Standard recognition practice</li>
+                    <li style="margin-bottom: 6px;"><strong>Listening First:</strong> Audio-based recognition</li>
+                    <li style="margin-bottom: 6px;"><strong>Mixed Challenge:</strong> Random direction (JP→EN or EN→JP)</li>
+                    <li style="margin-bottom: 6px;"><strong>Speed Challenge:</strong> Quick recall under time pressure</li>
+                    <li style="margin-bottom: 6px;"><strong>Kanji Only:</strong> Pure character recognition</li>
+                </ul>
                 
-                <div class="guide-section">
-                    <h4>🟢 Mastered (Green)</h4>
-                    <p>Fully learned words reviewed every 2+ weeks. You've got these down! They appear less frequently but stay fresh.</p>
-                </div>
-                
-                <div class="guide-section">
-                    <h4>🧠 Spaced Repetition Science</h4>
-                    <p>This system uses scientifically-proven spaced repetition intervals to optimize long-term retention. Cards appear just as you're about to forget them, strengthening memory pathways.</p>
-                </div>
-
-                <div class="guide-section">
-                    <h4>🎯 Adaptive Batch System</h4>
-                    <p>Quiz sessions adapt to your performance with batches of 3-12 questions. Better accuracy = longer sessions. Struggling = shorter, focused practice.</p>
-                </div>
-
-                <div class="guide-section">
-                    <h4>🎮 Quiz Modes</h4>
-                    <p><strong>Multiple Choice:</strong> Standard recognition practice<br>
-                    <strong>Listening First:</strong> Audio-based learning<br>
-                    <strong>Mixed Challenge:</strong> Both Japanese→English and English→Japanese<br>
-                    <strong>Speed Challenge:</strong> 8-second time pressure for fluency<br>
-                    <strong>Kanji Only:</strong> Focus on character recognition</p>
-                </div>
+                <p><strong>💡 Study Tips:</strong></p>
+                <p style="margin-bottom: 15px;">Study consistently for short periods rather than long cramming sessions. The spaced repetition algorithm works best with regular exposure over time.</p>
             </div>
             
             <div class="form-buttons">
-                <button type="button" class="btn btn-primary" id="closeLearningGuideBtn">Got it!</button>
+                <button type="button" class="btn btn-primary" onclick="hideLearningInfo()">Got it!</button>
             </div>
         </div>
     </div>
@@ -280,7 +254,7 @@
         <div class="modal-content">
             <div class="modal-header">💬 Share Your Feedback</div>
             
-            <form name="jlpt-feedback" method="POST" data-netlify="true" data-netlify-honeypot="bot-field" id="feedbackForm">
+            <form name="jlpt-feedback" method="POST" data-netlify="true" data-netlify-honeypot="bot-field" onsubmit="submitFeedback(event)">
                 <input type="hidden" name="bot-field" />
                 <input type="hidden" name="form-name" value="jlpt-feedback" />
                 
@@ -292,117 +266,24 @@
                 <div class="form-group">
                     <label class="form-label">Your feedback</label>
                     <textarea name="feedback" class="form-textarea" 
-                              placeholder="How is the adaptive learning system working for you? Any suggestions for improvement?" 
+                              placeholder="How is the spaced repetition system working for you? Any suggestions for improvement?" 
                               required></textarea>
                 </div>
                 
                 <div class="form-buttons">
                     <button type="submit" class="btn btn-primary" style="margin-right: 10px;">Send Feedback</button>
-                    <button type="button" class="btn btn-secondary" id="closeFeedbackBtn">Cancel</button>
+                    <button type="button" class="btn btn-secondary" onclick="hideFeedbackForm()">Cancel</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Success Notification -->
+    <!-- Success Message -->
     <div class="success-message" id="successMessage">
         ✅ Thank you for your feedback!
     </div>
 
-    <!-- Main JavaScript Module -->
+    <!-- Modular JavaScript -->
     <script type="module" src="assets/js/app.js"></script>
-    
-    <!-- Fallback for browsers without module support -->
-    <script nomodule>
-        console.warn('ES6 modules not supported. Loading basic fallback...');
-        
-        // Basic fallback functionality
-        function initBasicMode() {
-            const japaneseWord = document.getElementById('japaneseWord');
-            const reading = document.getElementById('reading');
-            const meaning = document.getElementById('meaning');
-            const flipBtn = document.getElementById('flipBtn');
-            const flashcard = document.getElementById('flashcard');
-            
-            if (!japaneseWord || !reading || !meaning) {
-                console.error('Required elements not found for basic mode');
-                return;
-            }
-            
-            // Basic vocabulary subset
-            const basicVocab = [
-                {japanese:"こんにちは",reading:"こんにちは",meaning:"hello"},
-                {japanese:"ありがとう",reading:"ありがとう",meaning:"thank you"},
-                {japanese:"すみません",reading:"すみません",meaning:"excuse me"},
-                {japanese:"はい",reading:"はい",meaning:"yes"},
-                {japanese:"いいえ",reading:"いいえ",meaning:"no"}
-            ];
-            
-            let currentIndex = 0;
-            let isFlipped = false;
-            
-            function updateCard() {
-                const card = basicVocab[currentIndex];
-                japaneseWord.textContent = card.japanese;
-                reading.textContent = card.reading;
-                meaning.textContent = card.meaning;
-                meaning.style.display = 'none';
-                isFlipped = false;
-                flashcard.classList.remove('flipped');
-            }
-            
-            function flipCard() {
-                if (isFlipped) {
-                    meaning.style.display = 'none';
-                    flashcard.classList.remove('flipped');
-                } else {
-                    meaning.style.display = 'block';
-                    flashcard.classList.add('flipped');
-                }
-                isFlipped = !isFlipped;
-            }
-            
-            function nextCard() {
-                currentIndex = (currentIndex + 1) % basicVocab.length;
-                updateCard();
-            }
-            
-            // Event listeners
-            if (flipBtn) flipBtn.addEventListener('click', flipCard);
-            if (flashcard) flashcard.addEventListener('click', flipCard);
-            
-            const nextBtn = document.getElementById('nextBtn');
-            if (nextBtn) nextBtn.addEventListener('click', nextCard);
-            
-            // Initialize
-            updateCard();
-            
-            // Show notification
-            const notification = document.createElement('div');
-            notification.style.cssText = `
-                position: fixed; top: 20px; right: 20px; background: #ff9800;
-                color: white; padding: 15px 20px; border-radius: 10px;
-                box-shadow: 0 4px 15px rgba(255, 152, 0, 0.3); z-index: 1001;
-                font-weight: 500; max-width: 300px;
-            `;
-            notification.textContent = 'Running in basic mode. For full features, please use a modern browser.';
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                if (document.body.contains(notification)) {
-                    document.body.removeChild(notification);
-                }
-            }, 5000);
-            
-            console.log('Basic fallback mode initialized with', basicVocab.length, 'cards');
-        }
-        
-        // Initialize basic mode when DOM is ready
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initBasicMode);
-        } else {
-            initBasicMode();
-        }
-    </script>
 </body>
 </html>

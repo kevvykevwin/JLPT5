@@ -1,48 +1,30 @@
-/* Mobile responsive styles */
-@media (max-width: 768px) {
+/* assets/css/responsive.css - Mobile & Tablet Optimizations */
+
+/* Mobile Phones (320px - 480px) */
+@media (max-width: 480px) {
+    body {
+        padding: 10px;
+    }
+    
     .flashcard-container { 
-        padding: 30px 20px; 
-        margin: 15px 10px;
-        max-width: 95%;
+        padding: 20px; 
+        margin: 10px;
+        max-width: 100%;
     }
     
     .header h1 {
-        font-size: 24px;
+        font-size: 22px;
         padding-left: 50px;
     }
     
-    .japanese-word { 
-        font-size: 36px; 
+    .menu-container {
+        top: -5px;
     }
     
-    .quiz-question {
-        font-size: 28px;
-    }
-    
-    .quiz-question.kanji-focus {
-        font-size: 56px;
-    }
-    
-    .quiz-question.speed-challenge {
-        font-size: 42px;
-    }
-    
-    .quiz-question.listening-mode {
-        font-size: 18px;
-    }
-
-    .learning-overview {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 10px;
-    }
-
-    .quiz-mode-selector {
-        gap: 6px;
-    }
-
-    .quiz-mode-btn, .reading-toggle-btn, .info-btn {
-        font-size: 11px;
-        padding: 6px 12px;
+    .hamburger-menu {
+        width: 35px;
+        height: 35px;
+        padding: 8px;
     }
     
     .tab-button {
@@ -50,57 +32,11 @@
         font-size: 14px;
     }
     
-    .controls { 
-        flex-direction: column; 
-        align-items: center; 
-        gap: 10px;
-    }
-    
-    .btn { 
-        width: 100%; 
-        max-width: 250px; 
-    }
-    
-    .footer-actions {
-        flex-direction: column;
-        gap: 10px;
-    }
-    
-    .footer-btn {
-        width: 100%;
-        max-width: 250px;
-    }
-}
-
-@media (max-width: 480px) {
-    .flashcard-container { 
-        padding: 20px 15px; 
-        margin: 10px 5px;
-    }
-    
-    .header h1 {
-        font-size: 20px;
-        padding-left: 45px;
-        margin-bottom: 15px;
-    }
-    
     .japanese-word { 
-        font-size: 28px; 
+        font-size: 32px; 
     }
     
-    .quiz-question {
-        font-size: 24px;
-    }
-    
-    .quiz-question.kanji-focus {
-        font-size: 48px;
-    }
-    
-    .quiz-question.speed-challenge {
-        font-size: 36px;
-    }
-    
-    .quiz-question.listening-mode {
+    .reading {
         font-size: 16px;
     }
     
@@ -108,68 +44,41 @@
         font-size: 20px;
     }
     
-    .reading {
-        font-size: 16px;
-    }
-    
     .flashcard {
-        min-height: 180px;
         padding: 30px 15px;
-    }
-    
-    .quiz-container {
-        padding: 20px 15px;
-    }
-    
-    .quiz-options {
-        gap: 12px;
-    }
-    
-    .quiz-option {
-        padding: 12px 15px;
-        font-size: 14px;
-    }
-    
-    .quiz-mode-btn, .reading-toggle-btn, .info-btn {
-        font-size: 10px;
-        padding: 5px 10px;
-    }
-    
-    .hamburger-menu {
-        width: 35px;
-        height: 35px;
+        min-height: 180px;
     }
     
     .audio-button {
         width: 40px;
         height: 40px;
         font-size: 16px;
+        top: 10px;
+        right: 10px;
     }
     
-    .quiz-audio-button {
-        width: 60px;
-        height: 60px;
-        font-size: 20px;
+    .learning-state-indicator {
+        width: 18px;
+        height: 18px;
+        font-size: 9px;
     }
     
-    .modal-content {
-        padding: 20px;
-        margin: 20px;
-        max-width: calc(100vw - 40px);
+    .controls { 
+        flex-direction: column; 
+        align-items: center; 
     }
     
-    .btn {
-        font-size: 14px;
+    .btn { 
+        width: 100%; 
+        max-width: 200px;
         padding: 10px 20px;
-    }
-    
-    .stats {
-        padding: 15px;
+        font-size: 14px;
     }
     
     .learning-overview {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
         padding: 10px;
-        gap: 8px;
     }
     
     .learning-stat {
@@ -180,63 +89,280 @@
         font-size: 20px;
     }
     
+    .learning-stat-label {
+        font-size: 10px;
+    }
+    
+    .stats {
+        padding: 15px;
+    }
+    
+    .modal-content {
+        padding: 20px;
+        margin: 20px;
+        width: calc(100% - 40px);
+    }
+    
+    .form-input, .form-textarea {
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+    
+    .footer-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .footer-btn {
+        width: 100%;
+        max-width: 200px;
+        margin-bottom: 10px;
+    }
+    
     .card-info {
         font-size: 12px;
     }
     
-    .speed-timer {
-        top: 5px;
-        right: 5px;
-        padding: 3px 10px;
-        font-size: 12px;
+    .progress {
+        height: 6px;
+        margin: 15px 0;
+    }
+    
+    .retention-prompt {
+        padding: 10px 15px;
+        font-size: 14px;
     }
 }
 
-/* Landscape orientation adjustments */
-@media (max-height: 600px) and (orientation: landscape) {
+/* Small Tablets (481px - 768px) */
+@media (min-width: 481px) and (max-width: 768px) {
     .flashcard-container {
-        max-height: 90vh;
-        overflow-y: auto;
-        margin: 5vh auto;
+        padding: 30px;
+        max-width: 90%;
+    }
+    
+    .header h1 {
+        font-size: 24px;
+    }
+    
+    .japanese-word {
+        font-size: 40px;
+    }
+    
+    .reading {
+        font-size: 17px;
+    }
+    
+    .meaning {
+        font-size: 22px;
+    }
+    
+    .flashcard {
+        padding: 35px 20px;
+        min-height: 200px;
+    }
+    
+    .btn {
+        padding: 11px 22px;
+        font-size: 15px;
+    }
+    
+    .learning-overview {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+    }
+    
+    .modal-content {
+        max-width: 80%;
+        padding: 25px;
+    }
+}
+
+/* Large Tablets (769px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .flashcard-container {
+        max-width: 85%;
+    }
+    
+    .header h1 {
+        font-size: 26px;
+    }
+    
+    .japanese-word {
+        font-size: 44px;
+    }
+    
+    .controls {
+        gap: 18px;
+    }
+    
+    .btn {
+        padding: 12px 26px;
+    }
+    
+    .modal-content {
+        max-width: 70%;
+    }
+}
+
+/* Large Screens (1025px+) */
+@media (min-width: 1025px) {
+    .flashcard-container {
+        max-width: 650px;
+    }
+    
+    .japanese-word {
+        font-size: 52px;
+    }
+    
+    .reading {
+        font-size: 20px;
+    }
+    
+    .meaning {
+        font-size: 28px;
+    }
+    
+    .flashcard {
+        padding: 45px 25px;
+        min-height: 240px;
+    }
+    
+    .controls {
+        gap: 20px;
+    }
+    
+    .btn {
+        padding: 14px 28px;
+        font-size: 17px;
+    }
+    
+    .modal-content {
+        max-width: 60%;
+    }
+}
+
+/* Ultra-wide Screens (1440px+) */
+@media (min-width: 1440px) {
+    .flashcard-container {
+        max-width: 700px;
+    }
+    
+    .header h1 {
+        font-size: 32px;
+    }
+    
+    .japanese-word {
+        font-size: 56px;
+    }
+    
+    .meaning {
+        font-size: 30px;
+    }
+    
+    .flashcard {
+        min-height: 260px;
+    }
+}
+
+/* Landscape Orientation Adjustments */
+@media (orientation: landscape) and (max-height: 500px) {
+    body {
+        padding: 10px;
+    }
+    
+    .flashcard-container {
+        padding: 20px;
+        margin: 5px;
+    }
+    
+    .header {
+        margin-bottom: 20px;
+    }
+    
+    .header h1 {
+        font-size: 20px;
+        margin-bottom: 15px;
     }
     
     .flashcard {
         min-height: 150px;
-        padding: 20px 15px;
+        padding: 25px 20px;
     }
     
     .japanese-word {
-        font-size: 32px;
+        font-size: 28px;
+        margin-bottom: 5px;
     }
     
-    .quiz-question {
-        font-size: 24px;
-        margin-bottom: 15px;
+    .reading {
+        font-size: 14px;
+        margin-bottom: 10px;
     }
     
-    .header h1 {
-        font-size: 22px;
-        margin-bottom: 15px;
+    .meaning {
+        font-size: 18px;
+    }
+    
+    .controls {
+        margin-bottom: 10px;
+    }
+    
+    .btn {
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+    
+    .progress {
+        height: 6px;
+        margin: 10px 0;
+    }
+    
+    .tab-button {
+        padding: 8px 16px;
+        font-size: 14px;
+    }
+    
+    .stats {
+        padding: 15px;
+    }
+    
+    .learning-overview {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        padding: 10px;
+    }
+    
+    .learning-stat {
+        padding: 6px;
+    }
+    
+    .learning-stat-number {
+        font-size: 18px;
+    }
+    
+    .learning-stat-label {
+        font-size: 10px;
     }
 }
 
-/* High DPI / Retina display optimizations */
+/* High DPI/Retina Display Optimizations */
 @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-    .japanese-word, .quiz-question {
+    .japanese-word {
         text-rendering: optimizeLegibility;
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
     }
     
-    .hamburger-icon span, 
-    .toggle-slider:before,
-    .learning-state-indicator {
-        -webkit-backface-visibility: hidden;
-        backface-visibility: hidden;
+    .hamburger-icon span {
+        height: 1.5px;
+    }
+    
+    .toggle-slider:before {
+        box-shadow: 0 1px 2px rgba(0,0,0,0.3);
     }
 }
 
-/* Accessibility improvements */
+/* Accessibility - Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
     * {
         animation-duration: 0.01ms !important;
@@ -244,37 +370,73 @@
         transition-duration: 0.01ms !important;
     }
     
-    .pulse, .spin {
-        animation: none !important;
+    .flashcard:hover {
+        transform: none;
+    }
+    
+    .btn:hover {
+        transform: none;
+    }
+    
+    .audio-button:hover {
+        transform: none;
+    }
+    
+    .quiz-option:hover {
+        transform: none;
     }
 }
 
-/* Dark mode support */
+/* Dark Mode Support (if system preference) */
 @media (prefers-color-scheme: dark) {
-    .modal-content,
-    .dropdown-menu,
-    .quiz-option,
-    .stats,
+    body {
+        background: linear-gradient(135deg, rgba(20, 50, 70, 0.9) 0%, rgba(30, 70, 40, 0.9) 50%, rgba(15, 50, 20, 0.9) 100%);
+    }
+    
+    .flashcard-container {
+        background: rgba(40, 40, 40, 0.95);
+        border-color: rgba(80, 150, 90, 0.3);
+    }
+    
+    .header h1 {
+        color: #e8f5e9;
+    }
+    
+    .japanese-word {
+        color: #e8f5e9;
+    }
+    
+    .reading {
+        color: #c5e1a5;
+    }
+    
+    .meaning {
+        color: #a5d6a7;
+    }
+    
+    .flashcard {
+        background: rgba(50, 50, 50, 0.9);
+        border-color: rgba(80, 150, 90, 0.3);
+    }
+    
+    .btn-secondary {
+        background: #555;
+        color: #e0e0e0;
+        border-color: #666;
+    }
+    
+    .stats {
+        background: #444;
+        border-color: #666;
+    }
+    
     .learning-overview {
-        background: #2d2d2d;
-        color: #e0e0e0;
-        border-color: #555;
-    }
-    
-    .form-input,
-    .form-textarea {
-        background: #333;
-        color: #e0e0e0;
-        border-color: rgba(56, 142, 60, 0.4);
-    }
-    
-    .quiz-option:hover:not(.disabled) {
-        background: #3d3d3d;
-        border-color: #388e3c;
+        background: #4a4a4a;
+        border-color: #666;
     }
 }
 
-/* Print styles */
+/* Print Styles */
 @media print {
     body {
         background: white;
@@ -282,19 +444,28 @@
     }
     
     .flashcard-container {
-        box-shadow: none;
-        border: 1px solid #ccc;
         background: white;
+        box-shadow: none;
+        border: 1px solid #000;
     }
     
     .audio-button,
-    .hamburger-menu,
     .controls,
+    .hamburger-menu,
+    .dropdown-menu,
     .footer-actions {
-        display: none;
+        display: none !important;
     }
     
-    .quiz-options {
-        page-break-inside: avoid;
+    .flashcard {
+        background: white;
+        border: 1px solid #000;
+        box-shadow: none;
+    }
+    
+    .japanese-word,
+    .reading,
+    .meaning {
+        color: black;
     }
 }

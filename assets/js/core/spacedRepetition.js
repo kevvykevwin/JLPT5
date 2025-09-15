@@ -1,18 +1,14 @@
-// assets/js/core/spacedRepetition.js - FIXED Spaced Repetition Algorithm
+// assets/js/core/spacedRepetition.js
 
-import { allFlashcards } from './vocabulary.js';
-
-// Learning interval constants (in milliseconds)
 export const LEARNING_INTERVALS = {
     'new': 0,
     'learning_1': 30 * 60 * 1000,        // 30 minutes
     'learning_2': 24 * 60 * 60 * 1000,   // 1 day
     'review_1': 3 * 24 * 60 * 60 * 1000, // 3 days
-    'review_2': 7 * 24 * 60 * 60 * 1000, // 7 days
-    'mastered': 14 * 24 * 60 * 60 * 1000 // 14 days
+    'review_2': 7 * 24 * 60 * 60 * 1000, // 1 week
+    'mastered': 14 * 24 * 60 * 60 * 1000 // 2 weeks
 };
 
-// State progression rules
 export const STATE_PROGRESSIONS = {
     'new': { correct: 'learning_1', incorrect: 'new' },
     'learning_1': { correct: 'learning_2', incorrect: 'new' },
@@ -22,338 +18,366 @@ export const STATE_PROGRESSIONS = {
     'mastered': { correct: 'mastered', incorrect: 'review_1' }
 };
 
-// Global word progress storage
-let wordProgress = {};
+export const LEARNING_STATE_CONFIG = {
+    'new': {
+        name: 'New',
+        color: '#2196f3',
+        indicator: 'N',
+        description: 'Words you haven\'t studied yet'
+    },
+    'learning_1': {
+        name: 'Learning',
+        color: '#ff9800',
+        indicator: 'L',
+        description: 'Words you\'re currently learning'
+    },
+    'learning_2': {
+        name: 'Learning',
+        color: '#ff9800',
+        indicator: 'L',
+        description: 'Words you\'re currently learning'
+    },
+    'review_1': {
+        name: 'Review',
+        color: '#9c27b0',
+        indicator: 'R',
+        description: 'Words ready for review'
+    },
+    'review_2': {
+        name: 'Review',
+        color: '#9c27b0',
+        indicator: 'R',
+        description: 'Words ready for review'
+    },
+    'mastered': {
+        name: 'Mastered',
+        color: '#4caf50',
+        indicator: 'M',
+        description: 'Words you\'ve mastered'
+    }
+};
 
-/**
- * MISSING FUNCTION - Initialize spaced repetition system
- */
-export function initializeSpacedRepetition() {
-    return initializeWordProgress();
-}
+export class SpacedRepetitionManager {
+    constructor(storageManager, vocabularyManager) {
+        this.storage = storageManager;
+        this.vocabulary = vocabularyManager;
+        this.wordProgress = {};
+        this.initialize();
+    }
 
-/**
- * Initialize word progress with proper error handling
- */
-export function initializeWordProgress() {
-    try {
-        const saved = localStorage.getItem('jlpt-word-progress');
-        if (saved) {
-            wordProgress = JSON.parse(saved);
+    initialize() {
+        this.wordProgress = this.storage.initializeWordProgress(this.vocabulary.getAllWords());
+    }
+
+    updateWordProgress(japanese, isCorrect) {
+        const progress = this.wordProgress[japanese];
+        if (!progress) {
+            console.warn(`No progress found for: ${japanese}`);
+            return false;
+        }
+
+        const now = Date.now();
+        const updates = {
+            lastReviewed: now,
+            totalAttempts: (progress.totalAttempts || 0) + 1
+        };
+
+        if (isCorrect) {
+            updates.correctAttempts = (progress.correctAttempts || 0) + 1;
+            updates.correctStreak = (progress.correctStreak || 0) + 1;
+        } else {
+            updates.correctStreak = 0;
+        }
+
+        const currentState = progress.state || 'new';
+        const nextState = STATE_PROGRESSIONS[currentState][isCorrect ? 'correct' : 'incorrect'];
+        updates.state = nextState;
+
+        const interval = LEARNING_INTERVALS[nextState] || LEARNING_INTERVALS['new'];
+        updates.nextReview = now + interval;
+
+        // Update local copy
+        this.wordProgress[japanese] = { ...progress, ...updates };
+
+        // Save to storage
+        return this.storage.updateWordProgress(japanese, updates);
+    }
+
+    getDueCounts(filteredWords = null) {
+        const now = Date.now();
+        const words = filteredWords || this.vocabulary.getAllWords();
+        const counts = { new: 0, learning: 0, review: 0, mastered: 0 };
+
+        words.forEach(word => {
+            const progress = this.wordProgress[word.japanese];
+            if (!progress) return;
+
+            const state = progress.state || 'new';
+            if (state === 'new') {
+                counts.new++;
+            } else if (state.includes('learning')) {
+                counts.learning++;
+            } else if (state.includes('review')) {
+                counts.review++;
+            } else if (state === 'mastered') {
+                counts.mastered++;
+            }
+        });
+
+        return counts;
+    }
+
+    getDueWords(filteredWords = null, now = Date.now()) {
+        const words = filteredWords || this.vocabulary.getAllWords();
+        
+        return words.filter(word => {
+            const progress = this.wordProgress[word.japanese];
+            if (!progress) return true; // New words are always "due"
             
-            // Validate and clean up invalid entries
-            const validKeys = allFlashcards.map(card => card.japanese);
-            Object.keys(wordProgress).forEach(key => {
-                if (!validKeys.includes(key)) {
-                    console.warn(`Removing invalid progress key: ${key}`);
-                    delete wordProgress[key];
+            return progress.nextReview <= now;
+        });
+    }
+
+    getNewWords(filteredWords = null, limit = 10) {
+        const words = filteredWords || this.vocabulary.getAllWords();
+        
+        return words
+            .filter(word => {
+                const progress = this.wordProgress[word.japanese];
+                return !progress || (progress.state === 'new' && progress.totalAttempts === 0);
+            })
+            .slice(0, limit);
+    }
+
+    getNextCards(count = 50, activeFilters = ['all']) {
+        const now = Date.now();
+        let filteredWords = this.vocabulary.filterByTypes(activeFilters);
+        
+        if (filteredWords.length === 0) {
+            console.warn('No words match current filters, using all words');
+            filteredWords = this.vocabulary.getAllWords();
+        }
+
+        const dueWords = [];
+        const newWords = [];
+        const futureWords = [];
+
+        filteredWords.forEach(word => {
+            const progress = this.wordProgress[word.japanese];
+            if (!progress) {
+                newWords.push(word);
+                return;
+            }
+
+            if (progress.nextReview <= now) {
+                dueWords.push(word);
+            } else if (progress.state === 'new' && progress.totalAttempts === 0) {
+                newWords.push(word);
+            } else {
+                futureWords.push(word);
+            }
+        });
+
+        // Prioritize due cards, then new cards, then future cards
+        let result = [];
+        
+        // Add due cards (up to 60% of deck)
+        if (dueWords.length > 0) {
+            const dueShuffled = this.vocabulary.interleavedShuffle(dueWords);
+            result.push(...dueShuffled.slice(0, Math.min(count * 0.6, dueWords.length)));
+        }
+        
+        // Add new cards to fill remaining slots
+        if (result.length < count && newWords.length > 0) {
+            const needed = count - result.length;
+            const newShuffled = this.vocabulary.interleavedShuffle(newWords);
+            result.push(...newShuffled.slice(0, Math.min(needed, newWords.length)));
+        }
+        
+        // Fill any remaining slots with future cards
+        if (result.length < count && futureWords.length > 0) {
+            const needed = count - result.length;
+            const futureShuffled = this.vocabulary.interleavedShuffle(futureWords);
+            result.push(...futureShuffled.slice(0, needed));
+        }
+
+        // Final shuffle while maintaining some type distribution
+        result = this.vocabulary.interleavedShuffle(result);
+
+        // Add metadata for UI feedback
+        const reviewCardsCount = result.filter(word => {
+            const progress = this.wordProgress[word.japanese];
+            return progress && progress.nextReview <= now;
+        }).length;
+
+        result.reviewCardCount = reviewCardsCount;
+        result.dueCardsCount = dueWords.length;
+        result.newCardsCount = newWords.length;
+
+        return result.length > 0 ? result : this.vocabulary.interleavedShuffle(filteredWords.slice(0, count));
+    }
+
+    getWordState(japanese) {
+        const progress = this.wordProgress[japanese];
+        if (!progress) return 'new';
+        return progress.state || 'new';
+    }
+
+    getWordStateConfig(japanese) {
+        const state = this.getWordState(japanese);
+        return LEARNING_STATE_CONFIG[state] || LEARNING_STATE_CONFIG['new'];
+    }
+
+    getStudyStats() {
+        const stats = {
+            totalWords: 0,
+            studiedWords: 0,
+            masteredWords: 0,
+            averageAccuracy: 0,
+            totalStudyTime: 0,
+            longestStreak: 0,
+            currentStreak: 0
+        };
+
+        const allProgress = Object.values(this.wordProgress);
+        stats.totalWords = allProgress.length;
+
+        let totalAttempts = 0;
+        let totalCorrect = 0;
+        let currentStreakCount = 0;
+
+        allProgress.forEach(progress => {
+            if (progress.totalAttempts > 0) {
+                stats.studiedWords++;
+                totalAttempts += progress.totalAttempts;
+                totalCorrect += progress.correctAttempts || 0;
+                
+                if (progress.state === 'mastered') {
+                    stats.masteredWords++;
                 }
-            });
-        } else {
-            wordProgress = {};
+
+                stats.longestStreak = Math.max(stats.longestStreak, progress.correctStreak || 0);
+                
+                if ((progress.correctStreak || 0) > 0) {
+                    currentStreakCount++;
+                }
+            }
+        });
+
+        stats.averageAccuracy = totalAttempts > 0 ? Math.round((totalCorrect / totalAttempts) * 100) : 0;
+        stats.currentStreak = currentStreakCount;
+
+        return stats;
+    }
+
+    getRetentionRate(days = 7) {
+        const cutoffTime = Date.now() - (days * 24 * 60 * 60 * 1000);
+        let recentReviews = 0;
+        let correctReviews = 0;
+
+        Object.values(this.wordProgress).forEach(progress => {
+            if (progress.lastReviewed && progress.lastReviewed > cutoffTime) {
+                recentReviews++;
+                if (progress.correctStreak > 0) {
+                    correctReviews++;
+                }
+            }
+        });
+
+        return recentReviews > 0 ? Math.round((correctReviews / recentReviews) * 100) : 0;
+    }
+
+    getPredictedMastery(japanese) {
+        const progress = this.wordProgress[japanese];
+        if (!progress || progress.totalAttempts === 0) {
+            return { confidence: 0, estimatedDays: null };
         }
-    } catch (error) {
-        console.error('Error loading word progress:', error);
-        wordProgress = {};
-    }
-    
-    // Initialize missing entries
-    allFlashcards.forEach((card, index) => {
-        if (!wordProgress[card.japanese]) {
-            wordProgress[card.japanese] = createNewWordProgress(index);
-        }
-    });
-    
-    saveWordProgress();
-    console.log(`✅ Word progress initialized: ${Object.keys(wordProgress).length} entries`);
-    return Promise.resolve(); // Return promise for async compatibility
-}
 
-/**
- * Create new word progress entry
- */
-function createNewWordProgress(cardIndex) {
-    return {
-        state: 'new',
-        lastReviewed: null,
-        nextReview: Date.now(),
-        correctStreak: 0,
-        totalAttempts: 0,
-        correctAttempts: 0,
-        created: Date.now(),
-        cardIndex: cardIndex
-    };
-}
-
-/**
- * Save word progress to localStorage
- */
-export function saveWordProgress() {
-    try {
-        localStorage.setItem('jlpt-word-progress', JSON.stringify(wordProgress));
-    } catch (error) {
-        console.error('Error saving word progress:', error);
-    }
-}
-
-/**
- * Update word progress based on user performance
- */
-export function updateWordProgress(japanese, isCorrect) {
-    const progress = wordProgress[japanese];
-    if (!progress) {
-        console.warn(`No progress found for: ${japanese}`);
-        return;
-    }
-
-    const now = Date.now();
-    progress.lastReviewed = now;
-    progress.totalAttempts++;
-    
-    if (isCorrect) {
-        progress.correctAttempts++;
-        progress.correctStreak++;
-    } else {
-        progress.correctStreak = 0;
-    }
-
-    // Determine next state
-    const currentState = progress.state;
-    const nextState = STATE_PROGRESSIONS[currentState][isCorrect ? 'correct' : 'incorrect'];
-    progress.state = nextState;
-
-    // Calculate next review time
-    const interval = LEARNING_INTERVALS[nextState] || LEARNING_INTERVALS['new'];
-    progress.nextReview = now + interval;
-
-    saveWordProgress();
-    
-    console.log(`Updated ${japanese}: ${currentState} → ${nextState} (next review: ${new Date(progress.nextReview).toLocaleString()})`);
-}
-
-/**
- * Get next batch of cards for study using spaced repetition algorithm
- */
-export function getNextCards(count = 50, activeFilters = new Set(['all'])) {
-    const now = Date.now();
-    let filteredCards = allFlashcards.slice();
-    
-    // Apply type filters
-    if (!activeFilters.has('all')) {
-        filteredCards = filteredCards.filter(card => activeFilters.has(card.type));
-    }
-
-    if (filteredCards.length === 0) {
-        console.warn('No cards match current filters, falling back to all cards');
-        filteredCards = allFlashcards.slice();
-    }
-
-    const dueCards = [];
-    const newCards = [];
-    const futureCards = [];
-
-    filteredCards.forEach(card => {
-        const progress = wordProgress[card.japanese];
-        if (!progress) return;
-
-        if (progress.nextReview <= now) {
-            dueCards.push(card);
-        } else if (progress.state === 'new' && progress.totalAttempts === 0) {
-            newCards.push(card);
-        } else {
-            futureCards.push(card);
-        }
-    });
-
-    // Shuffle each category
-    const shuffledDueCards = interleavedShuffle(dueCards);
-    const shuffledNewCards = interleavedShuffle(newCards);
-    const shuffledFutureCards = interleavedShuffle(futureCards);
-
-    let result = [];
-    
-    // Prioritize due cards (60% of deck)
-    if (shuffledDueCards.length > 0) {
-        result.push(...shuffledDueCards.slice(0, Math.min(count * 0.6, shuffledDueCards.length)));
-    }
-    
-    // Add new cards to fill remaining slots
-    if (result.length < count && shuffledNewCards.length > 0) {
-        const needed = count - result.length;
-        result.push(...shuffledNewCards.slice(0, Math.min(needed, shuffledNewCards.length)));
-    }
-    
-    // Fill any remaining slots with future cards
-    if (result.length < count && shuffledFutureCards.length > 0) {
-        const needed = count - result.length;
-        result.push(...shuffledFutureCards.slice(0, needed));
-    }
-
-    // Final shuffle while maintaining type distribution
-    result = interleavedShuffle(result);
-
-    // Add metadata
-    const reviewCardsInDeck = result.filter(card => {
-        const progress = wordProgress[card.japanese];
-        return progress && progress.nextReview <= now;
-    }).length;
-
-    result.reviewCardCount = reviewCardsInDeck;
-
-    console.log(`📋 Generated deck: ${result.length} cards (${reviewCardsInDeck} due for review)`);
-    
-    return result.length > 0 ? result : interleavedShuffle(filteredCards.slice(0, count));
-}
-
-/**
- * Interleaved shuffle to maintain type diversity
- */
-function interleavedShuffle(array) {
-    if (!array || array.length <= 1) return array.slice();
-    
-    const cardsByType = {
-        noun: [],
-        verb: [],
-        'i-adjective': [],
-        'na-adjective': []
-    };
-    
-    // Group by type
-    array.forEach(card => {
-        if (cardsByType[card.type]) {
-            cardsByType[card.type].push(card);
-        }
-    });
-    
-    // Shuffle each type
-    Object.keys(cardsByType).forEach(type => {
-        cardsByType[type] = shuffleArray(cardsByType[type]);
-    });
-    
-    // Interleave types
-    const result = [];
-    const typeKeys = Object.keys(cardsByType).filter(type => cardsByType[type].length > 0);
-    
-    if (typeKeys.length === 0) return shuffleArray(array);
-    
-    let typeIndex = 0;
-    while (result.length < array.length) {
-        const currentType = typeKeys[typeIndex % typeKeys.length];
-        if (cardsByType[currentType].length > 0) {
-            result.push(cardsByType[currentType].shift());
-        }
+        const accuracy = progress.correctAttempts / progress.totalAttempts;
+        const state = progress.state || 'new';
         
-        // Remove empty types
-        if (cardsByType[currentType].length === 0) {
-            typeKeys.splice(typeKeys.indexOf(currentType), 1);
-            if (typeKeys.length === 0) break;
+        if (state === 'mastered') {
+            return { confidence: 100, estimatedDays: 0 };
         }
+
+        // Simple prediction based on current accuracy and state
+        let estimatedDays = 30; // Default estimate
         
-        typeIndex++;
-    }
-    
-    // Light shuffle to avoid predictability
-    const lightShuffled = [...result];
-    const swapCount = Math.max(1, Math.floor(array.length * 0.15));
-    
-    for (let i = 0; i < swapCount; i++) {
-        const pos1 = Math.floor(Math.random() * lightShuffled.length);
-        const pos2 = Math.floor(Math.random() * lightShuffled.length);
-        [lightShuffled[pos1], lightShuffled[pos2]] = [lightShuffled[pos2], lightShuffled[pos1]];
-    }
-    
-    return lightShuffled;
-}
-
-/**
- * Standard array shuffle
- */
-function shuffleArray(array) {
-    if (!array || array.length === 0) return [];
-    
-    const newArray = [...array];
-    for (let i = newArray.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
-    }
-    return newArray;
-}
-
-/**
- * Get learning state counts for statistics
- */
-export function getDueCounts(activeFilters = new Set(['all'])) {
-    const now = Date.now();
-    const counts = { new: 0, learning: 0, review: 0, mastered: 0 };
-
-    let filteredCards = allFlashcards;
-    if (!activeFilters.has('all')) {
-        filteredCards = allFlashcards.filter(card => activeFilters.has(card.type));
-    }
-
-    filteredCards.forEach(card => {
-        const progress = wordProgress[card.japanese];
-        if (!progress) return;
-
-        if (progress.state === 'new') {
-            counts.new++;
-        } else if (progress.state.includes('learning')) {
-            counts.learning++;
-        } else if (progress.state.includes('review')) {
-            counts.review++;
-        } else if (progress.state === 'mastered') {
-            counts.mastered++;
+        switch (state) {
+            case 'new':
+                estimatedDays = accuracy > 0.8 ? 7 : 14;
+                break;
+            case 'learning_1':
+                estimatedDays = accuracy > 0.7 ? 5 : 10;
+                break;
+            case 'learning_2':
+                estimatedDays = accuracy > 0.8 ? 3 : 7;
+                break;
+            case 'review_1':
+                estimatedDays = accuracy > 0.9 ? 2 : 5;
+                break;
+            case 'review_2':
+                estimatedDays = accuracy > 0.9 ? 1 : 3;
+                break;
         }
-    });
 
-    return counts;
-}
+        const confidence = Math.min(100, Math.round(accuracy * 100));
+        
+        return { confidence, estimatedDays };
+    }
 
-/**
- * Get word progress for a specific card
- */
-export function getWordProgress(japanese) {
-    return wordProgress[japanese] || null;
-}
+    resetWordProgress(japanese) {
+        if (this.wordProgress[japanese]) {
+            const reset = {
+                state: 'new',
+                lastReviewed: null,
+                nextReview: Date.now(),
+                correctStreak: 0,
+                totalAttempts: 0,
+                correctAttempts: 0
+            };
+            
+            this.wordProgress[japanese] = { ...this.wordProgress[japanese], ...reset };
+            return this.storage.updateWordProgress(japanese, reset);
+        }
+        return false;
+    }
 
-/**
- * Get all word progress data (for debugging/export)
- */
-export function getAllWordProgress() {
-    return { ...wordProgress };
-}
+    resetAllProgress() {
+        const allWords = this.vocabulary.getAllWords();
+        const resetProgress = {};
+        
+        allWords.forEach((word, index) => {
+            resetProgress[word.japanese] = {
+                state: 'new',
+                lastReviewed: null,
+                nextReview: Date.now(),
+                correctStreak: 0,
+                totalAttempts: 0,
+                correctAttempts: 0,
+                created: Date.now(),
+                cardIndex: index
+            };
+        });
 
-/**
- * Reset all progress (for development/testing)
- */
-export function resetAllProgress() {
-    wordProgress = {};
-    allFlashcards.forEach((card, index) => {
-        wordProgress[card.japanese] = createNewWordProgress(index);
-    });
-    saveWordProgress();
-    console.log('✅ All progress reset to initial state');
-}
+        this.wordProgress = resetProgress;
+        return this.storage.saveWordProgress(resetProgress);
+    }
 
-/**
- * Export progress data
- */
-export function exportProgress() {
-    return JSON.stringify(wordProgress, null, 2);
-}
+    exportProgress() {
+        return {
+            wordProgress: this.wordProgress,
+            intervals: LEARNING_INTERVALS,
+            stateProgressions: STATE_PROGRESSIONS,
+            exportDate: new Date().toISOString()
+        };
+    }
 
-/**
- * Import progress data
- */
-export function importProgress(jsonData) {
-    try {
-        const importedProgress = JSON.parse(jsonData);
-        wordProgress = importedProgress;
-        saveWordProgress();
-        console.log('✅ Progress imported successfully');
-        return true;
-    } catch (error) {
-        console.error('❌ Error importing progress:', error);
+    importProgress(data) {
+        if (data.wordProgress) {
+            this.wordProgress = data.wordProgress;
+            return this.storage.saveWordProgress(data.wordProgress);
+        }
         return false;
     }
 }
