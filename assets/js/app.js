@@ -1,4 +1,4 @@
-// assets/js/app.js - Fixed Mixed Challenge Logic + Learning Info Modal
+// assets/js/app.js - Fixed Kana Toggle Positioning and Removed Reading Toggle
 
 import { VocabularyManager } from './core/vocabulary.js';
 import { StorageManager } from './core/storage.js';
@@ -19,7 +19,6 @@ class JLPTApp {
         this.currentCardIndex = 0;
         this.isFlipped = false;
         this.kanaMode = false;
-        this.readingsHidden = false;
         
         // FIXED: Add question direction tracking
         this.currentQuestionDirection = null; // 'jp-to-en' or 'en-to-jp'
@@ -94,11 +93,9 @@ class JLPTApp {
 
     loadUserPreferences() {
         this.kanaMode = this.storage.getUserPreference('kanaMode', false);
-        this.readingsHidden = this.storage.getUserPreference('readingsHidden', false);
         this.currentQuizMode = this.storage.getUserPreference('quizMode', 'multiple-choice');
-        this.updateReadingToggleButton();
         
-        console.log(`🔧 Loaded preferences - Kana: ${this.kanaMode}, Readings: ${this.readingsHidden}`);
+        console.log(`🔧 Loaded preferences - Kana: ${this.kanaMode}`);
     }
 
     initializeUI() {
@@ -214,7 +211,7 @@ class JLPTApp {
         });
     }
 
-    // FIXED: Kana Toggle with proper visibility control
+    // FIXED: Kana Toggle with proper positioning
     initializeKanaToggle() {
         console.log('🔧 Initializing kana toggle...');
         
@@ -281,7 +278,7 @@ class JLPTApp {
         }
     }
 
-    // FIXED: Simple label - always shows "Show: Kana"
+    // FIXED: Updated display function for new positioning
     updateKanaToggleDisplay() {
         const toggle = document.getElementById('kanaToggleInput');
         const label = document.getElementById('kanaToggleLabel');
@@ -299,9 +296,11 @@ class JLPTApp {
             if (this.currentMode === 'quiz') {
                 container.classList.remove('hidden');
                 container.classList.add('visible');
+                console.log('🎯 Kana toggle now visible in quiz mode');
             } else {
                 container.classList.add('hidden');
                 container.classList.remove('visible');
+                console.log('📚 Kana toggle hidden in study mode');
             }
         }
     }
@@ -337,7 +336,7 @@ class JLPTApp {
             }
         });
         
-        // Global function bindings
+        // Global function bindings - FIXED: Removed toggleReadings
         window.showFeedbackForm = () => this.showFeedbackForm();
         window.hideFeedbackForm = () => this.hideFeedbackForm();
         window.showLearningInfo = () => this.showLearningInfo();
@@ -351,7 +350,6 @@ class JLPTApp {
         window.shuffleCards = () => this.shuffleCards();
         window.resetProgress = () => this.resetProgress();
         window.toggleStats = () => this.toggleStats();
-        window.toggleReadings = () => this.toggleReadings();
         window.toggleKana = () => this.toggleKanaState();
     }
 
@@ -945,24 +943,6 @@ class JLPTApp {
     }
 
     // Utility Methods
-    toggleReadings() {
-        this.readingsHidden = !this.readingsHidden;
-        this.storage.setUserPreference('readingsHidden', this.readingsHidden);
-        this.updateReadingToggleButton();
-        
-        document.querySelectorAll('.quiz-option-reading').forEach(reading => {
-            reading.classList.toggle('hidden', this.readingsHidden);
-        });
-    }
-
-    updateReadingToggleButton() {
-        const button = document.getElementById('readingToggle');
-        if (button) {
-            button.textContent = `📖 Reading: ${this.readingsHidden ? 'OFF' : 'ON'}`;
-            button.classList.toggle('active', this.readingsHidden);
-        }
-    }
-
     shuffleCards() {
         this.currentDeck = this.vocabulary.shuffleArray([...this.currentDeck]);
         this.currentCardIndex = 0;
@@ -1091,7 +1071,6 @@ class JLPTApp {
         this.keyboardListenerActive = true;
     }
 
-    // NEW: Learning Info Modal Functions
     showLearningInfo() {
         document.getElementById('learningModal').style.display = 'block';
         this.keyboardListenerActive = false;

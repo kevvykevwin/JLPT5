@@ -1,121 +1,135 @@
-/* assets/css/quiz.css - Fixed Timer Position, Kana Toggle, and Enhanced Dark Mode */
+/* Quiz Mode Selector */
+.quiz-mode-selector {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
 
+.quiz-mode-btn {
+    padding: 8px 16px;
+    border: 2px solid #e0e0e0;
+    border-radius: 20px;
+    background: white;
+    color: #666;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.quiz-mode-btn.active {
+    background: #388e3c;
+    color: white;
+    border-color: #388e3c;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(56, 142, 60, 0.3);
+}
+
+/* FIXED: Quiz Container with relative positioning for absolute child */
 .quiz-container {
     display: none;
-    background: rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 0.95);
     border: 2px solid rgba(56, 142, 60, 0.2);
     border-radius: 15px;
     padding: 30px 20px;
     margin-bottom: 30px;
-    position: relative;
-    min-height: 400px;
+    position: relative; /* Required for absolute positioning of toggle */
 }
 
 .quiz-container.active {
     display: block;
-    animation: slideIn 0.3s ease-out;
 }
 
-/* FIXED: Kana Toggle Container - Better Contrast and Green Theme */
+/* FIXED: Kana Toggle - Positioned in top left of quiz container */
 .kana-toggle-container {
     position: absolute;
-    top: 10px;
-    left: 10px; /* Left side to avoid timer conflict */
-    z-index: 100;
-    display: flex;
+    top: 15px;        /* CHANGED: From bottom to top */
+    left: 15px;       /* KEPT: Left positioning */
+    display: none;
     align-items: center;
-    gap: 6px;
-    background: rgba(255, 255, 255, 0.98) !important;
-    padding: 6px 10px;
-    border-radius: 15px;
-    border: 2px solid #2e7d32 !important; /* Force green border */
-    box-shadow: 0 3px 10px rgba(46, 125, 50, 0.25) !important;
+    gap: 8px;         /* REDUCED: From 10px for tighter spacing */
+    padding: 6px 12px; /* REDUCED: From 8px 16px for smaller footprint */
+    background: #4caf50;
+    border: 2px solid #43a047;
+    border-radius: 16px; /* REDUCED: From 20px for more compact look */
+    color: white;
+    font-size: 12px;  /* REDUCED: From 14px */
+    font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
-    max-width: 140px;
-    backdrop-filter: blur(8px);
-    font-size: 11px;
+    user-select: none;
+    z-index: 10;
+    box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3); /* ADDED: Subtle shadow for visibility */
 }
 
 .kana-toggle-container:hover {
-    background: rgba(232, 245, 233, 0.98) !important;
-    border-color: #1b5e20 !important;
+    background: #43a047;
+    border-color: #388e3c;
     transform: translateY(-1px);
-    box-shadow: 0 5px 15px rgba(27, 94, 32, 0.35) !important;
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
 }
 
-/* FIXED: Kana Toggle Switch - Force Green Colors */
-.kana-toggle-switch {
+.kana-toggle-container.visible {
     display: flex;
-    align-items: center;
-    gap: 6px;
-    cursor: pointer;
-    width: 100%;
 }
 
-.kana-toggle-switch input[type="checkbox"] {
-    opacity: 0;
-    width: 0;
-    height: 0;
-    position: absolute;
+.kana-toggle-container.hidden {
+    display: none;
 }
 
-.kana-toggle-switch .toggle-slider {
+.kana-toggle-switch {
     position: relative;
-    width: 32px;
-    height: 18px;
-    background: #bdbdbd !important;
-    border-radius: 9px;
-    transition: 0.3s;
-    cursor: pointer;
-    flex-shrink: 0;
-    box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);
+    width: 26px;      /* REDUCED: From 30px */
+    height: 14px;     /* REDUCED: From 16px */
+    display: inline-block;
 }
 
-.kana-toggle-switch .toggle-slider:before {
+.kana-toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.3);
+    transition: 0.3s;
+    border-radius: 7px; /* ADJUSTED: Half of height */
+}
+
+.kana-toggle-slider:before {
     position: absolute;
     content: "";
-    height: 14px;
-    width: 14px;
+    height: 10px;     /* REDUCED: From 12px */
+    width: 10px;      /* REDUCED: From 12px */
     left: 2px;
     bottom: 2px;
     background: white;
     transition: 0.3s;
     border-radius: 50%;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
 }
 
-.kana-toggle-switch input:checked + .toggle-slider {
-    background: #43a047 !important; /* Force green when checked */
-    box-shadow: inset 0 1px 3px rgba(67, 160, 71, 0.3);
+#kanaToggleInput:checked + .kana-toggle-slider {
+    background: rgba(255, 255, 255, 0.5);
 }
 
-.kana-toggle-switch input:checked + .toggle-slider:before {
-    transform: translateX(14px);
-    box-shadow: 0 2px 6px rgba(67, 160, 71, 0.3);
+#kanaToggleInput:checked + .kana-toggle-slider:before {
+    transform: translateX(12px); /* ADJUSTED: From 14px to match new width */
 }
 
-.kana-toggle-switch label {
-    font-size: 10px;
-    font-weight: 600;
-    color: #2e7d32 !important; /* Force green text */
-    margin: 0;
+#kanaToggleInput {
+    display: none;
+}
+
+#kanaToggleLabel {
     cursor: pointer;
     user-select: none;
-    transition: color 0.3s ease;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    flex: 1;
-    min-width: 0;
-    line-height: 1.2;
+    margin: 0;
+    font-size: 12px;  /* EXPLICIT: Ensure consistent sizing */
 }
 
-.kana-toggle-container:hover .kana-toggle-switch label {
-    color: #1b5e20 !important;
-}
-
-/* FIXED: Quiz Question Styling - Left padding for toggle */
 .quiz-question {
     font-size: 32px;
     font-weight: bold;
@@ -123,22 +137,12 @@
     margin-bottom: 30px;
     text-align: center;
     position: relative;
-    padding-left: 160px; /* Space for kana toggle on left */
-    padding-right: 80px; /* Space for timer on right */
-    min-height: 80px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    word-wrap: break-word;
-    line-height: 1.2;
 }
 
 .quiz-question.listening-mode {
     font-size: 20px;
     line-height: 1.4;
     margin-bottom: 20px;
-    padding-left: 160px;
-    padding-right: 80px;
 }
 
 /* Quiz Audio Section */
@@ -187,50 +191,29 @@
     font-weight: 500;
 }
 
-/* FIXED: Speed Timer - RIGHT positioning */
+/* Speed Timer */
 .speed-timer {
     position: absolute;
     top: 10px;
-    right: 10px; /* MOVED TO RIGHT SIDE */
-    background: linear-gradient(135deg, #ff5722, #d32f2f);
+    right: 10px;
+    background: #ff6b6b;
     color: white;
-    padding: 6px 12px;
-    border-radius: 12px;
-    font-size: 13px;
+    padding: 5px 15px;
+    border-radius: 15px;
+    font-size: 14px;
     font-weight: bold;
-    z-index: 90;
+    z-index: 100;
     animation: pulse 1s infinite;
-    box-shadow: 0 3px 10px rgba(255, 87, 34, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 .speed-timer.warning {
-    background: linear-gradient(135deg, #f44336, #c62828);
-    animation: pulseWarning 0.5s infinite;
-    box-shadow: 0 3px 12px rgba(244, 67, 54, 0.6);
-    transform: scale(1.05);
+    background: #ff3030;
+    animation: pulse 0.5s infinite;
 }
 
 @keyframes pulse {
-    0%, 100% { 
-        opacity: 1; 
-        transform: scale(1); 
-    }
-    50% { 
-        opacity: 0.9; 
-        transform: scale(1.02); 
-    }
-}
-
-@keyframes pulseWarning {
-    0%, 100% { 
-        opacity: 1; 
-        transform: scale(1.05); 
-    }
-    50% { 
-        opacity: 0.8; 
-        transform: scale(1.1); 
-    }
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
 }
 
 @keyframes spin {
@@ -243,7 +226,6 @@
     display: grid;
     gap: 15px;
     margin-bottom: 20px;
-    padding-top: 10px;
 }
 
 .quiz-option {
@@ -255,44 +237,35 @@
     transition: all 0.3s ease;
     text-align: left;
     font-size: 16px;
-    position: relative;
-    overflow: hidden;
-    line-height: 1.4;
 }
 
-.quiz-option:hover:not(.disabled) {
+.quiz-option:hover {
     border-color: #388e3c;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(56, 142, 60, 0.15);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 10px rgba(56, 142, 60, 0.1);
 }
 
 .quiz-option.correct {
-    background: linear-gradient(135deg, #c8e6c9, #a5d6a7);
+    background: #c8e6c9;
     border-color: #4caf50;
-    color: #1b5e20;
-    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
 }
 
 .quiz-option.incorrect {
-    background: linear-gradient(135deg, #ffcdd2, #ef9a9a);
+    background: #ffcdd2;
     border-color: #f44336;
-    color: #c62828;
-    box-shadow: 0 4px 15px rgba(244, 67, 54, 0.3);
 }
 
 .quiz-option.disabled {
     pointer-events: none;
-    opacity: 0.8;
+    opacity: 0.7;
 }
 
-/* Quiz Option Reading */
 .quiz-option-reading {
     font-size: 14px;
     color: #666;
     margin-top: 5px;
     font-style: italic;
     transition: opacity 0.3s ease, height 0.3s ease, margin 0.3s ease;
-    overflow: hidden;
 }
 
 .quiz-option-reading.hidden {
@@ -308,321 +281,64 @@
     margin-top: 20px;
     font-size: 18px;
     font-weight: bold;
-    padding: 15px 20px;
-    border-radius: 10px;
-    transition: all 0.3s ease;
-    min-height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
 .quiz-feedback.correct {
-    color: #2e7d32;
-    background: rgba(76, 175, 80, 0.1);
-    border: 2px solid rgba(76, 175, 80, 0.3);
+    color: #4caf50;
 }
 
 .quiz-feedback.incorrect {
-    color: #c62828;
-    background: rgba(244, 67, 54, 0.1);
-    border: 2px solid rgba(244, 67, 54, 0.3);
+    color: #f44336;
 }
 
-/* Quiz Mode Selector */
-.quiz-mode-selector {
-    display: flex;
-    gap: 8px;
-    justify-content: center;
-    flex-wrap: wrap;
-    margin-bottom: 20px;
-    padding: 15px;
-    background: rgba(255, 255, 255, 0.5);
-    border-radius: 12px;
-    border: 1px solid rgba(56, 142, 60, 0.2);
-}
-
-.quiz-mode-btn {
-    padding: 8px 16px;
-    border: 2px solid #e0e0e0;
-    border-radius: 20px;
-    background: white;
-    color: #666;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-size: 12px;
-    font-weight: 500;
-    white-space: nowrap;
-}
-
-.quiz-mode-btn:hover:not(.active) {
-    border-color: #388e3c;
-    color: #388e3c;
-    transform: translateY(-1px);
-}
-
-.quiz-mode-btn.active {
-    background: #388e3c;
-    color: white;
-    border-color: #388e3c;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(56, 142, 60, 0.3);
-}
-
-/* RESPONSIVE: Better mobile handling */
-@media (max-width: 768px) {
-    .quiz-question {
-        padding-left: 80px;
-        padding-right: 60px;
-        font-size: 26px;
-    }
-    
-    .quiz-question.listening-mode {
-        font-size: 18px;
-        padding-left: 80px;
-        padding-right: 60px;
-    }
-    
-    .kana-toggle-container {
-        top: 8px;
-        left: 8px;
-        padding: 4px 8px;
-        max-width: 70px;
-        font-size: 10px;
-    }
-    
-    .kana-toggle-switch label {
-        font-size: 9px;
-    }
-    
-    .kana-toggle-switch .toggle-slider {
-        width: 28px;
-        height: 16px;
-    }
-    
-    .kana-toggle-switch .toggle-slider:before {
-        height: 12px;
-        width: 12px;
-        left: 2px;
-        bottom: 2px;
-    }
-    
-    .kana-toggle-switch input:checked + .toggle-slider:before {
-        transform: translateX(12px);
-    }
-    
-    .speed-timer {
-        top: 8px;
-        right: 8px;
-        padding: 4px 8px;
-        font-size: 12px;
-    }
-}
-
+/* Mobile Responsive */
 @media (max-width: 480px) {
     .quiz-question {
-        padding-left: 10px;
-        padding-right: 10px;
-        font-size: 22px;
-        min-height: 50px;
+        font-size: 24px;
     }
     
     .quiz-question.listening-mode {
         font-size: 16px;
-        padding-left: 10px;
-        padding-right: 10px;
     }
-    
-    /* On small screens, move toggle below question */
-    .kana-toggle-container {
-        position: relative;
-        top: auto;
-        left: auto;
-        margin: 0 auto 15px auto;
-        max-width: none;
-        width: fit-content;
-        display: inline-flex;
-    }
-    
-    .speed-timer {
-        top: 5px;
-        right: 5px;
-        padding: 3px 6px;
-        font-size: 11px;
-    }
-    
+
     .quiz-mode-selector {
         gap: 6px;
-        padding: 10px;
     }
-    
+
     .quiz-mode-btn {
         font-size: 11px;
         padding: 6px 12px;
     }
-}
 
-/* ENHANCED: Dark Mode Support with Better Contrast */
-@media (prefers-color-scheme: dark) {
-    .quiz-container {
-        background: rgba(40, 40, 40, 0.95);
-        border-color: rgba(76, 175, 80, 0.4);
-        color: #e8f5e8;
+    .quiz-audio-button {
+        width: 60px;
+        height: 60px;
+        font-size: 20px;
     }
-    
-    /* FIXED: Enhanced kana toggle dark mode with proper contrast */
+
+    /* FIXED: Mobile positioning for kana toggle */
     .kana-toggle-container {
-        background: rgba(50, 50, 50, 0.98) !important;
-        border-color: #4caf50 !important; /* Brighter green for dark mode */
-        box-shadow: 0 3px 10px rgba(76, 175, 80, 0.4) !important;
+        top: 10px;       /* ADJUSTED: Closer to edge on mobile */
+        left: 10px;      /* ADJUSTED: Closer to edge on mobile */
+        padding: 4px 8px; /* FURTHER REDUCED: For mobile */
+        font-size: 11px;  /* SMALLER: For mobile */
     }
-    
-    .kana-toggle-container:hover {
-        background: rgba(60, 60, 60, 0.98) !important;
-        border-color: #66bb6a !important; /* Lighter green on hover */
-    }
-    
-    .kana-toggle-switch .toggle-slider {
-        background: #757575 !important; /* Lighter gray for better contrast */
-    }
-    
-    .kana-toggle-switch input:checked + .toggle-slider {
-        background: #66bb6a !important; /* Lighter green for dark mode */
-        box-shadow: inset 0 1px 3px rgba(102, 187, 106, 0.3);
-    }
-    
-    .kana-toggle-switch label {
-        color: #81c784 !important; /* Consistent green text */
-    }
-    
-    .kana-toggle-container:hover .kana-toggle-switch label {
-        color: #a5d6a7 !important; /* Lighter on hover */
-    }
-    
-    /* Enhanced quiz question styling for dark mode */
-    .quiz-question {
-        color: #e8f5e8;
-        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-    }
-    
-    /* FIXED: Better dark mode colors for quiz options */
-    .quiz-option {
-        background: rgba(50, 50, 50, 0.9);
-        border-color: rgba(76, 175, 80, 0.3);
-        color: #e0e0e0;
-    }
-    
-    .quiz-option:hover:not(.disabled) {
-        border-color: #4caf50;
-        background: rgba(60, 60, 60, 0.9);
-        color: #f0f0f0;
-    }
-    
-    .quiz-option.correct {
-        background: linear-gradient(135deg, rgba(76, 175, 80, 0.3), rgba(102, 187, 106, 0.2));
-        border-color: #66bb6a;
-        color: #a5d6a7;
-        box-shadow: 0 4px 15px rgba(76, 175, 80, 0.4);
-    }
-    
-    .quiz-option.incorrect {
-        background: linear-gradient(135deg, rgba(244, 67, 54, 0.3), rgba(239, 83, 80, 0.2));
-        border-color: #ef5350;
-        color: #ffab91;
-        box-shadow: 0 4px 15px rgba(244, 67, 54, 0.4);
-    }
-    
-    /* Enhanced quiz feedback for dark mode */
-    .quiz-feedback.correct {
-        color: #81c784;
-        background: rgba(76, 175, 80, 0.15);
-        border-color: rgba(76, 175, 80, 0.4);
-    }
-    
-    .quiz-feedback.incorrect {
-        color: #ef5350;
-        background: rgba(244, 67, 54, 0.15);
-        border-color: rgba(244, 67, 54, 0.4);
-    }
-    
-    /* Dark mode quiz mode selector */
-    .quiz-mode-selector {
-        background: rgba(45, 45, 45, 0.8);
-        border-color: rgba(76, 175, 80, 0.3);
-    }
-    
-    .quiz-mode-btn {
-        background: rgba(60, 60, 60, 0.9);
-        border-color: rgba(76, 175, 80, 0.3);
-        color: #b0bec5;
-    }
-    
-    .quiz-mode-btn:hover:not(.active) {
-        border-color: #4caf50;
-        color: #81c784;
-        background: rgba(70, 70, 70, 0.9);
-    }
-    
-    .quiz-mode-btn.active {
-        background: #4caf50;
-        color: #1b5e20;
-        border-color: #4caf50;
-        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.4);
-    }
-    
-    /* Dark mode quiz option reading text */
-    .quiz-option-reading {
-        color: #999;
-    }
-    
-    /* Dark mode audio section */
-    .quiz-audio-label {
-        color: #81c784;
-    }
-    
-    /* Dark mode speed timer enhancement */
-    .speed-timer {
-        box-shadow: 0 3px 10px rgba(255, 87, 34, 0.6);
-        border-color: rgba(255, 255, 255, 0.4);
-    }
-    
-    .speed-timer.warning {
-        box-shadow: 0 3px 12px rgba(244, 67, 54, 0.8);
-    }
-}
 
-/* Animation for smooth transitions */
-@keyframes slideIn {
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
+    .kana-toggle-switch {
+        width: 22px;     /* SMALLER: For mobile */
+        height: 12px;    /* SMALLER: For mobile */
     }
-    to {
-        opacity: 1;
-        transform: translateY(0);
+
+    .kana-toggle-slider {
+        border-radius: 6px; /* ADJUSTED: For smaller mobile size */
     }
-}
 
-/* Focus states for accessibility */
-.kana-toggle-switch:focus-within .toggle-slider {
-    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.3);
-}
+    .kana-toggle-slider:before {
+        height: 8px;     /* SMALLER: For mobile */
+        width: 8px;      /* SMALLER: For mobile */
+    }
 
-.quiz-option:focus {
-    outline: 3px solid rgba(76, 175, 80, 0.4);
-    outline-offset: 2px;
-}
-
-/* Visibility utility classes */
-.quiz-container .kana-toggle-container.visible {
-    opacity: 1;
-    visibility: visible;
-    pointer-events: auto;
-}
-
-.quiz-container .kana-toggle-container.hidden {
-    opacity: 0;
-    visibility: hidden;
-    pointer-events: none;
-    transform: translateY(-5px);
+    #kanaToggleInput:checked + .kana-toggle-slider:before {
+        transform: translateX(10px); /* ADJUSTED: For mobile sizing */
+    }
 }

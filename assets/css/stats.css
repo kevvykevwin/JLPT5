@@ -1,0 +1,192 @@
+/* Statistics Panel */
+.stats {
+    margin: 20px 0;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    display: none;
+    border: 2px solid #e0e0e0;
+}
+
+.stats.show { 
+    display: block; 
+    border-color: #388e3c;
+}
+
+.stats h3 {
+    color: #2e7d32; 
+    margin-bottom: 20px;
+    text-align: center;
+    font-size: 18px;
+}
+
+/* Learning Overview Dashboard */
+.learning-overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+.learning-stat {
+    text-align: center;
+    padding: 10px;
+    border-radius: 6px;
+}
+
+.learning-stat.new {
+    background: #e3f2fd;
+    color: #1565c0;
+}
+
+.learning-stat.learning {
+    background: #fff3e0;
+    color: #ef6c00;
+}
+
+.learning-stat.review {
+    background: #f3e5f5;
+    color: #7b1fa2;
+}
+
+.learning-stat.mastered {
+    background: #e8f5e8;
+    color: #2e7d32;
+}
+
+.learning-stat-number {
+    font-size: 24px;
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.learning-stat-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+/* Detailed Category Stats */
+.category-stats {
+    margin-bottom: 20px;
+}
+
+.category-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.category-title {
+    font-weight: 600;
+    color: #2e7d32;
+    font-size: 14px;
+}
+
+.category-numbers {
+    font-size: 12px;
+    color: #666;
+}
+
+.stacked-progress-bar {
+    height: 12px;
+    background: #e0e0e0;
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+    margin-bottom: 5px;
+}
+
+.progress-segment {
+    height: 100%;
+    float: left;
+    transition: width 0.3s ease;
+}
+
+.studied-progress {
+    background: #81c784;
+}
+
+.quiz-correct {
+    background: #4caf50;
+}
+
+.quiz-incorrect {
+    background: #ffab91;
+}
+
+.progress-legend {
+    display: flex;
+    gap: 15px;
+    font-size: 11px;
+    margin-top: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.legend-color {
+    width: 8px;
+    height: 8px;
+    border-radius: 2px;
+}
+
+.legend-color.studied-progress {
+    background: #81c784;
+}
+
+.legend-color.quiz-correct {
+    background: #4caf50;
+}
+
+.legend-color.quiz-incorrect {
+    background: #ffab91;
+}
+
+/* Overall Stats */
+.overall-stats {
+    border-top: 2px solid #e0e0e0;
+    padding-top: 15px;
+    margin-top: 15px;
+}
+
+.overall-stats p {
+    margin-bottom: 8px;
+    color: #333;
+}
+
+.overall-stats strong {
+    color: #2e7d32;
+}
+
+/* Mobile Responsive */
+@media (max-width: 480px) {
+    .learning-overview {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .category-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+    }
+
+    .category-numbers {
+        font-size: 11px;
+    }
+
+    .progress-legend {
+        justify-content: flex-start;
+    }
+}

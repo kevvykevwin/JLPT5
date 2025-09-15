@@ -3,24 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JLPT N5 Flashcards - Adaptive Learning System</title>
-    <meta name="description" content="Master JLPT N5 vocabulary with spaced repetition, adaptive quizzes, and pronunciation practice.">
-    <meta name="keywords" content="JLPT N5, Japanese vocabulary, flashcards, spaced repetition, kanji practice">
+    <title>JLPT N5 Flashcards - Adaptive Learning System (Enhanced)</title>
+    <meta name="description" content="Master JLPT N5 vocabulary with spaced repetition, adaptive quizzes, and pronunciation practice. Free Japanese learning tool with 230+ essential words.">
+    <meta name="keywords" content="JLPT N5, Japanese vocabulary, flashcards, spaced repetition, kanji practice, Japanese learning">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🇯🇵</text></svg>">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#667eea">
     
-    <!-- Modular CSS -->
+    <!-- CSS Files -->
     <link rel="stylesheet" href="assets/css/base.css">
     <link rel="stylesheet" href="assets/css/components.css">
     <link rel="stylesheet" href="assets/css/quiz.css">
+    <link rel="stylesheet" href="assets/css/stats.css">
+    <link rel="stylesheet" href="assets/css/modal.css">
     <link rel="stylesheet" href="assets/css/responsive.css">
+    
+    <!-- Updated Styles for Learning Info Modal -->
+    <style>
+        .learning-info-content {
+            max-height: 70vh;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .learning-info-content h4 {
+            color: #2e7d32;
+            margin: 20px 0 10px 0;
+            font-size: 16px;
+        }
+
+        .learning-info-content h4:first-child {
+            margin-top: 0;
+        }
+
+        .learning-info-content p {
+            margin-bottom: 12px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .learning-info-content ul {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+
+        .learning-info-content li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+
+        .state-indicator-legend {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .state-example {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+        }
+
+        .state-example-indicator {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            color: white;
+            font-size: 10px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
 </head>
 <body>
     <div class="flashcard-container">
-        <!-- Header Section -->
         <div class="header">
-            <!-- Filter Menu -->
             <div class="menu-container">
                 <div class="hamburger-menu" id="hamburgerMenu">
                     <div class="hamburger-icon">
@@ -32,7 +93,6 @@
                 <div class="dropdown-menu" id="dropdownMenu">
                     <div class="filter-section">
                         <div class="filter-section-title">Word Types</div>
-                        
                         <div class="filter-option" data-filter="all">
                             <div class="toggle-switch">
                                 <input type="checkbox" id="filterAll" checked>
@@ -41,7 +101,6 @@
                             <label for="filterAll">All Words</label>
                             <span class="word-count-badge" id="allCount">0</span>
                         </div>
-                        
                         <div class="filter-option" data-filter="noun">
                             <div class="toggle-switch">
                                 <input type="checkbox" id="filterNouns">
@@ -50,7 +109,6 @@
                             <label for="filterNouns">Nouns</label>
                             <span class="word-count-badge" id="nounCount">0</span>
                         </div>
-                        
                         <div class="filter-option" data-filter="verb">
                             <div class="toggle-switch">
                                 <input type="checkbox" id="filterVerbs">
@@ -59,7 +117,6 @@
                             <label for="filterVerbs">Verbs</label>
                             <span class="word-count-badge" id="verbCount">0</span>
                         </div>
-                        
                         <div class="filter-option" data-filter="i-adjective">
                             <div class="toggle-switch">
                                 <input type="checkbox" id="filterIAdj">
@@ -68,7 +125,6 @@
                             <label for="filterIAdj">い-Adjectives</label>
                             <span class="word-count-badge" id="iAdjCount">0</span>
                         </div>
-                        
                         <div class="filter-option" data-filter="na-adjective">
                             <div class="toggle-switch">
                                 <input type="checkbox" id="filterNaAdj">
@@ -80,33 +136,27 @@
                     </div>
                 </div>
             </div>
-            
             <h1>JLPT N5 Adaptive Learning</h1>
             
-            <!-- Retention Prompt -->
             <div id="retentionPrompt" class="retention-prompt">
                 ✨ Some of these help strengthen memory retention (<span id="reviewCount">0</span> reviews mixed in)
             </div>
 
-            <!-- Tab Navigation -->
             <div class="tab-container">
                 <button class="tab-button active" data-tab="study">📚 Study</button>
                 <button class="tab-button" data-tab="quiz">🧠 Quiz</button>
             </div>
             
-            <!-- Progress Bar -->
             <div class="progress">
                 <div class="progress-bar" id="progressBar"></div>
             </div>
             
-            <!-- Card Info -->
             <div class="card-info">
                 <div id="cardCounter">Card 1 of 0</div>
                 <div id="cardType">Adaptive</div>
             </div>
         </div>
         
-        <!-- Study Tab -->
         <div class="tab-content active" id="studyTab">
             <div class="flashcard" id="flashcard" onclick="flipCard()">
                 <div class="learning-state-indicator" id="stateIndicator">N</div>
@@ -120,9 +170,8 @@
             </div>
         </div>
 
-        <!-- Quiz Tab - FIXED: Correct default kana toggle label -->
         <div class="tab-content" id="quizTab">
-            <!-- Quiz Mode Selector -->
+            <!-- REMOVED: Reading toggle button since kana toggle handles this functionality -->
             <div class="quiz-mode-selector">
                 <button class="quiz-mode-btn active" data-mode="multiple-choice">Multiple Choice</button>
                 <button class="quiz-mode-btn" data-mode="listening-first">Listening First</button>
@@ -131,37 +180,28 @@
                 <button class="quiz-mode-btn" data-mode="kanji-only">Kanji Only</button>
             </div>
 
-            <!-- Quiz Container -->
             <div class="quiz-container active" id="quizContainer">
-                <!-- FIXED: Kana toggle with correct default label "Show: Kana" -->
-                <div class="kana-toggle-container" id="kanaToggleContainer">
+                <!-- FIXED: Kana toggle positioned in top-left of quiz container -->
+                <div class="kana-toggle-container hidden" id="kanaToggleContainer">
                     <div class="kana-toggle-switch">
                         <input type="checkbox" id="kanaToggleInput">
-                        <span class="toggle-slider"></span>
+                        <span class="kana-toggle-slider"></span>
                     </div>
                     <label for="kanaToggleInput" id="kanaToggleLabel">Show: Kana</label>
                 </div>
-                
-                <!-- Quiz Question -->
+
                 <div class="japanese-word quiz-question" id="quizQuestion">What does this mean?</div>
-                
-                <!-- Audio Section (for listening mode) -->
                 <div id="quizAudioSection" class="quiz-audio-section" style="display: none;">
                     <button class="quiz-audio-button" id="quizAudioButton" onclick="playAudio(event)" title="Listen to pronunciation">
                         🔊
                     </button>
                     <div class="quiz-audio-label">Click to listen</div>
                 </div>
-                
-                <!-- Quiz Options -->
                 <div class="quiz-options" id="quizOptions"></div>
-                
-                <!-- Quiz Feedback -->
                 <div class="quiz-feedback" id="quizFeedback"></div>
             </div>
         </div>
         
-        <!-- Control Buttons -->
         <div class="controls">
             <button class="btn btn-secondary" onclick="previousCard()">← Previous</button>
             <button class="btn btn-primary" onclick="flipCard()" id="flipBtn">Flip Card</button>
@@ -174,7 +214,6 @@
             <button class="btn btn-secondary" onclick="toggleStats()">📊 Stats</button>
         </div>
         
-        <!-- Statistics Panel -->
         <div class="stats" id="stats">
             <h3>📈 Learning Analytics Dashboard</h3>
             
@@ -205,47 +244,10 @@
             </div>
         </div>
 
-        <!-- Footer Actions -->
         <div class="footer-actions">
             <button class="footer-btn" onclick="showLearningInfo()">❓ How Learning Works</button>
             <button class="footer-btn" onclick="showFeedbackForm()">💬 Feedback</button>
             <button class="footer-btn donate-btn" onclick="showDonateInfo()">💝 Donate</button>
-        </div>
-    </div>
-
-    <!-- Learning Info Modal -->
-    <div class="modal-overlay" id="learningModal">
-        <div class="modal-content">
-            <div class="modal-header">❓ How Spaced Repetition Learning Works</div>
-            
-            <div style="text-align: left; line-height: 1.6; max-height: 400px; overflow-y: auto;">
-                <p><strong>🧠 Adaptive Learning System:</strong></p>
-                <ul style="margin: 10px 0 20px 20px;">
-                    <li style="margin-bottom: 8px;"><span style="color: #2196f3; font-weight: bold;">●</span> <strong>New:</strong> Words you haven't studied yet</li>
-                    <li style="margin-bottom: 8px;"><span style="color: #ff9800; font-weight: bold;">●</span> <strong>Learning:</strong> Words you're actively memorizing</li>
-                    <li style="margin-bottom: 8px;"><span style="color: #9c27b0; font-weight: bold;">●</span> <strong>Review:</strong> Words being reinforced</li>
-                    <li style="margin-bottom: 8px;"><span style="color: #4caf50; font-weight: bold;">●</span> <strong>Mastered:</strong> Words you know well</li>
-                </ul>
-                
-                <p><strong>📈 Smart Scheduling:</strong></p>
-                <p style="margin-bottom: 20px;">The system automatically schedules reviews based on how well you know each word. Difficult words appear more frequently, while mastered words appear less often - just like the forgetting curve theory suggests.</p>
-                
-                <p><strong>🎯 Quiz Modes:</strong></p>
-                <ul style="margin: 10px 0 20px 20px;">
-                    <li style="margin-bottom: 6px;"><strong>Multiple Choice:</strong> Standard recognition practice</li>
-                    <li style="margin-bottom: 6px;"><strong>Listening First:</strong> Audio-based recognition</li>
-                    <li style="margin-bottom: 6px;"><strong>Mixed Challenge:</strong> Random direction (JP→EN or EN→JP)</li>
-                    <li style="margin-bottom: 6px;"><strong>Speed Challenge:</strong> Quick recall under time pressure</li>
-                    <li style="margin-bottom: 6px;"><strong>Kanji Only:</strong> Pure character recognition</li>
-                </ul>
-                
-                <p><strong>💡 Study Tips:</strong></p>
-                <p style="margin-bottom: 15px;">Study consistently for short periods rather than long cramming sessions. The spaced repetition algorithm works best with regular exposure over time.</p>
-            </div>
-            
-            <div class="form-buttons">
-                <button type="button" class="btn btn-primary" onclick="hideLearningInfo()">Got it!</button>
-            </div>
         </div>
     </div>
 
@@ -278,12 +280,77 @@
         </div>
     </div>
 
-    <!-- Success Message -->
+    <!-- Learning Info Modal -->
+    <div class="modal-overlay" id="learningModal">
+        <div class="modal-content">
+            <div class="modal-header">❓ How Learning Works</div>
+            
+            <div class="learning-info-content">
+                <h4>🎯 Adaptive Learning System</h4>
+                <p>This app uses <strong>spaced repetition</strong> to optimize your learning. Words you find difficult appear more frequently, while mastered words appear less often.</p>
+                
+                <h4>🔄 Learning States</h4>
+                <div class="state-indicator-legend">
+                    <div class="state-example">
+                        <div class="state-example-indicator state-new">N</div>
+                        <span>New - First time seeing this word</span>
+                    </div>
+                    <div class="state-example">
+                        <div class="state-example-indicator state-learning">L</div>
+                        <span>Learning - Actively practicing</span>
+                    </div>
+                    <div class="state-example">
+                        <div class="state-example-indicator state-review">R</div>
+                        <span>Review - Reinforcing memory</span>
+                    </div>
+                    <div class="state-example">
+                        <div class="state-example-indicator state-mastered">M</div>
+                        <span>Mastered - Long-term retention</span>
+                    </div>
+                </div>
+
+                <h4>📚 Study Mode</h4>
+                <ul>
+                    <li>Click cards to flip and see meanings</li>
+                    <li>Use audio buttons to hear pronunciation</li>
+                    <li>Cards automatically progress through learning states</li>
+                </ul>
+
+                <h4>🧠 Quiz Modes</h4>
+                <ul>
+                    <li><strong>Multiple Choice:</strong> Standard Japanese → English</li>
+                    <li><strong>Listening First:</strong> Audio-based learning</li>
+                    <li><strong>Mixed Challenge:</strong> Random JP→EN or EN→JP</li>
+                    <li><strong>Speed Challenge:</strong> 8-second time pressure</li>
+                    <li><strong>Kanji Only:</strong> Focus on character recognition</li>
+                </ul>
+
+                <h4>⚙️ Controls & Tips</h4>
+                <ul>
+                    <li><strong>Keyboard Shortcuts:</strong> Space/Enter (flip/next), Arrow keys (navigate), 1-4 (quiz answers), K (toggle kana)</li>
+                    <li><strong>Kana Toggle (K):</strong> Show/hide readings in quiz mode</li>
+                    <li><strong>Filters:</strong> Study specific word types (nouns, verbs, adjectives)</li>
+                </ul>
+
+                <h4>📊 Progress Tracking</h4>
+                <p>Your progress is automatically saved. The system tracks your performance and adjusts review timing to maximize retention.</p>
+            </div>
+            
+            <div class="form-buttons">
+                <button type="button" class="btn btn-primary" onclick="hideLearningInfo()">Got it!</button>
+            </div>
+        </div>
+    </div>
+
     <div class="success-message" id="successMessage">
         ✅ Thank you for your feedback!
     </div>
 
-    <!-- Modular JavaScript -->
+    <!-- JavaScript Files -->
+    <script type="module" src="assets/js/core/vocabulary.js"></script>
+    <script type="module" src="assets/js/core/storage.js"></script>
+    <script type="module" src="assets/js/core/spacedRepetition.js"></script>
+    <script type="module" src="assets/js/features/audioSystem.js"></script>
     <script type="module" src="assets/js/app.js"></script>
 </body>
 </html>
