@@ -1,12 +1,149 @@
-// assets/js/app.js - Fixed Kana Toggle Positioning and Removed Reading Toggle
+// assets/js/app.js - Phase 1: Migration Safety Implementation
 
 import { VocabularyManager } from './core/vocabulary.js';
 import { StorageManager } from './core/storage.js';
 import { SpacedRepetitionManager } from './core/spacedRepetition.js';
 import { AudioSystem } from './features/audioSystem.js';
 
+// ===== PHASE 1: MIGRATION SAFETY SYSTEM =====
+window.APP_DEBUG = true;
+
+// Capture actual current state for comparison
+const BACKUP_STATE = {
+    get currentMode() { return window.jlptApp?.currentMode || null; },
+    get currentCardIndex() { return window.jlptApp?.currentCardIndex || 0; },
+    get currentDeck() { return window.jlptApp?.currentDeck || []; },
+    get activeFilters() { return window.jlptApp?.activeFilters || new Set(['all']); },
+    get kanaMode() { return window.jlptApp?.kanaMode || false; },
+    get isFlipped() { return window.jlptApp?.isFlipped || false; },
+    get quizAnswered() { return window.jlptApp?.quizAnswered || false; }
+};
+
+function logMigrationPoint(point, data = null) {
+    if (window.APP_DEBUG) {
+        console.log(`✅ Migration: ${point}`, data ? { 
+            currentState: {
+                mode: BACKUP_STATE.currentMode,
+                cardIndex: BACKUP_STATE.currentCardIndex,
+                deckLength: BACKUP_STATE.currentDeck.length,
+                filters: Array.from(BACKUP_STATE.activeFilters),
+                kanaMode: BACKUP_STATE.kanaMode
+            },
+            additionalData: data
+        } : {
+            currentState: {
+                mode: BACKUP_STATE.currentMode,
+                cardIndex: BACKUP_STATE.currentCardIndex,
+                deckLength: BACKUP_STATE.currentDeck.length
+            }
+        });
+    }
+}
+
+// Migration checkpoint function
+function migrationCheckpoint(stepName) {
+    if (!window.APP_DEBUG) return true;
+    
+    console.group(`🔍 Checkpoint: ${stepName}`);
+    
+    const tests = [
+        () => window.jlptApp instanceof JLPTApp,
+        () => typeof window.jlptApp.flipCard === 'function',
+        () => window.jlptApp.currentDeck.length > 0,
+        () => document.getElementById('japaneseWord')?.textContent !== '',
+        () => window.jlptApp.vocabulary?.getAllWords().length > 0
+    ];
+    
+    const passed = tests.every((test, index) => {
+        try {
+            const result = test();
+            console.log(`Test ${index + 1}: ${result ? '✅' : '❌'}`);
+            return result;
+        } catch (e) {
+            console.error(`Test ${index + 1} failed:`, e);
+            return false;
+        }
+    });
+    
+    if (passed) {
+        console.log('✅ All tests passed');
+    } else {
+        console.error('❌ Tests failed - System unstable');
+    }
+    
+    console.groupEnd();
+    return passed;
+}
+
+// ===== LEGACY BRIDGE SYSTEM =====
+class LegacyBridge {
+    constructor() {
+        this.events = {};
+        this.originalFunctions = {};
+        
+        logMigrationPoint('Legacy bridge initialized');
+    }
+    
+    // Event system for future modular communication
+    on(event, callback) {
+        if (!this.events[event]) this.events[event] = [];
+        this.events[event].push(callback);
+    }
+    
+    emit(event, data) {
+        logMigrationPoint(`Bridge event emitted: ${event}`);
+        if (this.events[event]) {
+            this.events[event].forEach(callback => callback(data));
+        }
+    }
+    
+    // State comparison for validation
+    captureState() {
+        return {
+            currentMode: window.jlptApp?.currentMode,
+            currentCardIndex: window.jlptApp?.currentCardIndex,
+            deckLength: window.jlptApp?.currentDeck?.length || 0,
+            kanaMode: window.jlptApp?.kanaMode,
+            isFlipped: window.jlptApp?.isFlipped,
+            quizAnswered: window.jlptApp?.quizAnswered
+        };
+    }
+    
+    validateState(beforeState, afterState, operation) {
+        const differences = [];
+        
+        // Check expected changes for each operation
+        switch (operation) {
+            case 'flipCard':
+                if (beforeState.isFlipped === afterState.isFlipped && window.jlptApp.currentMode === 'study') {
+                    differences.push('Card flip state should have changed');
+                }
+                break;
+            case 'nextCard':
+                if (beforeState.currentCardIndex === afterState.currentCardIndex && beforeState.deckLength > 1) {
+                    differences.push('Card index should have changed');
+                }
+                break;
+        }
+        
+        if (differences.length === 0) {
+            logMigrationPoint(`✅ State validation passed for ${operation}`);
+            return true;
+        } else {
+            logMigrationPoint(`❌ State validation failed for ${operation}:`, differences);
+            return false;
+        }
+    }
+}
+
+// Initialize bridge
+window.legacyBridge = new LegacyBridge();
+
+// ===== MAIN APPLICATION CLASS =====
 class JLPTApp {
     constructor() {
+        logMigrationPoint('App construction started');
+        
         // Core systems
         this.vocabulary = new VocabularyManager();
         this.storage = new StorageManager();
@@ -46,18 +183,30 @@ class JLPTApp {
         // Statistics
         this.categoryStats = this.storage.loadCategoryStats();
         
+        logMigrationPoint('App construction completed');
+        
         this.initialize();
     }
 
     async initialize() {
+        logMigrationPoint('Initialization started');
         console.log('🚀 Initializing JLPT N5 Learning System...');
         
         try {
             await this.initializeSpacedRepetition();
+            migrationCheckpoint('Spaced repetition initialized');
+            
             this.loadUserPreferences();
+            migrationCheckpoint('User preferences loaded');
+            
             this.initializeUI();
+            migrationCheckpoint('UI initialized');
+            
             this.setupEventListeners();
+            migrationCheckpoint('Event listeners setup');
+            
             this.initializeKanaToggle();
+            migrationCheckpoint('Kana toggle initialized');
             
             // Load initial deck with spaced repetition
             this.currentDeck = this.spacedRepetition.getNextCards(50, Array.from(this.activeFilters));
@@ -69,11 +218,13 @@ class JLPTApp {
             this.updateCard();
             this.updateStats();
             
+            logMigrationPoint('Full initialization completed successfully');
             console.log(`✅ System Ready! ${this.vocabulary.getAllWords().length} words loaded`);
             console.log(`📊 Spaced repetition active: ${this.spacedRepetition.isInitialized()}`);
             
         } catch (error) {
             console.error('❌ Initialization failed:', error);
+            logMigrationPoint(`Initialization failed: ${error.message}`);
             this.showNotification('Initialization error - some features may not work', 'error');
             
             // Fallback to basic functionality
@@ -135,7 +286,7 @@ class JLPTApp {
                 this.updateKanaToggleDisplay();
                 this.updateCard();
                 
-                console.log(`🔄 Switched to ${tabId} mode, quiz mode lock reset`);
+                logMigrationPoint(`Tab switched to: ${tabId}`);
             });
         });
     }
@@ -167,7 +318,7 @@ class JLPTApp {
                     this.updateCard();
                 }
                 
-                console.log(`🎯 Quiz mode set to: ${mode} (locked for batch)`);
+                logMigrationPoint(`Quiz mode set to: ${mode} (locked for batch)`);
             });
         });
     }
@@ -175,7 +326,7 @@ class JLPTApp {
     resetQuizModeForNewBatch() {
         this.quizModeForSession = null;
         this.currentBatchIndex = 0;
-        console.log('🔓 Quiz mode lock reset for new batch');
+        logMigrationPoint('Quiz mode lock reset for new batch');
     }
 
     initializeFilters() {
@@ -243,7 +394,7 @@ class JLPTApp {
             const previousState = this.kanaMode;
             this.kanaMode = e.target.checked;
             
-            console.log(`🔄 Kana toggle: ${previousState} → ${this.kanaMode}`);
+            logMigrationPoint(`Kana toggle: ${previousState} → ${this.kanaMode}`);
             
             this.storage.setUserPreference('kanaMode', this.kanaMode);
             this.updateKanaToggleDisplay();
@@ -272,7 +423,7 @@ class JLPTApp {
     toggleKanaState() {
         const kanaToggleInput = document.getElementById('kanaToggleInput');
         if (kanaToggleInput) {
-            console.log(`🔄 Manual toggle: ${kanaToggleInput.checked} → ${!kanaToggleInput.checked}`);
+            logMigrationPoint(`Manual kana toggle: ${kanaToggleInput.checked} → ${!kanaToggleInput.checked}`);
             kanaToggleInput.checked = !kanaToggleInput.checked;
             kanaToggleInput.dispatchEvent(new Event('change'));
         }
@@ -296,11 +447,11 @@ class JLPTApp {
             if (this.currentMode === 'quiz') {
                 container.classList.remove('hidden');
                 container.classList.add('visible');
-                console.log('🎯 Kana toggle now visible in quiz mode');
+                logMigrationPoint('Kana toggle now visible in quiz mode');
             } else {
                 container.classList.add('hidden');
                 container.classList.remove('visible');
-                console.log('📚 Kana toggle hidden in study mode');
+                logMigrationPoint('Kana toggle hidden in study mode');
             }
         }
     }
@@ -314,12 +465,13 @@ class JLPTApp {
         
         const quizOptions = document.getElementById('quizOptions');
         if (quizOptions) {
-            console.log(`🔄 Regenerating options for ${this.currentQuestionDirection} with kana mode: ${this.kanaMode}`);
+            logMigrationPoint(`Regenerating options for ${this.currentQuestionDirection} with kana mode: ${this.kanaMode}`);
             quizOptions.innerHTML = '';
             this.generateQuizOptions(currentCard, quizOptions);
         }
     }
 
+    // ENHANCED: Global function bindings with bridge tracking
     setupEventListeners() {
         document.addEventListener('keydown', (e) => this.handleKeyboard(e));
         
@@ -336,21 +488,92 @@ class JLPTApp {
             }
         });
         
-        // Global function bindings - FIXED: Removed toggleReadings
-        window.showFeedbackForm = () => this.showFeedbackForm();
-        window.hideFeedbackForm = () => this.hideFeedbackForm();
-        window.showLearningInfo = () => this.showLearningInfo();
-        window.hideLearningInfo = () => this.hideLearningInfo();
-        window.showDonateInfo = () => this.showDonateInfo();
-        window.submitFeedback = (e) => this.submitFeedback(e);
-        window.playAudio = (e) => this.playAudio(e);
-        window.flipCard = () => this.flipCard();
-        window.nextCard = () => this.nextCard();
-        window.previousCard = () => this.previousCard();
-        window.shuffleCards = () => this.shuffleCards();
-        window.resetProgress = () => this.resetProgress();
-        window.toggleStats = () => this.toggleStats();
-        window.toggleKana = () => this.toggleKanaState();
+        // ENHANCED: Global function bindings with bridge tracking
+        window.showFeedbackForm = () => {
+            logMigrationPoint('showFeedbackForm called');
+            return this.showFeedbackForm();
+        };
+        
+        window.hideFeedbackForm = () => {
+            logMigrationPoint('hideFeedbackForm called');
+            return this.hideFeedbackForm();
+        };
+        
+        window.showLearningInfo = () => {
+            logMigrationPoint('showLearningInfo called');
+            return this.showLearningInfo();
+        };
+        
+        window.hideLearningInfo = () => {
+            logMigrationPoint('hideLearningInfo called');
+            return this.hideLearningInfo();
+        };
+        
+        window.showDonateInfo = () => {
+            logMigrationPoint('showDonateInfo called');
+            return this.showDonateInfo();
+        };
+        
+        window.submitFeedback = (e) => {
+            logMigrationPoint('submitFeedback called');
+            return this.submitFeedback(e);
+        };
+        
+        window.playAudio = (e) => {
+            logMigrationPoint('Global playAudio called');
+            return this.playAudio(e);
+        };
+        
+        window.flipCard = () => {
+            const beforeState = window.legacyBridge.captureState();
+            logMigrationPoint('Global flipCard called');
+            
+            const result = this.flipCard();
+            
+            const afterState = window.legacyBridge.captureState();
+            window.legacyBridge.validateState(beforeState, afterState, 'flipCard');
+            
+            return result;
+        };
+        
+        window.nextCard = () => {
+            const beforeState = window.legacyBridge.captureState();
+            logMigrationPoint('Global nextCard called');
+            
+            const result = this.nextCard();
+            
+            const afterState = window.legacyBridge.captureState();
+            window.legacyBridge.validateState(beforeState, afterState, 'nextCard');
+            
+            return result;
+        };
+        
+        window.previousCard = () => {
+            logMigrationPoint('Global previousCard called');
+            return this.previousCard();
+        };
+        
+        window.shuffleCards = () => {
+            logMigrationPoint('Global shuffleCards called');
+            return this.shuffleCards();
+        };
+        
+        window.resetProgress = () => {
+            logMigrationPoint('Global resetProgress called');
+            return this.resetProgress();
+        };
+        
+        window.toggleStats = () => {
+            logMigrationPoint('Global toggleStats called');
+            return this.toggleStats();
+        };
+        
+        window.toggleKana = () => {
+            logMigrationPoint('Global toggleKana called');
+            return this.toggleKanaState();
+        };
+        
+        logMigrationPoint('All global event listeners and functions bound');
     }
 
     // Card Management
@@ -369,21 +592,30 @@ class JLPTApp {
     }
 
     updateCard() {
+        migrationCheckpoint('updateCard-start');
+        
         const card = this.safeGetCard(this.currentCardIndex);
-        if (!card) return;
+        if (!card) {
+            logMigrationPoint('updateCard: No card available, exiting');
+            return;
+        }
 
-        console.log(`📇 Card: ${card.japanese} (${card.meaning})`);
+        logMigrationPoint(`updateCard: Processing card ${card.japanese} (${card.meaning})`);
 
         if (this.currentMode === 'quiz') {
             this.updateQuiz(card);
+            migrationCheckpoint('updateCard-quiz-complete');
         } else {
             this.updateStudyCard(card);
+            migrationCheckpoint('updateCard-study-complete');
         }
         
         this.updateCardCounter();
         this.cardsStudied.add(this.currentCardIndex);
         this.categoryStats[card.type].studied.add(card.japanese);
         this.trackEngagement();
+        
+        migrationCheckpoint('updateCard-end');
     }
 
     updateStudyCard(card) {
@@ -411,12 +643,12 @@ class JLPTApp {
     updateQuiz(card) {
         if (!card) return;
 
-        console.log(`🧠 Quiz: ${card.japanese}, mode: ${this.currentQuizMode || this.quizModeForSession}`);
+        logMigrationPoint(`updateQuiz: Starting quiz for ${card.japanese}, mode: ${this.currentQuizMode || this.quizModeForSession}`);
 
         // Lock quiz mode for the session if not already set
         if (!this.quizModeForSession) {
             this.quizModeForSession = this.currentQuizMode;
-            console.log(`🔒 Quiz mode locked to: ${this.quizModeForSession}`);
+            logMigrationPoint(`Quiz mode locked to: ${this.quizModeForSession}`);
         }
 
         this.clearAutoAdvanceTimer();
@@ -426,7 +658,12 @@ class JLPTApp {
         const quizFeedback = document.getElementById('quizFeedback');
         const quizAudioSection = document.getElementById('quizAudioSection');
         
-        if (!quizQuestion || !quizOptions || !quizFeedback) return;
+        if (!quizQuestion || !quizOptions || !quizFeedback) {
+            logMigrationPoint('updateQuiz: Critical DOM elements missing');
+            return;
+        }
+        
+        migrationCheckpoint('updateQuiz-dom-ready');
         
         // Complete state reset
         quizFeedback.textContent = '';
@@ -446,9 +683,12 @@ class JLPTApp {
         // Use locked mode instead of current mode
         const modeToUse = this.quizModeForSession || this.currentQuizMode;
         this.renderQuizMode(card, quizQuestion, quizAudioSection, modeToUse);
-        this.generateQuizOptions(card, quizOptions);
+        migrationCheckpoint('updateQuiz-render-complete');
         
-        console.log(`✅ Quiz updated with locked mode: ${modeToUse}, direction: ${this.currentQuestionDirection}`);
+        this.generateQuizOptions(card, quizOptions);
+        migrationCheckpoint('updateQuiz-options-complete');
+        
+        logMigrationPoint(`Quiz updated with locked mode: ${modeToUse}, direction: ${this.currentQuestionDirection}`);
     }
 
     // FIXED: Track question direction for Mixed Challenge
@@ -521,7 +761,7 @@ class JLPTApp {
     generateQuizOptions(correctCard, container) {
         if (!correctCard || !container) return;
         
-        console.log(`🎯 Generating options for: ${correctCard.japanese}, direction: ${this.currentQuestionDirection}, kana mode: ${this.kanaMode}`);
+        logMigrationPoint(`Generating options for: ${correctCard.japanese}, direction: ${this.currentQuestionDirection}, kana mode: ${this.kanaMode}`);
         
         const options = this.generateRandomizedOptions(correctCard, 4);
         
@@ -568,7 +808,7 @@ class JLPTApp {
             container.appendChild(button);
         });
         
-        console.log(`✅ Generated ${options.length} options for ${this.currentQuestionDirection} with kana display: ${this.kanaMode ? 'ON' : 'OFF'}`);
+        logMigrationPoint(`Generated ${options.length} options for ${this.currentQuestionDirection} with kana display: ${this.kanaMode ? 'ON' : 'OFF'}`);
     }
 
     // Enhanced randomized option generation
@@ -656,6 +896,8 @@ class JLPTApp {
     selectQuizAnswer(button, selectedOption, correctCard, isTimeout = false) {
         if (this.quizAnswered) return;
         
+        logMigrationPoint(`selectQuizAnswer: ${isTimeout ? 'timeout' : 'user selection'}, correct: ${selectedOption?.japanese === correctCard.japanese}`);
+        
         this.clearAllTimers();
         this.quizAnswered = true;
         this.currentBatchIndex++;
@@ -700,7 +942,7 @@ class JLPTApp {
         
         // Check if batch is complete
         if (this.currentBatchIndex % this.batchSize === 0) {
-            console.log(`📦 Batch complete! Quiz mode unlocked after ${this.batchSize} cards`);
+            logMigrationPoint(`Batch complete! Quiz mode unlocked after ${this.batchSize} cards`);
             this.showNotification('Batch complete! Quiz mode unlocked', 'success');
         }
         
@@ -750,38 +992,54 @@ class JLPTApp {
 
     // Navigation
     flipCard() {
+        logMigrationPoint(`flipCard called in ${this.currentMode} mode`);
+        
         if (this.currentMode === 'quiz') {
+            logMigrationPoint('flipCard: Redirecting to nextCard for quiz mode');
             this.nextCard();
             return;
         }
         
         const card = this.safeGetCard(this.currentCardIndex);
-        if (!card) return;
+        if (!card) {
+            logMigrationPoint('flipCard: No card available');
+            return;
+        }
         
         const meaning = document.getElementById('meaning');
         const flashcard = document.getElementById('flashcard');
         
+        migrationCheckpoint('flipCard-dom-check');
+        
         if (this.isFlipped) {
             meaning.style.display = 'none';
             flashcard.classList.remove('flipped');
+            logMigrationPoint('Card flipped to front');
         } else {
             meaning.style.display = 'block';
             flashcard.classList.add('flipped');
             this.flipCount++;
+            logMigrationPoint(`Card flipped to back, flip count: ${this.flipCount}`);
             
             if (this.spacedRepetition?.updateWordProgress) {
                 this.spacedRepetition.updateWordProgress(card.japanese, true);
+                migrationCheckpoint('flipCard-progress-updated');
             }
         }
         this.isFlipped = !this.isFlipped;
         this.updateStats();
+        
+        migrationCheckpoint('flipCard-complete');
     }
 
     nextCard() {
+        logMigrationPoint('nextCard called');
+        
         this.clearAllTimers();
         
         if (this.currentCardIndex < this.currentDeck.length - 1) {
             this.currentCardIndex++;
+            logMigrationPoint(`nextCard: Advanced to index ${this.currentCardIndex}`);
         } else {
             const newDeck = this.spacedRepetition?.getNextCards?.(50, Array.from(this.activeFilters)) || 
                            this.vocabulary.shuffleArray(this.vocabulary.getAllWords().slice(0, 50));
@@ -791,12 +1049,15 @@ class JLPTApp {
                 this.currentCardIndex = 0;
                 this.cardsStudied.clear();
                 this.resetQuizModeForNewBatch();
+                logMigrationPoint('nextCard: New deck loaded, reset to index 0');
             }
         }
         this.updateCard();
     }
 
     previousCard() {
+        logMigrationPoint('previousCard called');
+        
         this.clearAllTimers();
         this.currentCardIndex = Math.max(0, this.currentCardIndex - 1);
         this.updateCard();
@@ -807,6 +1068,8 @@ class JLPTApp {
         const checkbox = e.target;
         const filterId = checkbox.id;
         const isChecked = checkbox.checked;
+
+        logMigrationPoint(`Filter change: ${filterId} = ${isChecked}`);
 
         if (filterId === 'filterAll') {
             if (isChecked) {
@@ -843,6 +1106,8 @@ class JLPTApp {
     }
 
     applyFilters() {
+        logMigrationPoint('Applying filters:', Array.from(this.activeFilters));
+        
         this.currentDeck = this.spacedRepetition?.getNextCards?.(50, Array.from(this.activeFilters)) || 
                           this.vocabulary.shuffleArray(
                               this.vocabulary.getAllWords()
@@ -944,6 +1209,8 @@ class JLPTApp {
 
     // Utility Methods
     shuffleCards() {
+        logMigrationPoint('shuffleCards called');
+        
         this.currentDeck = this.vocabulary.shuffleArray([...this.currentDeck]);
         this.currentCardIndex = 0;
         this.resetQuizModeForNewBatch();
@@ -953,6 +1220,8 @@ class JLPTApp {
 
     resetProgress() {
         if (!confirm('Reset all learning progress? This will clear your spaced repetition data.')) return;
+        
+        logMigrationPoint('resetProgress confirmed and executed');
         
         if (this.spacedRepetition?.resetAllProgress) {
             this.spacedRepetition.resetAllProgress();
@@ -968,6 +1237,8 @@ class JLPTApp {
     }
 
     toggleStats() {
+        logMigrationPoint('toggleStats called');
+        
         const stats = document.getElementById('stats');
         stats?.classList.toggle('show');
     }
@@ -982,6 +1253,7 @@ class JLPTApp {
     resetEngagementTracking() {
         this.engagementCount = 0;
         this.retentionPromptShown = false;
+        logMigrationPoint('Engagement tracking reset');
     }
 
     showRetentionPrompt(reviewCount) {
@@ -1014,14 +1286,17 @@ class JLPTApp {
             case ' ':
             case 'Enter':
                 event.preventDefault();
+                logMigrationPoint(`Keyboard shortcut: ${event.key} for ${this.currentMode === 'study' ? 'flip' : 'next'}`);
                 this.currentMode === 'study' ? this.flipCard() : this.nextCard();
                 break;
             case 'ArrowLeft':
                 event.preventDefault();
+                logMigrationPoint('Keyboard shortcut: ArrowLeft for previous card');
                 this.previousCard();
                 break;
             case 'ArrowRight':
                 event.preventDefault();
+                logMigrationPoint('Keyboard shortcut: ArrowRight for next card');
                 this.nextCard();
                 break;
             case '1':
@@ -1032,6 +1307,7 @@ class JLPTApp {
                     event.preventDefault();
                     const optionIndex = parseInt(event.key) - 1;
                     const options = document.querySelectorAll('.quiz-option:not(.disabled)');
+                    logMigrationPoint(`Keyboard shortcut: ${event.key} for quiz option ${optionIndex + 1}`);
                     options[optionIndex]?.click();
                 }
                 break;
@@ -1039,7 +1315,7 @@ class JLPTApp {
             case 'K':
                 if (this.currentMode === 'quiz') {
                     event.preventDefault();
-                    console.log('⌨️ Keyboard shortcut (K) for kana toggle');
+                    logMigrationPoint('Keyboard shortcut: K for kana toggle');
                     this.toggleKanaState();
                 }
                 break;
@@ -1051,11 +1327,15 @@ class JLPTApp {
         const card = this.safeGetCard(this.currentCardIndex);
         if (!card) return;
         
+        logMigrationPoint(`playAudio called for: ${card.japanese}`);
+        
         const buttonElement = event.target.closest('.audio-button, .quiz-audio-button');
         try {
             await this.audio.playAudio(card.japanese, { buttonElement });
+            logMigrationPoint('Audio playback successful');
         } catch (error) {
             console.error('Audio playback failed:', error);
+            logMigrationPoint(`Audio playback failed: ${error.message}`);
             this.showNotification('🔊 Audio temporarily unavailable', 'error');
         }
     }
@@ -1123,5 +1403,7 @@ class JLPTApp {
 
 // Initialize application
 document.addEventListener('DOMContentLoaded', () => {
+    logMigrationPoint('DOM loaded, initializing app');
     window.jlptApp = new JLPTApp();
+    migrationCheckpoint('App fully initialized');
 });
