@@ -62,9 +62,15 @@ export class SpacedRepetitionManager {
         this.storage = storageManager;
         this.vocabulary = vocabularyManager;
         this.wordProgress = {};
-        this.initialize();
+        this.isInitialized = false;
     }
-
+    async initialize() {
+        return new Promise((resolve) => {
+            this.wordProgress = this.storage.initializeWordProgress(this.vocabulary.getAllWords());
+            this.isInitialized = true;
+            resolve();
+        });
+    }
     initialize() {
         this.wordProgress = this.storage.initializeWordProgress(this.vocabulary.getAllWords());
     }
