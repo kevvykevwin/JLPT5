@@ -194,6 +194,14 @@ class JLPTApp {
         
         try {
             await this.initializeSpacedRepetition();
+
+                        // Load initial deck with spaced repetition
+            this.currentDeck = this.spacedRepetition.getNextCards(50, Array.from(this.activeFilters));
+            if (this.currentDeck.length === 0) {
+                console.warn('No spaced repetition cards available, falling back to shuffled deck');
+                this.currentDeck = this.vocabulary.shuffleArray(this.vocabulary.getAllWords().slice(0, 50));
+            }
+            
             migrationCheckpoint('Spaced repetition initialized');
             
             this.loadUserPreferences();
@@ -207,13 +215,6 @@ class JLPTApp {
             
             this.initializeKanaToggle();
             migrationCheckpoint('Kana toggle initialized');
-            
-            // Load initial deck with spaced repetition
-            this.currentDeck = this.spacedRepetition.getNextCards(50, Array.from(this.activeFilters));
-            if (this.currentDeck.length === 0) {
-                console.warn('No spaced repetition cards available, falling back to shuffled deck');
-                this.currentDeck = this.vocabulary.shuffleArray(this.vocabulary.getAllWords().slice(0, 50));
-            }
             
             this.updateCard();
             this.updateStats();
