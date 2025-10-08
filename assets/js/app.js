@@ -185,7 +185,7 @@ class JLPTApp {
         
         logMigrationPoint('App construction completed');
         
-        this.initialize();
+        this.initializationComplete = this.initialize();
     }
 
     async initialize() {
@@ -201,7 +201,7 @@ class JLPTApp {
                 console.warn('No spaced repetition cards available, falling back to shuffled deck');
                 this.currentDeck = this.vocabulary.shuffleArray(this.vocabulary.getAllWords().slice(0, 50));
             }
-            
+
             migrationCheckpoint('Spaced repetition initialized');
             
             this.loadUserPreferences();
@@ -1403,8 +1403,9 @@ class JLPTApp {
 }
 
 // Initialize application
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     logMigrationPoint('DOM loaded, initializing app');
     window.jlptApp = new JLPTApp();
+    await window.jlptApp.initializationComplete;
     migrationCheckpoint('App fully initialized');
 });
