@@ -323,7 +323,10 @@
         padding: 4px 8px; /* FURTHER REDUCED: For mobile */
         font-size: 11px;  /* SMALLER: For mobile */
     }
-
+    .kana-toggle-container.listening-mode-toggle {
+        top: 80px !important;  /* Push down below the "Listen carefully" text */
+        z-index: 100;
+    }
     .kana-toggle-switch {
         width: 22px;     /* SMALLER: For mobile */
         height: 12px;    /* SMALLER: For mobile */

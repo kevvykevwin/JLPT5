@@ -156,6 +156,7 @@ class JLPTApp {
         this.currentCardIndex = 0;
         this.isFlipped = false;
         this.kanaMode = false;
+        this.currentQuizOptions = null;
         
         // FIXED: Add question direction tracking
         this.currentQuestionDirection = null; // 'jp-to-en' or 'en-to-jp'
@@ -448,6 +449,11 @@ class JLPTApp {
             if (this.currentMode === 'quiz') {
                 container.classList.remove('hidden');
                 container.classList.add('visible');
+                if (this.currentQuizMode === 'listening-first') {
+                        container.classList.add('listening-mode-toggle');
+                    } else {
+                        container.classList.remove('listening-mode-toggle');
+                    }
                 logMigrationPoint('Kana toggle now visible in quiz mode');
             } else {
                 container.classList.add('hidden');
@@ -463,15 +469,68 @@ class JLPTApp {
         
         const currentCard = this.safeGetCard(this.currentCardIndex);
         if (!currentCard) return;
-        
         const quizOptions = document.getElementById('quizOptions');
-        if (quizOptions) {
-            logMigrationPoint(`Regenerating options for ${this.currentQuestionDirection} with kana mode: ${this.kanaMode}`);
+        if (!quizOptions) return;
+        
+     if (this.currentQuizOptions && this.currentQuizOptions.length > 0) {
+            logMigrationPoint(`Updating display for existing options with kana mode: ${this.kanaMode}`);
+            this.updateExistingOptionsDisplay(quizOptions);
+        } else {
+            // First time or options cleared - generate new ones
+            logMigrationPoint(`Generating new options for ${this.currentQuestionDirection} with kana mode: ${this.kanaMode}`);
             quizOptions.innerHTML = '';
             this.generateQuizOptions(currentCard, quizOptions);
         }
     }
-
+    updateExistingOptionsDisplay(container) {
+        if (!this.currentQuizOptions || !container) return;
+        
+        const buttons = container.querySelectorAll('.quiz-option');
+        
+        buttons.forEach((button, index) => {
+            if (index >= this.currentQuizOptions.length) return;
+            
+            const option = this.currentQuizOptions[index];
+            
+            // Clear existing content
+            button.innerHTML = '';
+            
+            // Rebuild display based on question direction and kana mode
+            if (this.currentQuestionDirection === 'en-to-jp') {
+                // English to Japanese: Show Japanese characters as answers
+                const japaneseDiv = document.createElement('div');
+                japaneseDiv.style.cssText = `font-size: 20px; margin-bottom: ${this.kanaMode ? '8px' : '0'}; font-family: 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif; font-weight: 600;`;
+                japaneseDiv.textContent = option.japanese;
+                button.appendChild(japaneseDiv);
+                
+                // Show/hide reading based on kana toggle
+                if (this.kanaMode) {
+                    const readingDiv = document.createElement('div');
+                    readingDiv.className = 'quiz-option-reading';
+                    readingDiv.style.cssText = 'font-size: 14px; color: #666; font-style: italic;';
+                    readingDiv.textContent = option.reading;
+                    button.appendChild(readingDiv);
+                }
+            } else {
+                // Japanese to English: Show English meanings as answers
+                const meaningDiv = document.createElement('div');
+                meaningDiv.style.cssText = `font-size: 16px; margin-bottom: ${this.kanaMode && this.currentQuizMode !== 'kanji-only' ? '5px' : '0'}; font-weight: 500;`;
+                meaningDiv.textContent = option.meaning;
+                button.appendChild(meaningDiv);
+                
+                // Show/hide reading based on kana toggle (except kanji-only mode)
+                if (this.kanaMode && this.currentQuizMode !== 'kanji-only') {
+                    const readingDiv = document.createElement('div');
+                    readingDiv.className = 'quiz-option-reading';
+                    readingDiv.style.cssText = 'font-size: 14px; color: #666; font-style: italic;';
+                    readingDiv.textContent = option.reading;
+                    button.appendChild(readingDiv);
+                }
+            }
+        });
+        
+        logMigrationPoint(`Updated ${buttons.length} existing options - kana display: ${this.kanaMode ? 'ON' : 'OFF'}`);
+    }
     // ENHANCED: Global function bindings with bridge tracking
     setupEventListeners() {
         document.addEventListener('keydown', (e) => this.handleKeyboard(e));
@@ -646,6 +705,8 @@ class JLPTApp {
 
         logMigrationPoint(`updateQuiz: Starting quiz for ${card.japanese}, mode: ${this.currentQuizMode || this.quizModeForSession}`);
 
+        this.currentQuizOptions = null;
+
         // Lock quiz mode for the session if not already set
         if (!this.quizModeForSession) {
             this.quizModeForSession = this.currentQuizMode;
@@ -656,6 +717,7 @@ class JLPTApp {
         
         const quizQuestion = document.getElementById('quizQuestion');
         const quizOptions = document.getElementById('quizOptions');
+        if (!quizOptions) return;
         const quizFeedback = document.getElementById('quizFeedback');
         const quizAudioSection = document.getElementById('quizAudioSection');
         
@@ -684,6 +746,7 @@ class JLPTApp {
         // Use locked mode instead of current mode
         const modeToUse = this.quizModeForSession || this.currentQuizMode;
         this.renderQuizMode(card, quizQuestion, quizAudioSection, modeToUse);
+        this.currentQuizOptions = null;
         migrationCheckpoint('updateQuiz-render-complete');
         
         this.generateQuizOptions(card, quizOptions);
@@ -765,9 +828,10 @@ class JLPTApp {
         logMigrationPoint(`Generating options for: ${correctCard.japanese}, direction: ${this.currentQuestionDirection}, kana mode: ${this.kanaMode}`);
         
         const options = this.generateRandomizedOptions(correctCard, 4);
+        this.currentQuizOptions = options;
         
         container.innerHTML = '';
-        options.forEach((option, index) => {
+        this.currentQuizOptions.forEach((option, index) => {
             const button = document.createElement('button');
             button.className = 'quiz-option';
             button.setAttribute('data-option-index', index);
@@ -809,7 +873,7 @@ class JLPTApp {
             container.appendChild(button);
         });
         
-        logMigrationPoint(`Generated ${options.length} options for ${this.currentQuestionDirection} with kana display: ${this.kanaMode ? 'ON' : 'OFF'}`);
+           logMigrationPoint(`Generated and cached ${this.currentQuizOptions.length} options`);
     }
 
     // Enhanced randomized option generation
