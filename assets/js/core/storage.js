@@ -1,12 +1,19 @@
-// assets/js/core/storage.js - Streamlined Storage Management
+// assets/js/core/storage.js - Level-Aware Storage Management
 
 export class StorageManager {
     constructor() {
+        // Base storage keys
         this.STORAGE_KEYS = {
+            // Level-specific keys (will be prefixed with level)
             WORD_PROGRESS: 'jlpt-word-progress',
+            CATEGORY_STATS: 'jlpt-category-stats',
+            
+            // Shared/global keys
             USER_PREFERENCES: 'jlpt-user-preferences',
-            CATEGORY_STATS: 'jlpt-category-stats'
+            CURRENT_LEVEL: 'jlpt-current-level'
         };
+        
+        this.currentLevel = this.getCurrentLevel();
         
         this.defaultProgress = {
             state: 'new',
@@ -28,10 +35,41 @@ export class StorageManager {
         };
     }
 
-    // Word Progress Management
-    getWordProgress() {
+    // ===== LEVEL MANAGEMENT =====
+    
+    getCurrentLevel() {
         try {
-            const saved = localStorage.getItem(this.STORAGE_KEYS.WORD_PROGRESS);
+            const saved = localStorage.getItem(this.STORAGE_KEYS.CURRENT_LEVEL);
+            return saved || 'N5';
+        } catch (error) {
+            return 'N5';
+        }
+    }
+
+    setCurrentLevel(level) {
+        try {
+            localStorage.setItem(this.STORAGE_KEYS.CURRENT_LEVEL, level);
+            this.currentLevel = level;
+            console.log(`📊 Storage switched to level: ${level}`);
+            return true;
+        } catch (error) {
+            console.error('Error saving current level:', error);
+            return false;
+        }
+    }
+
+    // Get level-specific storage key
+    getLevelKey(baseKey, level = null) {
+        const targetLevel = level || this.currentLevel;
+        return `${baseKey}-${targetLevel}`;
+    }
+
+    // ===== WORD PROGRESS (Level-Specific) =====
+    
+    getWordProgress(level = null) {
+        try {
+            const key = this.getLevelKey(this.STORAGE_KEYS.WORD_PROGRESS, level);
+            const saved = localStorage.getItem(key);
             return saved ? JSON.parse(saved) : {};
         } catch (error) {
             console.error('Error loading word progress:', error);
@@ -39,9 +77,10 @@ export class StorageManager {
         }
     }
 
-    saveWordProgress(progress) {
+    saveWordProgress(progress, level = null) {
         try {
-            localStorage.setItem(this.STORAGE_KEYS.WORD_PROGRESS, JSON.stringify(progress));
+            const key = this.getLevelKey(this.STORAGE_KEYS.WORD_PROGRESS, level);
+            localStorage.setItem(key, JSON.stringify(progress));
             return true;
         } catch (error) {
             console.error('Error saving word progress:', error);
@@ -49,8 +88,8 @@ export class StorageManager {
         }
     }
 
-    initializeWordProgress(vocabularyWords) {
-        const currentProgress = this.getWordProgress();
+    initializeWordProgress(vocabularyWords, level = null) {
+        const currentProgress = this.getWordProgress(level);
         let hasChanges = false;
 
         vocabularyWords.forEach((word, index) => {
@@ -63,7 +102,6 @@ export class StorageManager {
             }
         });
 
-        // Clean up invalid entries
         const validWords = new Set(vocabularyWords.map(w => w.japanese));
         Object.keys(currentProgress).forEach(japanese => {
             if (!validWords.has(japanese)) {
@@ -73,14 +111,14 @@ export class StorageManager {
         });
 
         if (hasChanges) {
-            this.saveWordProgress(currentProgress);
+            this.saveWordProgress(currentProgress, level);
         }
 
         return currentProgress;
     }
 
-    updateWordProgress(japanese, updates) {
-        const currentProgress = this.getWordProgress();
+    updateWordProgress(japanese, updates, level = null) {
+        const currentProgress = this.getWordProgress(level);
         
         if (!currentProgress[japanese]) {
             currentProgress[japanese] = { ...this.defaultProgress };
@@ -92,12 +130,13 @@ export class StorageManager {
             lastReviewed: Date.now()
         };
 
-        return this.saveWordProgress(currentProgress);
+        return this.saveWordProgress(currentProgress, level);
     }
 
-    getWordProgressStats() {
-        const progress = this.getWordProgress();
+    getWordProgressStats(level = null) {
+        const progress = this.getWordProgress(level);
         const stats = {
+            level: level || this.currentLevel,
             total: 0,
             new: 0,
             learning: 0,
@@ -127,7 +166,20 @@ export class StorageManager {
         return stats;
     }
 
-    // User Preferences Management
+    // Get combined stats for all levels
+    getAllLevelsStats() {
+        const levels = ['N5', 'N4']; // Expand as needed
+        const allStats = {};
+
+        levels.forEach(level => {
+            allStats[level] = this.getWordProgressStats(level);
+        });
+
+        return allStats;
+    }
+
+    // ===== USER PREFERENCES (Shared) =====
+    
     getUserPreferences() {
         try {
             const saved = localStorage.getItem(this.STORAGE_KEYS.USER_PREFERENCES);
@@ -142,6 +194,12 @@ export class StorageManager {
         try {
             const preferences = this.getUserPreferences();
             preferences[key] = value;
+            
+            // If changing level preference, update current level
+            if (key === 'currentLevel') {
+                this.setCurrentLevel(value);
+            }
+            
             localStorage.setItem(this.STORAGE_KEYS.USER_PREFERENCES, JSON.stringify(preferences));
             return true;
         } catch (error) {
@@ -155,7 +213,6 @@ export class StorageManager {
         return preferences[key] !== undefined ? preferences[key] : defaultValue;
     }
 
-    // Backward Compatibility Methods
     getReadingToggle() {
         return this.getUserPreference('readingsHidden', false);
     }
@@ -164,10 +221,12 @@ export class StorageManager {
         return this.setUserPreference('readingsHidden', hidden);
     }
 
-    // Category Statistics Management
-    getCategoryStats() {
+    // ===== CATEGORY STATS (Level-Specific) =====
+    
+    getCategoryStats(level = null) {
         try {
-            const saved = localStorage.getItem(this.STORAGE_KEYS.CATEGORY_STATS);
+            const key = this.getLevelKey(this.STORAGE_KEYS.CATEGORY_STATS, level);
+            const saved = localStorage.getItem(key);
             return saved ? JSON.parse(saved) : this.getDefaultCategoryStats();
         } catch (error) {
             console.error('Error loading category stats:', error);
@@ -175,9 +234,8 @@ export class StorageManager {
         }
     }
 
-    saveCategoryStats(stats) {
+    saveCategoryStats(stats, level = null) {
         try {
-            // Convert Sets to Arrays for JSON serialization
             const serializable = {};
             Object.keys(stats).forEach(category => {
                 serializable[category] = {
@@ -186,7 +244,8 @@ export class StorageManager {
                 };
             });
             
-            localStorage.setItem(this.STORAGE_KEYS.CATEGORY_STATS, JSON.stringify(serializable));
+            const key = this.getLevelKey(this.STORAGE_KEYS.CATEGORY_STATS, level);
+            localStorage.setItem(key, JSON.stringify(serializable));
             return true;
         } catch (error) {
             console.error('Error saving category stats:', error);
@@ -194,10 +253,9 @@ export class StorageManager {
         }
     }
 
-    loadCategoryStats() {
-        const stats = this.getCategoryStats();
+    loadCategoryStats(level = null) {
+        const stats = this.getCategoryStats(level);
         
-        // Convert Arrays back to Sets
         Object.keys(stats).forEach(category => {
             if (Array.isArray(stats[category].studied)) {
                 stats[category].studied = new Set(stats[category].studied);
@@ -218,8 +276,8 @@ export class StorageManager {
         };
     }
 
-    updateCategoryStats(category, updates) {
-        const stats = this.loadCategoryStats();
+    updateCategoryStats(category, updates, level = null) {
+        const stats = this.loadCategoryStats(level);
         
         if (!stats[category]) {
             stats[category] = { studied: new Set(), quizAttempts: 0, quizCorrect: 0 };
@@ -233,30 +291,57 @@ export class StorageManager {
             }
         });
 
-        return this.saveCategoryStats(stats);
+        return this.saveCategoryStats(stats, level);
     }
 
-    // Data Management
-    exportAllData() {
+    // ===== DATA MANAGEMENT =====
+    
+    exportAllData(level = null) {
+        const targetLevel = level || this.currentLevel;
+        
         return {
-            wordProgress: this.getWordProgress(),
+            level: targetLevel,
+            wordProgress: this.getWordProgress(targetLevel),
             userPreferences: this.getUserPreferences(),
-            categoryStats: this.getCategoryStats(),
+            categoryStats: this.getCategoryStats(targetLevel),
             exportDate: new Date().toISOString(),
-            version: '1.0'
+            version: '2.0' // Updated version for multi-level
         };
     }
 
-    importAllData(data) {
+    exportAllLevelsData() {
+        const levels = ['N5', 'N4'];
+        const allData = {
+            levels: {},
+            userPreferences: this.getUserPreferences(),
+            currentLevel: this.currentLevel,
+            exportDate: new Date().toISOString(),
+            version: '2.0'
+        };
+
+        levels.forEach(level => {
+            allData.levels[level] = {
+                wordProgress: this.getWordProgress(level),
+                categoryStats: this.getCategoryStats(level)
+            };
+        });
+
+        return allData;
+    }
+
+    importAllData(data, level = null) {
         try {
+            const targetLevel = level || data.level || this.currentLevel;
+            
             if (data.wordProgress) {
-                this.saveWordProgress(data.wordProgress);
+                this.saveWordProgress(data.wordProgress, targetLevel);
             }
             if (data.userPreferences) {
                 localStorage.setItem(this.STORAGE_KEYS.USER_PREFERENCES, JSON.stringify(data.userPreferences));
             }
             if (data.categoryStats) {
-                localStorage.setItem(this.STORAGE_KEYS.CATEGORY_STATS, JSON.stringify(data.categoryStats));
+                const key = this.getLevelKey(this.STORAGE_KEYS.CATEGORY_STATS, targetLevel);
+                localStorage.setItem(key, JSON.stringify(data.categoryStats));
             }
             return true;
         } catch (error) {
@@ -265,24 +350,57 @@ export class StorageManager {
         }
     }
 
-    clearAllData() {
+    clearLevelData(level = null) {
         try {
-            Object.values(this.STORAGE_KEYS).forEach(key => {
-                localStorage.removeItem(key);
-            });
+            const targetLevel = level || this.currentLevel;
+            
+            const progressKey = this.getLevelKey(this.STORAGE_KEYS.WORD_PROGRESS, targetLevel);
+            const statsKey = this.getLevelKey(this.STORAGE_KEYS.CATEGORY_STATS, targetLevel);
+            
+            localStorage.removeItem(progressKey);
+            localStorage.removeItem(statsKey);
+            
+            console.log(`✅ Cleared data for level: ${targetLevel}`);
             return true;
         } catch (error) {
-            console.error('Error clearing data:', error);
+            console.error('Error clearing level data:', error);
             return false;
         }
     }
 
-    // Storage usage monitoring
-    getStorageUsage() {
+    clearAllData() {
+        try {
+            // Clear all level-specific data
+            ['N5', 'N4'].forEach(level => {
+                this.clearLevelData(level);
+            });
+            
+            // Clear shared data
+            localStorage.removeItem(this.STORAGE_KEYS.USER_PREFERENCES);
+            localStorage.removeItem(this.STORAGE_KEYS.CURRENT_LEVEL);
+            
+            console.log('✅ All data cleared');
+            return true;
+        } catch (error) {
+            console.error('Error clearing all data:', error);
+            return false;
+        }
+    }
+
+    // ===== STORAGE MONITORING =====
+    
+    getStorageUsage(level = null) {
+        const targetLevel = level || this.currentLevel;
         let totalSize = 0;
         const usage = {};
 
-        Object.entries(this.STORAGE_KEYS).forEach(([name, key]) => {
+        const keys = {
+            wordProgress: this.getLevelKey(this.STORAGE_KEYS.WORD_PROGRESS, targetLevel),
+            categoryStats: this.getLevelKey(this.STORAGE_KEYS.CATEGORY_STATS, targetLevel),
+            userPreferences: this.STORAGE_KEYS.USER_PREFERENCES
+        };
+
+        Object.entries(keys).forEach(([name, key]) => {
             const data = localStorage.getItem(key);
             const size = data ? new Blob([data]).size : 0;
             usage[name] = {
@@ -293,9 +411,28 @@ export class StorageManager {
         });
 
         return {
+            level: targetLevel,
             individual: usage,
             total: totalSize,
             totalFormatted: this.formatBytes(totalSize)
+        };
+    }
+
+    getAllStorageUsage() {
+        const levels = ['N5', 'N4'];
+        const allUsage = {};
+        let grandTotal = 0;
+
+        levels.forEach(level => {
+            const usage = this.getStorageUsage(level);
+            allUsage[level] = usage;
+            grandTotal += usage.total;
+        });
+
+        return {
+            byLevel: allUsage,
+            grandTotal: grandTotal,
+            grandTotalFormatted: this.formatBytes(grandTotal)
         };
     }
 

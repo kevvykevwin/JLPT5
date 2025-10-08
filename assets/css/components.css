@@ -374,3 +374,193 @@ input:checked + .toggle-slider:before {
     color: white !important;
     box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3) !important;
 }
+
+.level-option {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 8px;
+    margin: 8px 0;
+    gap: 12px;
+}
+
+.level-option:hover:not(.level-dormant) {
+    background: #f8f9fa;
+    transform: translateX(2px);
+}
+
+.level-option.level-active {
+    background: rgba(76, 175, 80, 0.1);
+    border-left: 3px solid #4caf50;
+}
+
+.level-option.level-dormant {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.level-option.level-dormant:hover {
+    transform: none;
+}
+
+/* Level Badge */
+.level-badge {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    color: white;
+    flex-shrink: 0;
+    text-transform: uppercase;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.level-badge.level-n5 {
+    background: linear-gradient(135deg, #4caf50, #388e3c);
+}
+
+.level-badge.level-n4 {
+    background: linear-gradient(135deg, #ff9800, #f57c00);
+}
+
+.level-badge.level-n3 {
+    background: linear-gradient(135deg, #2196f3, #1976d2);
+}
+
+.level-badge.level-n2 {
+    background: linear-gradient(135deg, #9c27b0, #7b1fa2);
+}
+
+.level-badge.level-n1 {
+    background: linear-gradient(135deg, #f44336, #c62828);
+}
+
+/* Inline Badge (for header) */
+.level-badge-inline {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 20px;
+    font-weight: 700;
+    color: white;
+    vertical-align: middle;
+    margin: 0 4px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.level-badge-inline.level-n5 {
+    background: linear-gradient(135deg, #4caf50, #388e3c);
+}
+
+.level-badge-inline.level-n4 {
+    background: linear-gradient(135deg, #ff9800, #f57c00);
+}
+
+.level-badge-inline.level-n3 {
+    background: linear-gradient(135deg, #2196f3, #1976d2);
+}
+
+.level-badge-inline.level-n2 {
+    background: linear-gradient(135deg, #9c27b0, #7b1fa2);
+}
+
+.level-badge-inline.level-n1 {
+    background: linear-gradient(135deg, #f44336, #c62828);
+}
+
+/* Level Info */
+.level-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.level-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: #333;
+}
+
+.level-description {
+    font-size: 12px;
+    color: #666;
+}
+
+/* Level Status */
+.level-status {
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.level-status.level-active {
+    background: #c8e6c9;
+    color: #2e7d32;
+}
+
+.level-status.level-dormant-status {
+    background: #ffe0b2;
+    color: #e65100;
+}
+
+/* Level Switch Animation */
+.level-switch-animation {
+    animation: levelSwitch 0.5s ease;
+}
+
+@keyframes levelSwitch {
+    0% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    50% {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Mobile Responsive */
+@media (max-width: 480px) {
+    .level-option {
+        padding: 10px 15px;
+        gap: 10px;
+    }
+
+    .level-badge {
+        width: 35px;
+        height: 35px;
+        font-size: 12px;
+    }
+
+    .level-badge-inline {
+        padding: 3px 10px;
+        font-size: 18px;
+    }
+
+    .level-name {
+        font-size: 13px;
+    }
+
+    .level-description {
+        font-size: 11px;
+    }
+
+    .level-status {
+        padding: 3px 10px;
+        font-size: 10px;
+    }
+}

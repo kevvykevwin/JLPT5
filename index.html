@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JLPT N5 Flashcards - Adaptive Learning System (Enhanced)</title>
-    <meta name="description" content="Master JLPT N5 vocabulary with spaced repetition, adaptive quizzes, and pronunciation practice. Free Japanese learning tool with 230+ essential words.">
-    <meta name="keywords" content="JLPT N5, Japanese vocabulary, flashcards, spaced repetition, kanji practice, Japanese learning">
+    <title>JLPT Flashcards - Adaptive Learning System (Enhanced)</title>
+    <meta name="description" content="Master JLPT vocabulary with spaced repetition, adaptive quizzes, and pronunciation practice. Free Japanese learning tool with 230+ essential words.">
+    <meta name="keywords" content="JLPT, Japanese vocabulary, flashcards, spaced repetition, kanji practice, Japanese learning">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🇯🇵</text></svg>">
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#667eea">
@@ -92,6 +92,32 @@
                     </div>
                 </div>
                 <div class="dropdown-menu" id="dropdownMenu">
+                    <!-- LEVEL SELECTOR SECTION -->
+                    <div class="filter-section">
+                        <div class="filter-section-title">Study Level</div>
+                        
+                        <!-- N5 Level Option -->
+                        <div class="level-option" data-level="N5">
+                            <div class="level-badge level-n5">N5</div>
+                            <div class="level-info">
+                                <div class="level-name">JLPT N5</div>
+                                <div class="level-description">Beginner Level</div>
+                            </div>
+                            <div class="level-status level-active">Active</div>
+                        </div>
+                        
+                        <!-- N4 Level Option (ACTIVE) -->
+                        <div class="level-option" data-level="N4">
+                            <div class="level-badge level-n4">N4</div>
+                            <div class="level-info">
+                                <div class="level-name">JLPT N4</div>
+                                <div class="level-description">Elementary Level</div>
+                            </div>
+                            <div class="level-status"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- WORD TYPES FILTER SECTION -->
                     <div class="filter-section">
                         <div class="filter-section-title">Word Types</div>
                         <div class="filter-option" data-filter="all">
@@ -137,7 +163,11 @@
                     </div>
                 </div>
             </div>
-            <h1>JLPT N5 Adaptive Learning</h1>
+            
+            <!-- UPDATED: Header with Level Badge -->
+            <h1>
+                JLPT <span id="currentLevelBadge" class="level-badge-inline level-n5">N5</span> Adaptive Learning
+            </h1>
             
             <div id="retentionPrompt" class="retention-prompt">
                 ✨ Some of these help strengthen memory retention (<span id="reviewCount">0</span> reviews mixed in)
@@ -172,7 +202,6 @@
         </div>
 
         <div class="tab-content" id="quizTab">
-            <!-- REMOVED: Reading toggle button since kana toggle handles this functionality -->
             <div class="quiz-mode-selector">
                 <button class="quiz-mode-btn active" data-mode="multiple-choice">Multiple Choice</button>
                 <button class="quiz-mode-btn" data-mode="listening-first">Listening First</button>
@@ -183,7 +212,7 @@
             </div>
 
             <div class="quiz-container active" id="quizContainer">
-                <!-- FIXED: Kana toggle positioned in top-left of quiz container -->
+                <!-- Kana toggle positioned in top-left of quiz container -->
                 <div class="kana-toggle-container hidden" id="kanaToggleContainer">
                     <div class="kana-toggle-switch">
                         <input type="checkbox" id="kanaToggleInput">
@@ -325,6 +354,7 @@
                     <li><strong>Mixed Challenge:</strong> Random JP→EN or EN→JP</li>
                     <li><strong>Speed Challenge:</strong> 8-second time pressure</li>
                     <li><strong>Kanji Only:</strong> Focus on character recognition</li>
+                    <li><strong>Particle Quiz:</strong> Master Japanese particles</li>
                 </ul>
 
                 <h4>⚙️ Controls & Tips</h4>
@@ -332,10 +362,11 @@
                     <li><strong>Keyboard Shortcuts:</strong> Space/Enter (flip/next), Arrow keys (navigate), 1-4 (quiz answers), K (toggle kana)</li>
                     <li><strong>Kana Toggle (K):</strong> Show/hide readings in quiz mode</li>
                     <li><strong>Filters:</strong> Study specific word types (nouns, verbs, adjectives)</li>
+                    <li><strong>Level Selector:</strong> Switch between N5 and N4 vocabulary</li>
                 </ul>
 
                 <h4>📊 Progress Tracking</h4>
-                <p>Your progress is automatically saved. The system tracks your performance and adjusts review timing to maximize retention.</p>
+                <p>Your progress is automatically saved per level. The system tracks your performance and adjusts review timing to maximize retention.</p>
             </div>
             
             <div class="form-buttons">

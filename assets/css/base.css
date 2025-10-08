@@ -41,7 +41,13 @@ body {
     margin-bottom: 20px;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     padding-left: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 4px;
 }
+
 
 /* Progress Bar */
 .progress {
