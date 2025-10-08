@@ -1,4 +1,4 @@
-// assets/js/app.js - Phase 1: Migration Safety Implementation with Particle Quiz
+// assets/js/app.js - Complete with N4 Level System Integration
 
 import { VocabularyManager } from './core/vocabulary.js';
 import { StorageManager } from './core/storage.js';
@@ -9,7 +9,6 @@ import { ParticleQuiz } from './features/particleQuiz.js';
 // ===== PHASE 1: MIGRATION SAFETY SYSTEM =====
 window.APP_DEBUG = true;
 
-// Capture actual current state for comparison
 const BACKUP_STATE = {
     get currentMode() { return window.jlptApp?.currentMode || null; },
     get currentCardIndex() { return window.jlptApp?.currentCardIndex || 0; },
@@ -41,7 +40,6 @@ function logMigrationPoint(point, data = null) {
     }
 }
 
-// Migration checkpoint function
 function migrationCheckpoint(stepName) {
     if (!window.APP_DEBUG) return true;
     
@@ -81,7 +79,6 @@ class LegacyBridge {
     constructor() {
         this.events = {};
         this.originalFunctions = {};
-        
         logMigrationPoint('Legacy bridge initialized');
     }
     
@@ -134,7 +131,6 @@ class LegacyBridge {
     }
 }
 
-// Initialize bridge
 window.legacyBridge = new LegacyBridge();
 
 // ===== MAIN APPLICATION CLASS =====
@@ -142,9 +138,19 @@ class JLPTApp {
     constructor() {
         logMigrationPoint('App construction started');
         
-        // Core systems
-        this.vocabulary = new VocabularyManager();
+        // FIXED: Initialize storage FIRST before using it
         this.storage = new StorageManager();
+        
+        // Get saved level from storage
+        const savedLevel = this.storage.getCurrentLevel();
+        
+        // Initialize vocabulary with saved level
+        this.vocabulary = new VocabularyManager(savedLevel);
+        
+        // Sync storage level with vocabulary
+        this.storage.setCurrentLevel(this.vocabulary.currentLevel);
+        
+        // Initialize other core systems
         this.spacedRepetition = new SpacedRepetitionManager(this.storage, this.vocabulary);
         this.audio = new AudioSystem();
         this.particleQuiz = new ParticleQuiz();
@@ -165,7 +171,7 @@ class JLPTApp {
         this.flipCount = 0;
         this.activeFilters = new Set(['all']);
         
-        // Quiz state and randomization
+        // Quiz state
         this.quizAnswered = false;
         this.autoAdvanceTimer = null;
         this.speedChallengeTimer = null;
@@ -189,7 +195,7 @@ class JLPTApp {
 
     async initialize() {
         logMigrationPoint('Initialization started');
-        console.log('🚀 Initializing JLPT N5 Learning System...');
+        console.log('🚀 Initializing JLPT Learning System...');
         
         try {
             await this.initializeSpacedRepetition();
@@ -219,6 +225,7 @@ class JLPTApp {
             
             logMigrationPoint('Full initialization completed successfully');
             console.log(`✅ System Ready! ${this.vocabulary.getAllWords().length} words loaded`);
+            console.log(`📊 Current Level: ${this.vocabulary.currentLevel}`);
             console.log(`📊 Spaced repetition active: ${this.spacedRepetition.isInitialized}`);
             
         } catch (error) {
@@ -252,7 +259,174 @@ class JLPTApp {
         this.initializeTabs();
         this.initializeQuizModes();
         this.initializeFilters();
+        this.initializeLevelSelector();  // NEW: Level selector
+        this.updateLevelBadge();         // NEW: Update badge
     }
+
+    // ===== NEW: LEVEL SYSTEM METHODS =====
+    
+    initializeLevelSelector() {
+        const levelOptions = document.querySelectorAll('.level-option:not(.level-dormant)');
+        
+        levelOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                const targetLevel = option.getAttribute('data-level');
+                this.switchLevel(targetLevel);
+            });
+        });
+        
+        // Handle dormant levels (show notification)
+        const dormantLevels = document.querySelectorAll('.level-option.level-dormant');
+        dormantLevels.forEach(option => {
+            option.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const level = option.getAttribute('data-level');
+                this.showNotification(`📚 ${level} vocabulary coming soon! Stay tuned.`, 'info');
+            });
+        });
+        
+        // Update active state on load
+        this.updateLevelOptions();
+        
+        console.log('📚 Level selector initialized');
+    }
+
+    switchLevel(newLevel) {
+        const currentLevel = this.vocabulary.currentLevel;
+        
+        if (currentLevel === newLevel) {
+            console.log(`Already on level ${newLevel}`);
+            return;
+        }
+        
+        // Confirm switch if user has progress
+        const stats = this.storage.getWordProgressStats(currentLevel);
+        if (stats.total > 0 && stats.mastered > 0) {
+            const confirmMsg = `Switch to ${newLevel}? Your ${currentLevel} progress will be saved.`;
+            if (!confirm(confirmMsg)) {
+                return;
+            }
+        }
+        
+        logMigrationPoint(`Switching from ${currentLevel} to ${newLevel}`);
+        
+        // Save current state
+        this.saveCurrentState();
+        
+        // Switch vocabulary level
+        this.vocabulary.switchLevel(newLevel);
+        
+        // Update storage level
+        this.storage.setCurrentLevel(newLevel);
+        this.storage.setUserPreference('currentLevel', newLevel);
+        
+        // Reinitialize with new level
+        this.reinitializeForNewLevel(newLevel);
+        
+        // Update UI
+        this.updateLevelBadge();
+        this.updateLevelOptions();
+        
+        // Show confirmation
+        this.showNotification(`✅ Switched to ${newLevel}! Loading vocabulary...`, 'success');
+        
+        console.log(`✅ Successfully switched to ${newLevel}`);
+    }
+
+    saveCurrentState() {
+        if (this.spacedRepetition?.wordProgress) {
+            const currentLevel = this.vocabulary.currentLevel;
+            this.storage.saveWordProgress(
+                this.spacedRepetition.wordProgress,
+                currentLevel
+            );
+        }
+        
+        if (this.categoryStats) {
+            const currentLevel = this.vocabulary.currentLevel;
+            this.storage.saveCategoryStats(this.categoryStats, currentLevel);
+        }
+    }
+
+    async reinitializeForNewLevel(newLevel) {
+        // Reset spaced repetition for new level
+        this.spacedRepetition.wordProgress = this.storage.initializeWordProgress(
+            this.vocabulary.getAllWords(),
+            newLevel
+        );
+        
+        // Reset deck
+        this.currentDeck = this.spacedRepetition.getNextCards(50, Array.from(this.activeFilters));
+        if (this.currentDeck.length === 0) {
+            this.currentDeck = this.vocabulary.shuffleArray(this.vocabulary.getAllWords().slice(0, 50));
+        }
+        
+        // Reset navigation
+        this.currentCardIndex = 0;
+        this.cardsStudied.clear();
+        this.resetQuizModeForNewBatch();
+        
+        // Load category stats for new level
+        this.categoryStats = this.storage.loadCategoryStats(newLevel);
+        
+        // Update UI
+        this.updateWordCountBadges();
+        this.updateCard();
+        this.updateStats();
+    }
+
+    updateLevelBadge() {
+        const badge = document.getElementById('currentLevelBadge');
+        if (!badge) return;
+        
+        const levelInfo = this.vocabulary.getCurrentLevelInfo();
+        
+        // Update badge
+        badge.textContent = levelInfo.level;
+        badge.className = `level-badge-inline level-${levelInfo.level.toLowerCase()}`;
+        
+        // Add animation
+        badge.classList.add('level-switch-animation');
+        setTimeout(() => {
+            badge.classList.remove('level-switch-animation');
+        }, 500);
+    }
+
+    updateLevelOptions() {
+        document.querySelectorAll('.level-option').forEach(option => {
+            option.classList.remove('level-active');
+            
+            const statusEl = option.querySelector('.level-status');
+            if (statusEl && !statusEl.classList.contains('level-dormant-status')) {
+                statusEl.textContent = '';
+            }
+        });
+        
+        const currentLevel = this.vocabulary.currentLevel;
+        const activeOption = document.querySelector(`.level-option[data-level="${currentLevel}"]`);
+        
+        if (activeOption) {
+            activeOption.classList.add('level-active');
+            const statusEl = activeOption.querySelector('.level-status');
+            if (statusEl) {
+                statusEl.classList.add('level-active');
+                statusEl.textContent = 'Active';
+            }
+        }
+    }
+
+    getLevelStats() {
+        const levels = this.vocabulary.getAvailableLevels();
+        return levels.map(level => {
+            const stats = this.storage.getWordProgressStats(level.level);
+            return {
+                ...level,
+                stats: stats
+            };
+        });
+    }
+
+    // ===== END LEVEL SYSTEM METHODS =====
 
     initializeTabs() {
         document.querySelectorAll('.tab-button').forEach(button => {
@@ -479,7 +653,6 @@ class JLPTApp {
             if (index >= this.currentQuizOptions.length) return;
             
             const option = this.currentQuizOptions[index];
-            
             button.innerHTML = '';
             
             if (this.currentQuestionDirection === 'en-to-jp') {
@@ -529,6 +702,7 @@ class JLPTApp {
             }
         });
         
+        // Global function bindings
         window.showFeedbackForm = () => {
             logMigrationPoint('showFeedbackForm called');
             return this.showFeedbackForm();
@@ -613,6 +787,20 @@ class JLPTApp {
             return this.toggleKanaState();
         };
         
+        // NEW: Level system global functions
+        window.switchLevel = (level) => {
+            logMigrationPoint(`Global switchLevel called: ${level}`);
+            return this.switchLevel(level);
+        };
+        
+        window.getCurrentLevel = () => {
+            return this.vocabulary.currentLevel;
+        };
+        
+        window.getLevelStats = () => {
+            return this.getLevelStats();
+        };
+        
         logMigrationPoint('All global event listeners and functions bound');
     }
 
@@ -634,7 +822,6 @@ class JLPTApp {
     updateCard() {
         migrationCheckpoint('updateCard-start');
         
-        // PARTICLE QUIZ CHECK - Handle particle quiz separately
         if (this.currentMode === 'quiz' && 
             (this.currentQuizMode === 'particle-quiz' || this.quizModeForSession === 'particle-quiz')) {
             this.updateParticleQuiz();
@@ -874,7 +1061,6 @@ class JLPTApp {
     generateQuizOptions(correctCard, container) {
         if (!correctCard || !container) return;
         
-        // PARTICLE QUIZ HANDLING - Check FIRST
         if (this.currentQuizMode === 'particle-quiz' || this.quizModeForSession === 'particle-quiz') {
             this.generateParticleOptions(container);
             return;
@@ -1166,7 +1352,6 @@ class JLPTApp {
         existingTimers.forEach(timer => timer.remove());
     }
 
-    // Navigation
     flipCard() {
         logMigrationPoint(`flipCard called in ${this.currentMode} mode`);
         
@@ -1239,7 +1424,6 @@ class JLPTApp {
         this.updateCard();
     }
 
-    // Filter Management
     handleFilterChange(e) {
         const checkbox = e.target;
         const filterId = checkbox.id;
@@ -1299,7 +1483,6 @@ class JLPTApp {
         this.updateStats();
     }
 
-    // UI Updates
     updateCardCounter() {
         const cardCounter = document.getElementById('cardCounter');
         const progressBar = document.getElementById('progressBar');
@@ -1383,7 +1566,6 @@ class JLPTApp {
         }
     }
 
-    // Utility Methods
     shuffleCards() {
         logMigrationPoint('shuffleCards called');
         
@@ -1395,21 +1577,28 @@ class JLPTApp {
     }
 
     resetProgress() {
-        if (!confirm('Reset all learning progress? This will clear your spaced repetition data.')) return;
+        const currentLevel = this.vocabulary.currentLevel;
+        const confirmMsg = `Reset all progress for ${currentLevel}? This will clear your spaced repetition data for this level only.`;
         
-        logMigrationPoint('resetProgress confirmed and executed');
+        if (!confirm(confirmMsg)) return;
+        
+        logMigrationPoint(`resetProgress confirmed for ${currentLevel}`);
         
         if (this.spacedRepetition?.resetAllProgress) {
             this.spacedRepetition.resetAllProgress();
         }
+        
+        this.storage.clearLevelData(currentLevel);
         
         this.currentCardIndex = 0;
         this.cardsStudied.clear();
         this.flipCount = 0;
         this.categoryStats = this.storage.getDefaultCategoryStats();
         this.resetQuizModeForNewBatch();
-        this.applyFilters();
-        this.showNotification('🔄 Progress reset successfully!', 'success');
+        
+        this.reinitializeForNewLevel(currentLevel);
+        
+        this.showNotification(`🔄 ${currentLevel} progress reset successfully!`, 'success');
     }
 
     toggleStats() {
@@ -1448,7 +1637,6 @@ class JLPTApp {
         }
     }
 
-    // Event Handlers
     handleKeyboard(event) {
         if (!this.keyboardListenerActive) return;
         
@@ -1516,7 +1704,6 @@ class JLPTApp {
         }
     }
 
-    // Modal Management
     showFeedbackForm() {
         document.getElementById('feedbackModal').style.display = 'block';
         this.keyboardListenerActive = false;
@@ -1577,7 +1764,6 @@ class JLPTApp {
     }
 }
 
-// Initialize application
 document.addEventListener('DOMContentLoaded', async () => {
     logMigrationPoint('DOM loaded, initializing app');
     window.jlptApp = new JLPTApp();
