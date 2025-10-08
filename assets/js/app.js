@@ -1,9 +1,10 @@
-// assets/js/app.js - Phase 1: Migration Safety Implementation
+// assets/js/app.js - Phase 1: Migration Safety Implementation with Particle Quiz
 
 import { VocabularyManager } from './core/vocabulary.js';
 import { StorageManager } from './core/storage.js';
 import { SpacedRepetitionManager } from './core/spacedRepetition.js';
 import { AudioSystem } from './features/audioSystem.js';
+import { ParticleQuiz } from './features/particleQuiz.js';
 
 // ===== PHASE 1: MIGRATION SAFETY SYSTEM =====
 window.APP_DEBUG = true;
@@ -84,7 +85,6 @@ class LegacyBridge {
         logMigrationPoint('Legacy bridge initialized');
     }
     
-    // Event system for future modular communication
     on(event, callback) {
         if (!this.events[event]) this.events[event] = [];
         this.events[event].push(callback);
@@ -97,7 +97,6 @@ class LegacyBridge {
         }
     }
     
-    // State comparison for validation
     captureState() {
         return {
             currentMode: window.jlptApp?.currentMode,
@@ -112,7 +111,6 @@ class LegacyBridge {
     validateState(beforeState, afterState, operation) {
         const differences = [];
         
-        // Check expected changes for each operation
         switch (operation) {
             case 'flipCard':
                 if (beforeState.isFlipped === afterState.isFlipped && window.jlptApp.currentMode === 'study') {
@@ -149,6 +147,7 @@ class JLPTApp {
         this.storage = new StorageManager();
         this.spacedRepetition = new SpacedRepetitionManager(this.storage, this.vocabulary);
         this.audio = new AudioSystem();
+        this.particleQuiz = new ParticleQuiz();
 
         // App state
         this.currentMode = 'study';
@@ -157,9 +156,8 @@ class JLPTApp {
         this.isFlipped = false;
         this.kanaMode = false;
         this.currentQuizOptions = null;
-        
-        // FIXED: Add question direction tracking
-        this.currentQuestionDirection = null; // 'jp-to-en' or 'en-to-jp'
+        this.currentQuestionDirection = null;
+        this.currentParticleQuestion = null;
         
         // Deck and navigation
         this.currentDeck = [];
@@ -196,7 +194,6 @@ class JLPTApp {
         try {
             await this.initializeSpacedRepetition();
 
-                        // Load initial deck with spaced repetition
             this.currentDeck = this.spacedRepetition.getNextCards(50, Array.from(this.activeFilters));
             if (this.currentDeck.length === 0) {
                 console.warn('No spaced repetition cards available, falling back to shuffled deck');
@@ -229,7 +226,6 @@ class JLPTApp {
             logMigrationPoint(`Initialization failed: ${error.message}`);
             this.showNotification('Initialization error - some features may not work', 'error');
             
-            // Fallback to basic functionality
             this.currentDeck = this.vocabulary.shuffleArray(this.vocabulary.getAllWords().slice(0, 50));
             this.updateCard();
         }
@@ -263,23 +259,19 @@ class JLPTApp {
             button.addEventListener('click', () => {
                 const tabId = button.getAttribute('data-tab');
                 
-                // Update UI
                 document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
                 document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
                 
                 button.classList.add('active');
                 document.getElementById(tabId + 'Tab')?.classList.add('active');
                 
-                // Update state
                 this.currentMode = tabId;
                 this.resetEngagementTracking();
                 
-                // Reset quiz mode lock when switching tabs
                 if (tabId === 'quiz') {
                     this.resetQuizModeForNewBatch();
                 }
                 
-                // Update flip button
                 const flipBtn = document.getElementById('flipBtn');
                 if (flipBtn) {
                     flipBtn.textContent = tabId === 'study' ? 'Flip Card' : 'Next Quiz';
@@ -298,7 +290,6 @@ class JLPTApp {
             button.addEventListener('click', () => {
                 const mode = button.getAttribute('data-mode');
                 
-                // Check if we're in the middle of a batch
                 if (this.quizModeForSession && this.currentBatchIndex % this.batchSize !== 0) {
                     this.showNotification(
                         `Quiz mode locked for current batch (${this.batchSize - (this.currentBatchIndex % this.batchSize)} cards remaining)`,
@@ -364,7 +355,6 @@ class JLPTApp {
         });
     }
 
-    // FIXED: Kana Toggle with proper positioning
     initializeKanaToggle() {
         console.log('🔧 Initializing kana toggle...');
         
@@ -431,7 +421,6 @@ class JLPTApp {
         }
     }
 
-    // FIXED: Updated display function for new positioning
     updateKanaToggleDisplay() {
         const toggle = document.getElementById('kanaToggleInput');
         const label = document.getElementById('kanaToggleLabel');
@@ -450,10 +439,10 @@ class JLPTApp {
                 container.classList.remove('hidden');
                 container.classList.add('visible');
                 if (this.currentQuizMode === 'listening-first') {
-                        container.classList.add('listening-mode-toggle');
-                    } else {
-                        container.classList.remove('listening-mode-toggle');
-                    }
+                    container.classList.add('listening-mode-toggle');
+                } else {
+                    container.classList.remove('listening-mode-toggle');
+                }
                 logMigrationPoint('Kana toggle now visible in quiz mode');
             } else {
                 container.classList.add('hidden');
@@ -463,7 +452,6 @@ class JLPTApp {
         }
     }
 
-    // FIXED: Update quiz options based on current direction
     updateQuizAnswerOptions() {
         if (this.currentMode !== 'quiz' || this.quizAnswered) return;
         
@@ -472,16 +460,16 @@ class JLPTApp {
         const quizOptions = document.getElementById('quizOptions');
         if (!quizOptions) return;
         
-     if (this.currentQuizOptions && this.currentQuizOptions.length > 0) {
+        if (this.currentQuizOptions && this.currentQuizOptions.length > 0) {
             logMigrationPoint(`Updating display for existing options with kana mode: ${this.kanaMode}`);
             this.updateExistingOptionsDisplay(quizOptions);
         } else {
-            // First time or options cleared - generate new ones
             logMigrationPoint(`Generating new options for ${this.currentQuestionDirection} with kana mode: ${this.kanaMode}`);
             quizOptions.innerHTML = '';
             this.generateQuizOptions(currentCard, quizOptions);
         }
     }
+
     updateExistingOptionsDisplay(container) {
         if (!this.currentQuizOptions || !container) return;
         
@@ -492,18 +480,14 @@ class JLPTApp {
             
             const option = this.currentQuizOptions[index];
             
-            // Clear existing content
             button.innerHTML = '';
             
-            // Rebuild display based on question direction and kana mode
             if (this.currentQuestionDirection === 'en-to-jp') {
-                // English to Japanese: Show Japanese characters as answers
                 const japaneseDiv = document.createElement('div');
                 japaneseDiv.style.cssText = `font-size: 20px; margin-bottom: ${this.kanaMode ? '8px' : '0'}; font-family: 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif; font-weight: 600;`;
                 japaneseDiv.textContent = option.japanese;
                 button.appendChild(japaneseDiv);
                 
-                // Show/hide reading based on kana toggle
                 if (this.kanaMode) {
                     const readingDiv = document.createElement('div');
                     readingDiv.className = 'quiz-option-reading';
@@ -512,13 +496,11 @@ class JLPTApp {
                     button.appendChild(readingDiv);
                 }
             } else {
-                // Japanese to English: Show English meanings as answers
                 const meaningDiv = document.createElement('div');
                 meaningDiv.style.cssText = `font-size: 16px; margin-bottom: ${this.kanaMode && this.currentQuizMode !== 'kanji-only' ? '5px' : '0'}; font-weight: 500;`;
                 meaningDiv.textContent = option.meaning;
                 button.appendChild(meaningDiv);
                 
-                // Show/hide reading based on kana toggle (except kanji-only mode)
                 if (this.kanaMode && this.currentQuizMode !== 'kanji-only') {
                     const readingDiv = document.createElement('div');
                     readingDiv.className = 'quiz-option-reading';
@@ -531,11 +513,10 @@ class JLPTApp {
         
         logMigrationPoint(`Updated ${buttons.length} existing options - kana display: ${this.kanaMode ? 'ON' : 'OFF'}`);
     }
-    // ENHANCED: Global function bindings with bridge tracking
+
     setupEventListeners() {
         document.addEventListener('keydown', (e) => this.handleKeyboard(e));
         
-        // Modal click handlers
         document.addEventListener('click', (event) => {
             const feedbackModal = document.getElementById('feedbackModal');
             const learningModal = document.getElementById('learningModal');
@@ -548,7 +529,6 @@ class JLPTApp {
             }
         });
         
-        // ENHANCED: Global function bindings with bridge tracking
         window.showFeedbackForm = () => {
             logMigrationPoint('showFeedbackForm called');
             return this.showFeedbackForm();
@@ -654,6 +634,15 @@ class JLPTApp {
     updateCard() {
         migrationCheckpoint('updateCard-start');
         
+        // PARTICLE QUIZ CHECK - Handle particle quiz separately
+        if (this.currentMode === 'quiz' && 
+            (this.currentQuizMode === 'particle-quiz' || this.quizModeForSession === 'particle-quiz')) {
+            this.updateParticleQuiz();
+            this.updateCardCounter();
+            migrationCheckpoint('updateCard-particle-complete');
+            return;
+        }
+        
         const card = this.safeGetCard(this.currentCardIndex);
         if (!card) {
             logMigrationPoint('updateCard: No card available, exiting');
@@ -699,7 +688,6 @@ class JLPTApp {
         this.updateLearningStateIndicator(card);
     }
 
-    // ENHANCED: Quiz update with mode locking
     updateQuiz(card) {
         if (!card) return;
 
@@ -707,7 +695,6 @@ class JLPTApp {
 
         this.currentQuizOptions = null;
 
-        // Lock quiz mode for the session if not already set
         if (!this.quizModeForSession) {
             this.quizModeForSession = this.currentQuizMode;
             logMigrationPoint(`Quiz mode locked to: ${this.quizModeForSession}`);
@@ -717,7 +704,6 @@ class JLPTApp {
         
         const quizQuestion = document.getElementById('quizQuestion');
         const quizOptions = document.getElementById('quizOptions');
-        if (!quizOptions) return;
         const quizFeedback = document.getElementById('quizFeedback');
         const quizAudioSection = document.getElementById('quizAudioSection');
         
@@ -728,12 +714,10 @@ class JLPTApp {
         
         migrationCheckpoint('updateQuiz-dom-ready');
         
-        // Complete state reset
         quizFeedback.textContent = '';
         quizFeedback.className = 'quiz-feedback';
         this.quizAnswered = false;
         
-        // Clear existing options
         const existingOptions = quizOptions.querySelectorAll('.quiz-option');
         existingOptions.forEach(option => {
             option.classList.remove('correct', 'incorrect', 'disabled');
@@ -743,7 +727,6 @@ class JLPTApp {
         
         this.clearAllTimers();
         
-        // Use locked mode instead of current mode
         const modeToUse = this.quizModeForSession || this.currentQuizMode;
         this.renderQuizMode(card, quizQuestion, quizAudioSection, modeToUse);
         this.currentQuizOptions = null;
@@ -755,7 +738,34 @@ class JLPTApp {
         logMigrationPoint(`Quiz updated with locked mode: ${modeToUse}, direction: ${this.currentQuestionDirection}`);
     }
 
-    // FIXED: Track question direction for Mixed Challenge
+    updateParticleQuiz() {
+        const quizQuestion = document.getElementById('quizQuestion');
+        const quizOptions = document.getElementById('quizOptions');
+        const quizFeedback = document.getElementById('quizFeedback');
+        const quizAudioSection = document.getElementById('quizAudioSection');
+        
+        if (!quizQuestion || !quizOptions || !quizFeedback) {
+            logMigrationPoint('updateParticleQuiz: Critical DOM elements missing');
+            return;
+        }
+        
+        quizFeedback.textContent = '';
+        quizFeedback.className = 'quiz-feedback';
+        this.quizAnswered = false;
+        this.currentParticleQuestion = null;
+        
+        const existingOptions = quizOptions.querySelectorAll('.particle-option');
+        existingOptions.forEach(option => {
+            option.classList.remove('correct', 'incorrect', 'disabled');
+            option.style.pointerEvents = 'auto';
+        });
+        
+        this.renderParticleQuiz(quizQuestion, quizAudioSection);
+        this.generateParticleOptions(quizOptions);
+        
+        logMigrationPoint('Particle quiz updated');
+    }
+
     renderQuizMode(card, quizQuestion, quizAudioSection, mode = null) {
         const questionText = card.japanese;
         const activeMode = mode || this.quizModeForSession || this.currentQuizMode;
@@ -792,14 +802,12 @@ class JLPTApp {
             case 'mixed-challenge':
                 const rand = Math.random();
                 if (rand < 0.5) {
-                    // Japanese to English
                     quizQuestion.innerHTML = `
                         <div style="font-size: 36px; margin-bottom: 15px;">${questionText}</div>
                         <div style="font-size: 16px; color: #666; font-weight: normal;">What does this mean?</div>
                     `;
                     this.currentQuestionDirection = 'jp-to-en';
                 } else {
-                    // English to Japanese
                     quizQuestion.innerHTML = `
                         <div style="font-size: 24px; color: #2e7d32; margin-bottom: 15px;">"${card.meaning}"</div>
                         <div style="font-size: 16px; color: #666; font-weight: normal;">What is this in Japanese?</div>
@@ -808,9 +816,12 @@ class JLPTApp {
                 }
                 if (quizAudioSection) quizAudioSection.style.display = 'none';
                 break;
+
+            case 'particle-quiz':
+                this.renderParticleQuiz(quizQuestion, quizAudioSection);
+                return;
                 
             default:
-                // Standard multiple choice - Japanese to English
                 quizQuestion.className = 'japanese-word quiz-question';
                 quizQuestion.innerHTML = `
                     <div style="font-size: 40px; margin-bottom: 10px; font-weight: bold;">${questionText}</div>
@@ -821,9 +832,53 @@ class JLPTApp {
         }
     }
 
-    // FIXED: Generate options based on question direction
+    renderParticleQuiz(quizQuestion, quizAudioSection) {
+        const question = this.particleQuiz.generateQuestion();
+        
+        if (!question) {
+            quizQuestion.textContent = 'Error generating particle question';
+            return;
+        }
+        
+        if (quizAudioSection) quizAudioSection.style.display = 'none';
+        
+        this.currentParticleQuestion = question;
+        
+        const container = document.getElementById('quizContainer');
+        container.className = 'quiz-container active particle-quiz-container';
+        
+        quizQuestion.className = 'particle-question-section';
+        quizQuestion.innerHTML = `
+            <div class="difficulty-badge difficulty-${this.particleQuiz.difficulty}">
+                ${this.particleQuiz.difficulty}
+            </div>
+            <div class="sentence-with-blank">
+                ${this.formatParticleSentence(question.example.japanese, question.particle)}
+            </div>
+            <div class="sentence-translation">${question.example.english}</div>
+        `;
+        
+        logMigrationPoint(`Particle quiz rendered: ${question.particle}`);
+    }
+
+    formatParticleSentence(sentence, correctParticle) {
+        const parts = sentence.split(correctParticle);
+        
+        if (parts.length === 2) {
+            return `${parts[0]}<span class="particle-blank" id="particleBlank">?</span>${parts[1]}`;
+        }
+        
+        return `<span class="particle-blank" id="particleBlank">?</span> ${sentence}`;
+    }
+
     generateQuizOptions(correctCard, container) {
         if (!correctCard || !container) return;
+        
+        // PARTICLE QUIZ HANDLING - Check FIRST
+        if (this.currentQuizMode === 'particle-quiz' || this.quizModeForSession === 'particle-quiz') {
+            this.generateParticleOptions(container);
+            return;
+        }
         
         logMigrationPoint(`Generating options for: ${correctCard.japanese}, direction: ${this.currentQuestionDirection}, kana mode: ${this.kanaMode}`);
         
@@ -836,15 +891,12 @@ class JLPTApp {
             button.className = 'quiz-option';
             button.setAttribute('data-option-index', index);
             
-            // FIXED: Show correct content based on question direction
             if (this.currentQuestionDirection === 'en-to-jp') {
-                // English to Japanese: Show Japanese characters as answers
                 const japaneseDiv = document.createElement('div');
                 japaneseDiv.style.cssText = `font-size: 20px; margin-bottom: ${this.kanaMode ? '8px' : '0'}; font-family: 'Hiragino Sans', 'Yu Gothic', 'Meiryo', sans-serif; font-weight: 600;`;
                 japaneseDiv.textContent = option.japanese;
                 button.appendChild(japaneseDiv);
                 
-                // Show reading when kana toggle is ON
                 if (this.kanaMode) {
                     const readingDiv = document.createElement('div');
                     readingDiv.className = 'quiz-option-reading';
@@ -853,13 +905,11 @@ class JLPTApp {
                     button.appendChild(readingDiv);
                 }
             } else {
-                // Japanese to English: Show English meanings as answers
                 const meaningDiv = document.createElement('div');
                 meaningDiv.style.cssText = `font-size: 16px; margin-bottom: ${this.kanaMode && this.currentQuizMode !== 'kanji-only' ? '5px' : '0'}; font-weight: 500;`;
                 meaningDiv.textContent = option.meaning;
                 button.appendChild(meaningDiv);
                 
-                // Show reading when kana toggle is ON (except for kanji-only mode)
                 if (this.kanaMode && this.currentQuizMode !== 'kanji-only') {
                     const readingDiv = document.createElement('div');
                     readingDiv.className = 'quiz-option-reading';
@@ -873,10 +923,26 @@ class JLPTApp {
             container.appendChild(button);
         });
         
-           logMigrationPoint(`Generated and cached ${this.currentQuizOptions.length} options`);
+        logMigrationPoint(`Generated and cached ${this.currentQuizOptions.length} options`);
     }
 
-    // Enhanced randomized option generation
+    generateParticleOptions(container) {
+        if (!this.currentParticleQuestion) return;
+        
+        container.innerHTML = '';
+        container.className = 'particle-options';
+        
+        this.currentParticleQuestion.options.forEach((particle, index) => {
+            const button = document.createElement('button');
+            button.className = 'particle-option';
+            button.textContent = particle;
+            button.onclick = () => this.selectParticleAnswer(particle, button);
+            container.appendChild(button);
+        });
+        
+        logMigrationPoint(`Generated ${this.currentParticleQuestion.options.length} particle options`);
+    }
+
     generateRandomizedOptions(correctCard, count = 4) {
         const allOptions = [correctCard];
         const otherCards = this.vocabulary.getAllWords().filter(card => 
@@ -885,19 +951,16 @@ class JLPTApp {
         
         if (otherCards.length === 0) return [correctCard];
         
-        // Smart distractor selection
         const sameTypeCards = otherCards.filter(card => card.type === correctCard.type);
         const diffTypeCards = otherCards.filter(card => card.type !== correctCard.type);
         
         let distractors = [];
         
-        // Add similar type cards (60% chance)
         if (sameTypeCards.length > 0 && Math.random() < 0.6) {
             const shuffledSameType = this.vocabulary.shuffleArray(sameTypeCards);
             distractors.push(...shuffledSameType.slice(0, Math.min(2, shuffledSameType.length)));
         }
         
-        // Add cards with similar length (30% chance)
         if (distractors.length < count - 1 && Math.random() < 0.3) {
             const similarLength = otherCards.filter(card => 
                 Math.abs(card.japanese.length - correctCard.japanese.length) <= 1 &&
@@ -909,7 +972,6 @@ class JLPTApp {
             }
         }
         
-        // Fill remaining with random cards
         while (distractors.length < count - 1 && distractors.length < otherCards.length) {
             const available = otherCards.filter(card => 
                 !distractors.some(d => d.japanese === card.japanese)
@@ -957,7 +1019,6 @@ class JLPTApp {
         }, 8000);
     }
 
-    // Answer selection with batch tracking
     selectQuizAnswer(button, selectedOption, correctCard, isTimeout = false) {
         if (this.quizAnswered) return;
         
@@ -983,16 +1044,13 @@ class JLPTApp {
         } else {
             if (button && !isTimeout) button.classList.add('incorrect');
             
-            // FIXED: Highlight correct answer based on question direction
             allOptions.forEach(opt => {
                 const text = opt.textContent || opt.innerText;
                 if (this.currentQuestionDirection === 'en-to-jp') {
-                    // For EN→JP, correct answer is the Japanese text
                     if (text.includes(correctCard.japanese)) {
                         opt.classList.add('correct');
                     }
                 } else {
-                    // For JP→EN, correct answer is the English meaning
                     if (text.includes(correctCard.meaning)) {
                         opt.classList.add('correct');
                     }
@@ -1005,7 +1063,6 @@ class JLPTApp {
             feedback.className = 'quiz-feedback incorrect';
         }
         
-        // Check if batch is complete
         if (this.currentBatchIndex % this.batchSize === 0) {
             logMigrationPoint(`Batch complete! Quiz mode unlocked after ${this.batchSize} cards`);
             this.showNotification('Batch complete! Quiz mode unlocked', 'success');
@@ -1019,6 +1076,60 @@ class JLPTApp {
         if (this.spacedRepetition?.updateWordProgress) {
             this.spacedRepetition.updateWordProgress(correctCard.japanese, isCorrect);
         }
+        
+        this.updateStats();
+        this.startAutoAdvanceTimer();
+    }
+
+    selectParticleAnswer(selectedParticle, button) {
+        if (this.quizAnswered) return;
+        
+        logMigrationPoint(`Particle answer selected: ${selectedParticle}`);
+        
+        this.clearAllTimers();
+        this.quizAnswered = true;
+        this.currentBatchIndex++;
+        
+        const result = this.particleQuiz.validateAnswer(selectedParticle);
+        
+        const allOptions = document.querySelectorAll('.particle-option');
+        const feedback = document.getElementById('quizFeedback');
+        const blank = document.getElementById('particleBlank');
+        
+        if (blank) {
+            blank.textContent = result.correctParticle;
+            blank.classList.add('filled');
+        }
+        
+        allOptions.forEach(opt => {
+            opt.classList.add('disabled');
+            if (opt.textContent === result.correctParticle) {
+                opt.classList.add('correct');
+            } else if (opt === button && !result.isCorrect) {
+                opt.classList.add('incorrect');
+            }
+        });
+        
+        const questionSection = document.querySelector('.particle-question-section');
+        if (questionSection) {
+            questionSection.classList.add(result.isCorrect ? 'answered-correct' : 'answered-incorrect');
+        }
+        
+        feedback.innerHTML = `
+            <div class="particle-feedback ${result.isCorrect ? 'correct' : 'incorrect'} show">
+                ${result.isCorrect ? '✅ Correct!' : '❌ Wrong'}
+                <div class="particle-info">
+                    <div class="particle-reading">${result.particleInfo.reading}</div>
+                    <div class="particle-function">${result.particleInfo.function}</div>
+                    <div class="particle-description">${result.particleInfo.description}</div>
+                    <div style="margin-top: 10px; font-size: 14px; color: #555;">
+                        ${result.explanation}
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        this.particleQuiz.adjustDifficulty();
         
         this.updateStats();
         this.startAutoAdvanceTimer();
@@ -1371,7 +1482,7 @@ class JLPTApp {
                 if (this.currentMode === 'quiz' && !this.quizAnswered) {
                     event.preventDefault();
                     const optionIndex = parseInt(event.key) - 1;
-                    const options = document.querySelectorAll('.quiz-option:not(.disabled)');
+                    const options = document.querySelectorAll('.quiz-option:not(.disabled), .particle-option:not(.disabled)');
                     logMigrationPoint(`Keyboard shortcut: ${event.key} for quiz option ${optionIndex + 1}`);
                     options[optionIndex]?.click();
                 }
