@@ -220,7 +220,7 @@ class JLPTApp {
             
             logMigrationPoint('Full initialization completed successfully');
             console.log(`✅ System Ready! ${this.vocabulary.getAllWords().length} words loaded`);
-            console.log(`📊 Spaced repetition active: ${this.spacedRepetition.isInitialized()}`);
+            console.log(`📊 Spaced repetition active: ${this.spacedRepetition.isInitialized}`);
             
         } catch (error) {
             console.error('❌ Initialization failed:', error);
