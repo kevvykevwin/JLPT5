@@ -64,15 +64,13 @@ export class SpacedRepetitionManager {
         this.wordProgress = {};
         this.isInitialized = false;
     }
+
+    // FIXED: Single consolidated initialize method
     async initialize() {
-        return new Promise((resolve) => {
-            this.wordProgress = this.storage.initializeWordProgress(this.vocabulary.getAllWords());
-            this.isInitialized = true;
-            resolve();
-        });
-    }
-    initialize() {
         this.wordProgress = this.storage.initializeWordProgress(this.vocabulary.getAllWords());
+        this.isInitialized = true;
+        console.log('✅ Spaced repetition initialized with', Object.keys(this.wordProgress).length, 'words');
+        return true;
     }
 
     updateWordProgress(japanese, isCorrect) {
