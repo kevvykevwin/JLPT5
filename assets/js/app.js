@@ -40,6 +40,9 @@ class JLPTApp {
         this.navigationController = new NavigationController(this.appState, this.stateManager, this.ui, this.audio);
         this.keyboardController = new KeyboardController(this.appState, this.navigationController);
         
+        // 🆕 Initialize audio click tracking
+        this._lastAudioClick = 0;
+        
         // Initialize
         this.initialize();
     }
@@ -80,8 +83,13 @@ class JLPTApp {
         window.shuffleCards = () => this.navigationController.shuffleCards();
         window.resetProgress = () => this.navigationController.resetProgress();
         
-        // Audio
-        window.playAudio = (e) => this.playAudio(e);
+        // 🆕 Audio - Event delegation (no global window.playAudio)
+        document.addEventListener('click', (e) => {
+            const audioBtn = e.target.closest('.audio-button, .quiz-audio-button');
+            if (audioBtn) {
+                this.playAudio(e);
+            }
+        });
         
         // UI controls
         window.toggleStats = () => this.ui.toggleStats();
@@ -107,13 +115,28 @@ class JLPTApp {
     // ========================================
     
     async playAudio(event) {
+        // 🆕 PREVENT DEFAULT AND STOP PROPAGATION
+        event.preventDefault();
         event.stopPropagation();
+        event.stopImmediatePropagation();
+        
+        // 🆕 DEDUPLICATE RAPID CLICKS (500ms window)
+        const now = Date.now();
+        if (this._lastAudioClick && (now - this._lastAudioClick) < 500) {
+            console.log('🔊 Ignoring duplicate click (too fast)');
+            return;
+        }
+        this._lastAudioClick = now;
+        
+        // Get current card
         const card = this.stateManager.getCurrentCard();
         if (!card) return;
         
         const buttonElement = event.target.closest('.audio-button, .quiz-audio-button');
+        
         try {
             await this.audio.playAudio(card.japanese, { buttonElement });
+            console.log('🔊 Audio playback initiated for:', card.japanese);
         } catch (error) {
             console.error('Audio playback failed:', error);
             this.ui.showNotification('🔊 Audio temporarily unavailable', 'error');

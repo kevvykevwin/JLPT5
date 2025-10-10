@@ -13,9 +13,9 @@ export class AudioSystem {
 
     // Main audio playback function
     async playAudio(text, options = {}) {
-        // 🆕 ADD THIS GUARD
+        // 🆕 PREVENT DUPLICATE PLAYBACK
         if (this.isPlaying) {
-            console.log('Audio already playing, ignoring duplicate call');
+            console.log('🔊 Audio already playing, ignoring duplicate call');
             return;
         }
 
@@ -31,7 +31,7 @@ export class AudioSystem {
 
         const cacheKey = `${text}-${voice}-${speed}`;
         
-        this.isPlaying = true; // 🆕 SET FLAG
+        this.isPlaying = true; // 🆕 LOCK
         
         // Update button state if provided
         if (buttonElement) {
@@ -67,47 +67,61 @@ export class AudioSystem {
             if (buttonElement) {
                 this.updateButtonState(buttonElement, 'normal');
             }
-            this.isPlaying = false; // 🆕 RESET FLAG
+            this.isPlaying = false; // 🆕 UNLOCK
         }
     }
 
+    // UPDATED: playAudioData with instance tracking
     async playAudioData(audioData) {
         try {
+            // 🆕 ENSURE ONLY ONE INSTANCE
+            this.stopCurrentAudio();
+            
             // Convert base64 to audio blob
             const audioBlob = new Blob([
                 Uint8Array.from(atob(audioData), c => c.charCodeAt(0))
             ], { type: 'audio/mpeg' });
             
             const audioUrl = URL.createObjectURL(audioBlob);
-            this.currentAudio = new Audio(audioUrl);
+            const audio = new Audio(audioUrl);
+            
+            // 🆕 STORE BEFORE PLAYING
+            this.currentAudio = audio;
             
             // Set up cleanup when audio ends
-            this.currentAudio.onended = () => {
+            audio.onended = () => {
                 URL.revokeObjectURL(audioUrl);
-                this.currentAudio = null;
-                this.isPlaying = false; // 🆕 RESET ON END
+                if (this.currentAudio === audio) {
+                    this.currentAudio = null;
+                }
+                this.isPlaying = false; // 🆕 UNLOCK ON END
             };
             
-            this.currentAudio.onerror = () => {
+            audio.onerror = () => {
                 URL.revokeObjectURL(audioUrl);
-                this.currentAudio = null;
-                this.isPlaying = false; // 🆕 RESET ON ERROR
+                if (this.currentAudio === audio) {
+                    this.currentAudio = null;
+                }
+                this.isPlaying = false; // 🆕 UNLOCK ON ERROR
                 throw new Error('Audio playback failed');
             };
             
-            await this.currentAudio.play();
+            // 🆕 SINGLE PLAY CALL
+            await audio.play();
+            console.log('🔊 Audio started playing');
             
         } catch (error) {
-            this.isPlaying = false; // 🆕 RESET ON EXCEPTION
+            this.isPlaying = false; // 🆕 UNLOCK ON EXCEPTION
             throw new Error(`Audio playback error: ${error.message}`);
         }
     }
 
+    // UPDATED: stopCurrentAudio with unlock
     stopCurrentAudio() {
         if (this.currentAudio) {
             this.currentAudio.pause();
             this.currentAudio = null;
         }
-        this.isPlaying = false; // 🆕 RESET FLAG
+        this.isPlaying = false; // 🆕 UNLOCK
     }
 }
